@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+/.idea/
+/cmake-build-debug/
+/Testing/
+*.ninja
+*.stp
+
+
+/cmake_install.cmake
