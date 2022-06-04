@@ -1,5 +1,10 @@
 //
-// Created by cz on 22.05.22.
+// This file is part of OCXReader library
+// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation.
 //
 
 #ifndef OCXCAFCONTROL_READER_H
@@ -19,7 +24,7 @@
 #include <map>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
-
+#include "OCXContext.h"
 
 class XSControl_WorkSession;
 class TDocStd_Document;
@@ -53,24 +58,22 @@ public:
     Standard_EXPORT  Standard_Boolean Perform (const Standard_CString filename,
                                                      Handle(TDocStd_Document) &doc,
                                                const Message_ProgressRange& theProgress = Message_ProgressRange());
+    OCXContext *  Ctx();
+
 private:
 
-    LDOM_Element ocxDocEL;
+    OCXContext * ctx;
+    LDOM_Element ocxDocEL    ;
     std::string nsPrefix;
 
-    std::map<std::string, double> unit2factor;
 
-
-    void PrepareUnits();
+    void ParseCoordinateSystem(LDOM_Element& coosysN);
     TopoDS_Shape ParsePanels(LDOM_Element& vesselN, TDF_Label vesselL);
     TopoDS_Shape ParsePanel(LDOM_Element& pannelN, TDF_Label vesselL);
     TopoDS_Shape  ParseUnboundGeometry(LDOM_Element& unboundedGeometryN);
 
     TopoDS_Wire ParseCurve( LDOM_Element& curveN);
     TopoDS_Edge ParseNURBSCurve(LDOM_Element& element);
-
-    double LoopupFactor( std::string unit);
-
 
 
 };

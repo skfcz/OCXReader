@@ -1,6 +1,12 @@
 //
-// Created by cz on 26.05.22.
+// This file is part of OCXReader library
+// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
 //
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation.
+//
+
 #include "OCXHelper.h"
 #include <stdio.h>
 #include <string.h>
@@ -21,7 +27,7 @@ std::string OCXHelper::GetLocalTagName(  LDOM_Element &elem) {
 
 LDOM_Element OCXHelper::GetFirstChild(LDOM_Element &parent, std::string localName) {
 
-    std::cout << "localName '" <<localName << "'" << std::endl;
+    //std::cout << "localName '" <<localName << "'" << std::endl;
 
     // Verify preconditions
     LDOM_Element aVoidElement;

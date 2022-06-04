@@ -1,10 +1,17 @@
 //
-// Created by cz on 22.05.22.
+// This file is part of OCXReader library
+// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
 //
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation.
+//
+
 
 #include <STEPCAFControl_Reader.hxx>
 #include "OCXCAFControl_Reader.h"
 #include "OCXHelper.h"
+#include "OCXCoordinateSystemReader.h"
 
 #include <LDOM_DocumentType.hxx>
 #include <LDOM_LDOMImplementation.hxx>
@@ -57,6 +64,7 @@ OCXCAFControl_Reader::ReadFile(const Standard_CString filename) {
 
     ocxDocEL = aParser.getDocument().getDocumentElement();
 
+
     // check we got the right root element
     std::cout << "root element " << ocxDocEL.getTagName().GetString() << std::endl;
 
@@ -85,7 +93,9 @@ OCXCAFControl_Reader::ReadFile(const Standard_CString filename) {
         return Standard_False;
     }
 
+
     // successfully parsed the file into DOM and made some preliminary checks
+    ctx = new OCXContext(ocxDocEL, nsPrefix);
 
     return Standard_True;
 
@@ -130,13 +140,19 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
         return Standard_False;
     }
 
-    PrepareUnits();
+    ctx->PrepareUnits();
 
     LDOM_Element vesselN = OCXHelper::GetFirstChild(ocxDocEL, "Vessel");
     if (vesselN.isNull()) {
         std::cerr << "could not find ocxXML/Vessel element" << std::endl;
         return Standard_False;
     }
+
+
+    OCXCoordinateSystemReader* cosysReader = new OCXCoordinateSystemReader(ctx);
+    cosysReader->ReadCoordinateSystem(vesselN);
+
+
 
     TDF_Label vesselL = doc->Main();
     TopoDS_Shape shape = ParsePanels(vesselN, vesselL);
@@ -154,41 +170,7 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
     return Standard_True;
 }
 
-double OCXCAFControl_Reader::LoopupFactor(std::string unit) {
-    auto res = unit2factor.find(unit);
-    if (res != unit2factor.end()) {
-        return res->second;
-    }
-    std::cout << "could not find factor for unit '" << unit << "', use 1.0" << std::endl;
-    return 1;
-}
 
-void OCXCAFControl_Reader::PrepareUnits() {
-
-    // we use everything based on m
-    UnitsAPI::SetLocalSystem(UnitsAPI_SI);
-
-    // set some default values
-    unit2factor["Um"] = 1;
-    unit2factor["Udm"] = 0.1;
-    unit2factor["Ucm"] = 0.01;
-    unit2factor["Umm"] = 0.001;
-
-    LDOM_Element unitsMLN = OCXHelper::GetFirstChild(ocxDocEL, "UnitsML");
-    if (unitsMLN.isNull()) {
-        std::cout << "could not find UnitsML element" << std::endl;
-        return;
-    }
-
-    LDOM_Node unitsSetN = OCXHelper::GetFirstChild(unitsMLN, "UnitSet");
-    if (unitsSetN.isNull()) {
-        std::cout << "could not find UnitsML/UnitSet element" << std::endl;
-        return;
-    }
-    // TODO: really use the definitions in UnitsSet/Unit
-
-
-}
 
 TopoDS_Shape OCXCAFControl_Reader::ParsePanels(LDOM_Element &vesselN, TDF_Label vesselL) {
 
@@ -425,17 +407,17 @@ TopoDS_Edge OCXCAFControl_Reader::ParseNURBSCurve(LDOM_Element &nurbs3DN) {
         double x;
         OCXHelper::GetDoubleAttribute(xN, "numericvalue", x);
         std::string xUnit = std::string(xN.getAttribute("unit").GetString());
-        x *= LoopupFactor(xUnit);
+        x *= ctx->LoopupFactor(xUnit);
 
         double y;
         OCXHelper::GetDoubleAttribute(yN, "numericvalue", y);
         std::string yUnit = std::string(yN.getAttribute("unit").GetString());
-        y *= LoopupFactor(xUnit);
+        y *= ctx->LoopupFactor(yUnit);
 
         double z;
         OCXHelper::GetDoubleAttribute(zN, "numericvalue", z);
         std::string zUnit = std::string(zN.getAttribute("unit").GetString());
-        z *= LoopupFactor(xUnit);
+        z *= ctx->LoopupFactor(zUnit);
 
         //        std::cout << controlPointN.getTagName().GetString() <<  " #" << i << " weight " << weight
         //            << ", [" << x << ", " << y << "," << z << "] " << xUnit  << std::endl;
@@ -451,6 +433,12 @@ TopoDS_Edge OCXCAFControl_Reader::ParseNURBSCurve(LDOM_Element &nurbs3DN) {
 
     TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(curve);
     return edge;
+
+
+}
+
+void OCXCAFControl_Reader::ParseCoordinateSystem(LDOM_Element &coosysN) {
+
 
 
 }

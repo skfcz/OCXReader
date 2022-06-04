@@ -9,8 +9,14 @@ find_package(OpenCASCADE)
 # Configure C++ compiler's includes dir
 include_directories ( includes SYSTEM ${OpenCASCADE_INCLUDE_DIR} )
 
-set( SOURCES src/main.cpp src/OCXCAFControl_Reader.cpp src/OCXCAFControl_Reader.h
-        src/OCXHelper.cpp src/OCXHelper.h   src/OCXPanel.cpp src/OCXPanel.h     )
+set( SOURCES src/main.cpp
+        src/OCXContext.h src/OCXContext.cpp
+        src/OCXCAFControl_Reader.cpp src/OCXCAFControl_Reader.h
+        src/OCXHelper.cpp src/OCXHelper.h
+        src/OCXCoordinateSystemReader.cpp src/OCXCoordinateSystemReader.h
+        src/OCXSurfaceReader.cpp  src/OCXSurfaceReader.h
+
+        )
 
 # Add executable
 add_executable (OCXReader ${SOURCES})
