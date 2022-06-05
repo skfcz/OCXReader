@@ -36,10 +36,10 @@ private:
 
 
     TopoDS_Wire  ReadEllipse3D(LDOM_Element & curveN);
-    TopoDS_Wire  ReadCircumCircle3D(LDOM_Element & curveN);
-    TopoDS_Wire  ReadCircle(LDOM_Element & curveN);
+    TopoDS_Wire  ReadCircumCircle3D(LDOM_Element & circleN);
+    TopoDS_Wire  ReadCircle(LDOM_Element & circleN);
     TopoDS_Edge  ReadCircumArc3D(LDOM_Element & curveN);
-    TopoDS_Edge  ReadLine3D(LDOM_Element & curveN);
+    TopoDS_Edge  ReadLine3D(LDOM_Element & lineN);
     TopoDS_Shape  ReadCompositeCurve3D(LDOM_Element & curveN);
     TopoDS_Shape  ReadPolyLine3D(LDOM_Element & curveN);
     TopoDS_Shape  ReadNURBS3D(LDOM_Element & curveN);

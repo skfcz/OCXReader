@@ -27,50 +27,72 @@
 #include "OCXContext.h"
 
 class XSControl_WorkSession;
+
 class TDocStd_Document;
+
 class TCollection_AsciiString;
+
 class TDF_Label;
 
 
-
-
-//! Provides a tool to read OCX file and put it into
-//! OCAF document. Besides transfer of shapes (including
-//! assemblies) supports also part names and properties.
-//!
+/**
+ * Provides a tool to read OCX file and put it into
+ * OCAF document. Besides transfer of shapes (including
+ * assemblies) supports also part names and properties.
+ */
 class OCXCAFControl_Reader {
 public:
-    //! Creates a reader with an empty model
+    /**
+     * Creates a reader with an empty model
+     */
     Standard_EXPORT OCXCAFControl_Reader();
 
-    //! Destructor.
+    /**
+     * Destructor.
+     */
     Standard_EXPORT virtual ~OCXCAFControl_Reader();
 
 
-    //! Translate OCX file given by filename into the document
-    //! Return True if succeeded, and False in case of fail
-    Standard_EXPORT Standard_Boolean ReadFile (const Standard_CString filename);
+    /**
+     * Translate OCX file given by filename into the document
+     * Return True if succeeded, and False in case of fail
+     * @param filename the file to read
+     * @return true if result is useable for Transfer
+     */
+    Standard_EXPORT Standard_Boolean ReadFile(const Standard_CString filename);
 
 
-    Standard_EXPORT Standard_Boolean Transfer (Handle(TDocStd_Document) &doc,
-                                               const Message_ProgressRange& theProgress = Message_ProgressRange());
+    /**
+     * Transfer the parsed model into OCAFS
+     * @param doc the target model
+     * @param theProgress progress
+     * @return true if result could be used.
+     */
+    Standard_EXPORT Standard_Boolean Transfer(Handle(TDocStd_Document) &doc,
+                                              const Message_ProgressRange &theProgress = Message_ProgressRange());
 
-    Standard_EXPORT  Standard_Boolean Perform (const Standard_CString filename,
-                                                     Handle(TDocStd_Document) &doc,
-                                               const Message_ProgressRange& theProgress = Message_ProgressRange());
-    OCXContext *  Ctx();
+    /*
+     * Combination of ReadFile and Transfer
+     */
+    Standard_EXPORT Standard_Boolean Perform(const Standard_CString filename,
+                                             Handle(TDocStd_Document) &doc,
+                                             const Message_ProgressRange &theProgress = Message_ProgressRange());
+
 
 private:
 
-    OCXContext * ctx;
-    LDOM_Element ocxDocEL    ;
+    OCXContext *ctx;
+    LDOM_Element ocxDocEL;
     std::string nsPrefix;
 
 
-    void ParseCoordinateSystem(LDOM_Element& coosysN);
-    TopoDS_Shape ParsePanels(LDOM_Element& vesselN, TDF_Label vesselL);
-    TopoDS_Shape ParsePanel(LDOM_Element& pannelN, TDF_Label vesselL);
-    TopoDS_Shape  ParseUnboundGeometry(LDOM_Element& unboundedGeometryN);
+    void ParseCoordinateSystem(LDOM_Element &coosysN);
+
+    TopoDS_Shape ParsePanels(LDOM_Element &vesselN, TDF_Label vesselL);
+
+    TopoDS_Shape ParsePanel(LDOM_Element &pannelN, TDF_Label vesselL);
+
+    TopoDS_Shape ParseUnboundGeometry(LDOM_Element &unboundedGeometryN);
 
 
 };

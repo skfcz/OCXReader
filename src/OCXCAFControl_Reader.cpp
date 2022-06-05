@@ -28,12 +28,8 @@
 #include <STEPControl_Writer.hxx>
 
 #include <string>
-#include <BRepBuilderAPI_MakeWire.hxx>
 #include <vector>
-#include <TColStd_Array1OfInteger.hxx>
-#include <TColgp_Array1OfPnt.hxx>
-#include <Geom_BSplineCurve.hxx>
-#include <BRepBuilderAPI_MakeEdge.hxx>
+
 #include <TopoDS_Compound.hxx>
 #include <BRep_Builder.hxx>
 
@@ -247,12 +243,6 @@ TopoDS_Shape OCXCAFControl_Reader::ParsePanel(LDOM_Element &panelN, TDF_Label ve
 }
 
 
-
-void OCXCAFControl_Reader::ParseCoordinateSystem(LDOM_Element &coosysN) {
-
-
-
-}
 
 
 

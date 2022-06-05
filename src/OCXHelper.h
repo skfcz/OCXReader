@@ -31,6 +31,8 @@ public:
     static gp_Pnt ReadPoint(LDOM_Element element, OCXContext *ctx);
 
     static gp_Dir ReadDirection(LDOM_Element dirN);
+
+    static double ReadDimension(LDOM_Element valueN, OCXContext *ctx);
 };
 
 #endif //OCXREADER_OCXHELPER_H

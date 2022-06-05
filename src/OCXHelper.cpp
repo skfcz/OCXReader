@@ -78,6 +78,14 @@ void OCXHelper::GetDoubleAttribute(LDOM_Element &elem, std::string attrName, Sta
 
 }
 
+double OCXHelper::ReadDimension( LDOM_Element valueN, OCXContext * ctx) {
+    double x;
+    OCXHelper::GetDoubleAttribute(valueN, "numericvalue", x);
+    std::string xUnit = std::string(valueN.getAttribute("unit").GetString());
+    x *= ctx->LoopupFactor(xUnit);
+    return x;
+}
+
 gp_Pnt OCXHelper::ReadPoint(LDOM_Element pointN, OCXContext *ctx) {
 
     LDOMString xT = LDOMString((ctx->GetPrefix() + ":X").c_str());
@@ -88,6 +96,7 @@ gp_Pnt OCXHelper::ReadPoint(LDOM_Element pointN, OCXContext *ctx) {
     LDOM_Element yN = pointN.GetChildByTagName(yT);
     LDOM_Element zN = pointN.GetChildByTagName(zT);
 
+    // TODO: use ReadDimension
     double x;
     OCXHelper::GetDoubleAttribute(xN, "numericvalue", x);
     std::string xUnit = std::string(xN.getAttribute("unit").GetString());

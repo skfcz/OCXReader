@@ -15,6 +15,12 @@
 #include <TColgp_Array1OfPnt.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
+#include <Geom_Ellipse.hxx>
+#include <Geom_Circle.hxx>
+#include <GC_MakeCircle.hxx>
+#include <Geom_TrimmedCurve.hxx>
+#include <GC_MakeArcOfCircle.hxx>
+#include <GC_MakeSegment.hxx>
 #include "OCXCurveReader.h"
 #include "OCXHelper.h"
 
@@ -75,27 +81,186 @@ TopoDS_Shape OCXCurveReader::ReadCurve(LDOM_Element &curveRootN) {
     return makeWire.Wire();
 }
 
-TopoDS_Wire OCXCurveReader::ReadEllipse3D(LDOM_Element &curveN) {
-    return TopoDS_Wire();
+TopoDS_Wire OCXCurveReader::ReadEllipse3D(LDOM_Element &ellipseN) {
+    std::string id = std::string(ellipseN.getAttribute("id").GetString());
+    std::cout << "ReadEllipse3D " << id << std::endl;
+
+    LDOM_Element centerN = OCXHelper::GetFirstChild(ellipseN, "Center");
+    if (centerN.isNull()) {
+        std::cout << "could not find Ellipse3D/Center in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+    LDOM_Element majorDiaN = OCXHelper::GetFirstChild(ellipseN, "MajorDiameter");
+    if (majorDiaN.isNull()) {
+        std::cout << "could not find Ellipse3D/MajorDiameter in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+    LDOM_Element minorDiaN = OCXHelper::GetFirstChild(ellipseN, "MinorDiameter");
+    if (majorDiaN.isNull()) {
+        std::cout << "could not find Ellipse3D/MinorDiameter in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+    LDOM_Element majorAxisN = OCXHelper::GetFirstChild(ellipseN, "MajorAxis");
+    if (majorAxisN.isNull()) {
+        std::cout << "could not find Ellipse3D/MajorAxis in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+    LDOM_Element minorAxisN = OCXHelper::GetFirstChild(ellipseN, "MinorAxis");
+    if (minorAxisN.isNull()) {
+        std::cout << "could not find Ellipse3D/MinorAxis in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+
+    gp_Pnt center = OCXHelper::ReadPoint( centerN, ctx);
+    double dMajor = OCXHelper::ReadDimension( majorDiaN, ctx);
+    double dMinor = OCXHelper::ReadDimension( minorDiaN, ctx);
+    gp_Dir majorAxis = OCXHelper::ReadDirection( majorAxisN);
+    gp_Dir minorAxis = OCXHelper::ReadDirection( minorAxisN);
+    gp_Dir normal = majorAxis.Crossed( minorAxis);
+
+    gp_Ax2 cosys = gp_Ax2( center, normal, majorAxis);
+    cosys.SetDirection(majorAxis);
+
+    Handle(Geom_Ellipse) ellipse = new Geom_Ellipse( cosys, dMajor/2.0, dMinor/2.0);
+    TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(ellipse);
+    return BRepBuilderAPI_MakeWire( edge);
+
 }
 
-TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &curveN) {
-    return TopoDS_Wire();
+TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &circleN) {
+    std::string id = std::string(circleN.getAttribute("id").GetString());
+    std::cout << "ReadCircumCircle3D " << id << std::endl;
+
+    LDOM_Element positionsN = OCXHelper::GetFirstChild(circleN, "Positions");
+    if (positionsN.isNull()) {
+        std::cout << "could not find CircumCircle/Positions with curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+
+    LDOM_Node childN = positionsN.getFirstChild();
+
+    gp_Pnt p0;
+    gp_Pnt p1;
+    gp_Pnt p2;
+
+    int pointCnt=0;
+
+    while (childN != NULL) {
+        const LDOM_Node::NodeType nodeType = childN.getNodeType();
+        if (nodeType == LDOM_Node::ATTRIBUTE_NODE)
+            break;
+        if (nodeType == LDOM_Node::ELEMENT_NODE) {
+            LDOM_Element pointN = (LDOM_Element &) childN;
+
+            if ("Point3D" == OCXHelper::GetLocalTagName(pointN)) {
+                if ( pointCnt==0) {
+                    p0 = OCXHelper::ReadPoint( pointN, ctx);
+                } else if( pointCnt==1) {
+                    p1 = OCXHelper::ReadPoint( pointN, ctx);
+                } else if( pointCnt==2) {
+                    p2 = OCXHelper::ReadPoint( pointN, ctx);
+                } else {
+                    std::cout << "found more that 3 points in  CircumCircle/Positions with curve id='" << id << "'" << std::endl;
+                }
+                pointCnt++;
+            } else {
+                std::cout << "found element " << pointN.getTagName().GetString() << " in  CircumCircle/Positions with curve id='" << id << "'" << std::endl;
+            }
+        }
+        childN = childN.getNextSibling();
+    }
+
+    Handle(Geom_Circle) circle = GC_MakeCircle( p0,p1, p2);
+    TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(circle);
+    return BRepBuilderAPI_MakeWire( edge);
+
 }
 
-TopoDS_Wire OCXCurveReader::ReadCircle(LDOM_Element &curveN) {
-    return TopoDS_Wire();
+TopoDS_Wire OCXCurveReader::ReadCircle(LDOM_Element &circleN) {
+    std::string id = std::string(circleN.getAttribute("id").GetString());
+    std::cout << "ReadCircle " << id << std::endl;
+
+    LDOM_Element centerN = OCXHelper::GetFirstChild(circleN, "Center");
+    if (centerN.isNull()) {
+        std::cout << "could not find Circle3D/Center in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+    LDOM_Element diaN = OCXHelper::GetFirstChild(circleN, "Diameter");
+    if (diaN.isNull()) {
+        std::cout << "could not find Circle3D/Diameter in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+    LDOM_Element normalN = OCXHelper::GetFirstChild(circleN, "Normal");
+    if (normalN.isNull()) {
+        std::cout << "could not find Circle3D/Normal in curve id='" << id << "'" << std::endl;
+        return TopoDS_Wire();
+    }
+
+    gp_Pnt center = OCXHelper::ReadPoint( centerN, ctx);
+    double diameter = OCXHelper::ReadDimension( diaN, ctx);
+    gp_Dir normal = OCXHelper::ReadDirection( normalN);
+
+    gp_Ax2 cosys = gp_Ax2( center, normal);
+
+    Handle(Geom_Circle) circle = new Geom_Circle(cosys, diameter / 2.0);
+    TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(circle);
+    return BRepBuilderAPI_MakeWire( edge);
 }
 
-TopoDS_Edge OCXCurveReader::ReadCircumArc3D(LDOM_Element &curveN) {
-    return TopoDS_Edge();
+TopoDS_Edge OCXCurveReader::ReadCircumArc3D(LDOM_Element &circleN) {
+    std::string id = std::string(circleN.getAttribute("id").GetString());
+    std::cout << "ReadCircumArc3D " << id << std::endl;
+
+    LDOM_Element startN = OCXHelper::GetFirstChild(circleN, "StartPoint");
+    if (startN.isNull()) {
+        std::cout << "could not find CircumArc3D/StartPoint in curve id='" << id << "'" << std::endl;
+        return TopoDS_Edge();
+    }
+    LDOM_Element intN = OCXHelper::GetFirstChild(circleN, "IntermediatePoint");
+    if (intN.isNull()) {
+        std::cout << "could not find CircumArc3D/IntermediatePoint in curve id='" << id << "'" << std::endl;
+        return TopoDS_Edge();
+    }
+    LDOM_Element endN = OCXHelper::GetFirstChild(circleN, "EndPoint");
+    if (endN.isNull()) {
+        std::cout << "could not find CircumArc3D/EndPoint in curve id='" << id << "'" << std::endl;
+        return TopoDS_Edge();
+    }
+
+    gp_Pnt start = OCXHelper::ReadPoint(startN, ctx);
+    gp_Pnt intermediate = OCXHelper::ReadPoint(intN, ctx);
+    gp_Pnt end = OCXHelper::ReadPoint(endN, ctx);
+
+    Handle(Geom_TrimmedCurve) arc = GC_MakeArcOfCircle(start, end, intermediate);
+    return BRepBuilderAPI_MakeEdge(arc);
 }
 
-TopoDS_Edge OCXCurveReader::ReadLine3D(LDOM_Element &curveN) {
-    return TopoDS_Edge();
+TopoDS_Edge OCXCurveReader::ReadLine3D(LDOM_Element &lineN) {
+    std::string id = std::string(lineN.getAttribute("id").GetString());
+    std::cout << "ReadLine3D " << id << std::endl;
+
+    LDOM_Element startN = OCXHelper::GetFirstChild(lineN, "StartPoint");
+    if (startN.isNull()) {
+        std::cout << "could not find Line3D/StartPoint in curve id='" << id << "'" << std::endl;
+        return TopoDS_Edge();
+    }
+
+    LDOM_Element endN = OCXHelper::GetFirstChild(lineN, "EndPoint");
+    if (endN.isNull()) {
+        std::cout << "could not find Line3D/EndPoint in curve id='" << id << "'" << std::endl;
+        return TopoDS_Edge();
+    }
+
+    gp_Pnt start = OCXHelper::ReadPoint(startN, ctx);
+    gp_Pnt end = OCXHelper::ReadPoint(endN, ctx);
+
+    Handle(Geom_TrimmedCurve) arc = GC_MakeSegment( start, end);
+    return BRepBuilderAPI_MakeEdge(arc);
 }
 
 TopoDS_Shape OCXCurveReader::ReadCompositeCurve3D(LDOM_Element &curveN) {
+    std::cerr << "ReadCompositeCurve3D is not implemented yet" << std::endl;
+
     TopoDS_Shape wire = TopoDS_Shape();
 
     if ("Line3D" == OCXHelper::GetLocalTagName(curveN)) {
@@ -114,6 +279,7 @@ TopoDS_Shape OCXCurveReader::ReadCompositeCurve3D(LDOM_Element &curveN) {
 }
 
 TopoDS_Shape OCXCurveReader::ReadPolyLine3D(LDOM_Element &curveN) {
+    std::cerr << "ReadPolyLine3D is not implemented yet" << std::endl;
     return TopoDS_Shape();
 }
 
