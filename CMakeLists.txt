@@ -14,6 +14,8 @@ set( SOURCES src/main.cpp
         src/OCXCAFControl_Reader.cpp src/OCXCAFControl_Reader.h
         src/OCXHelper.cpp src/OCXHelper.h
         src/OCXCoordinateSystemReader.cpp src/OCXCoordinateSystemReader.h
+        src/OCXReferenceSurfacesReader.cpp src/OCXReferenceSurfacesReader.h
+        src/OCXCurveReader.cpp src/OCXCurveReader.h
         src/OCXSurfaceReader.cpp  src/OCXSurfaceReader.h
 
         )

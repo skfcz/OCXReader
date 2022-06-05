@@ -1,5 +1,10 @@
 //
-// Created by cz on 04.06.22.
+// This file is part of OCXReader library
+// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation.
 //
 
 #include <GC_MakePlane.hxx>
@@ -119,7 +124,7 @@ Standard_Boolean OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlane
                     gp_Pln plane =gp_Pln( org, direction);
                     TopoDS_Face refPlane = BRepBuilderAPI_MakeFace(plane);
 
-                    ctx->RegisterRefplane(guid, refPlane);
+                    ctx->RegisterSurface(guid, refPlane);
                     cntPlanes++;
                 }
 

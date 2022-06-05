@@ -13,6 +13,8 @@
 #include <string>
 #include <LDOM_Element.hxx>
 #include <vector>
+#include <gp_Pnt.hxx>
+#include "OCXContext.h"
 
 class OCXHelper {
 
@@ -26,6 +28,9 @@ public:
 
    static void GetDoubleAttribute( LDOM_Element& elem, std::string attrName , Standard_Real & value);
 
+    static gp_Pnt ReadPoint(LDOM_Element element, OCXContext *ctx);
+
+    static gp_Dir ReadDirection(LDOM_Element dirN);
 };
 
 #endif //OCXREADER_OCXHELPER_H

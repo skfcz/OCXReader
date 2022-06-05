@@ -12,6 +12,8 @@
 #include "OCXCAFControl_Reader.h"
 #include "OCXHelper.h"
 #include "OCXCoordinateSystemReader.h"
+#include "OCXReferenceSurfacesReader.h"
+#include "OCXCurveReader.h"
 
 #include <LDOM_DocumentType.hxx>
 #include <LDOM_LDOMImplementation.hxx>
@@ -152,6 +154,8 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
     OCXCoordinateSystemReader* cosysReader = new OCXCoordinateSystemReader(ctx);
     cosysReader->ReadCoordinateSystem(vesselN);
 
+    OCXReferenceSurfacesReader* refSrfReader = new OCXReferenceSurfacesReader(ctx);
+    refSrfReader->ReadReferenceSurfaces( vesselN);
 
 
     TDF_Label vesselL = doc->Main();
@@ -226,10 +230,9 @@ TopoDS_Shape OCXCAFControl_Reader::ParsePanel(LDOM_Element &panelN, TDF_Label ve
         return TopoDS_Shape();
     }
     try {
-        TopoDS_Wire wire = ParseCurve(outerContourN);
+        OCXCurveReader * reader = new OCXCurveReader( ctx);
+        TopoDS_Shape wire = reader->ReadCurve(outerContourN);
         aBuilder.Add( compound, wire);
-
-
 
 
     } catch (Standard_Failure exp) {
@@ -243,199 +246,7 @@ TopoDS_Shape OCXCAFControl_Reader::ParsePanel(LDOM_Element &panelN, TDF_Label ve
 
 }
 
-TopoDS_Wire OCXCAFControl_Reader::ParseCurve(LDOM_Element &curveN) {
 
-    LDOM_Node aCurveNode = curveN.getFirstChild();
-
-    BRepBuilderAPI_MakeWire makeWire = BRepBuilderAPI_MakeWire();
-
-    while (aCurveNode != NULL) {
-        const LDOM_Node::NodeType aNodeType = aCurveNode.getNodeType();
-        if (aNodeType == LDOM_Node::ATTRIBUTE_NODE)
-            break;
-        if (aNodeType == LDOM_Node::ELEMENT_NODE) {
-            LDOM_Element aCurveElement = (LDOM_Element &) aCurveNode;
-            if ("Ellipse3D" == OCXHelper::GetLocalTagName(aCurveElement)) {
-                std::cout << "Ellipse3D" << std::endl;
-            } else if ("CircumCircle3D" == OCXHelper::GetLocalTagName(aCurveElement)) {
-                std::cout << "CircumCircle3D" << std::endl;
-            } else if ("CircumArc3D" == OCXHelper::GetLocalTagName(aCurveElement)) {
-                std::cout << "CircumArc3D" << std::endl;
-            } else if ("Line3D" == OCXHelper::GetLocalTagName(aCurveElement)) {
-                std::cout << "Line3D" << std::endl;
-            } else if ("CompositeCurve3D" == OCXHelper::GetLocalTagName(aCurveElement)) {
-                std::cout << "CompositeCurve3D" << std::endl;
-            } else if ("PolyLine3D" == OCXHelper::GetLocalTagName(aCurveElement)) {
-                std::cout << "PolyLine3D" << std::endl;
-            } else if ("NURBS3D" == OCXHelper::GetLocalTagName(aCurveElement)) {
-                std::cout << "NURBS3D" << std::endl;
-                TopoDS_Edge edge = ParseNURBSCurve(aCurveElement);
-                makeWire.Add(edge);
-            } else {
-                std::cerr << "found unsupported curve type " << aCurveElement.getTagName().GetString() << std::endl;
-            }
-        }
-        aCurveNode = aCurveNode.getNextSibling();
-    }
-
-    BRepBuilderAPI_WireError error = makeWire.Error();
-    if (error != BRepBuilderAPI_WireDone) {
-        std::cout << "failed to read curve, wire has error" << error << std::endl;
-    }
-    TopoDS_Wire wire = makeWire.Wire();
-    return wire;
-}
-
-TopoDS_Edge OCXCAFControl_Reader::ParseNURBSCurve(LDOM_Element &nurbs3DN) {
-
-    std::string id = std::string(nurbs3DN.getAttribute("id").GetString());
-
-    std::cout << "ParseNURBSCurve " << id << std::endl;
-
-    LDOM_Element propsN = OCXHelper::GetFirstChild(nurbs3DN, "NURBSproperties");
-    if (propsN.isNull()) {
-        std::cout << "could not find NURBS3D/NURBSProperties in curve id='" << id << "'" << std::endl;
-        return TopoDS_Edge();
-    }
-    int degree;
-    propsN.getAttribute("degree").GetInteger(degree);
-    int numCtrlPts;
-    propsN.getAttribute("numCtrlPts").GetInteger(numCtrlPts);
-    int numKnots;
-    propsN.getAttribute("numKnots").GetInteger(numKnots);
-    std::string form = std::string(propsN.getAttribute("form").GetString());
-    bool isRational = std::string(propsN.getAttribute("isRational").GetString()) == "true";
-
-    std::cout << "degree " << degree << ", #ctr " << numCtrlPts << ", #knots " << numKnots << ", form '" << form <<
-              (isRational ? "', rational" : "', irrational") << std::endl;
-
-    // The number of knots is always equals to the number of control points + curve degree + one
-    // == number of control points + curve degree
-
-
-
-    LDOM_Element knotVectorN = OCXHelper::GetFirstChild(nurbs3DN, "KnotVector");
-    if (knotVectorN.isNull()) {
-        std::cout << "could not find NURBS3D/KnotVector in curve id='" << id << "'" << std::endl;
-        return TopoDS_Edge();
-    }
-    std::string knotVectorS = std::string(knotVectorN.getAttribute("value").GetString());
-    std::cout << "knots[" << knotVectorS << "]" << std::endl;
-    std::vector<std::string> out;
-    OCXHelper::TokenizeBySpace(knotVectorS, out);
-
-    if (numKnots != static_cast<int>(out.size())) {
-        std::cerr << "failed to parse curve " << id << ", expected #" << numKnots <<
-                  " knot values, but parsing [" << knotVectorS << "] resulted in #" << out.size() << " values"
-                  << std::endl;
-        return TopoDS_Edge();
-    }
-    //  https://github.com/tpaviot/pythonocc-core/issues/706
-    // Typically you'll have in textbooks a knot vector like:     [0 0 0 0.3 0.5 0.7 1 1 1]
-    // In OCCT, you have instead:
-    //    Knots: [0 0.3 0.5 0.7 1]
-    //    Mults [3 1 1 1 3]
-
-    std::vector<double> knots0;
-    std::vector<int> mults0;
-    double lastKnot = -1;
-    double currentMult = -1;
-    for (int i = 0; i < out.size(); i++) {
-        double currentKnot = std::stod(out[i]);
-        if (i == 0) {
-            lastKnot = currentKnot;
-            currentMult = 1;
-            continue;
-        }
-        if (abs(currentKnot - lastKnot) < 1e-3) {
-            currentMult++;
-        } else {
-            // knot value changed from lastKnot to currentKnot
-            knots0.push_back(lastKnot);
-            mults0.push_back(currentMult);
-            lastKnot = currentKnot;
-            currentMult = 1;
-        }
-    }
-    knots0.push_back(lastKnot);
-    mults0.push_back(currentMult);
-
-    // now we know the size of the knot and multiplicities vector and
-    //  could create the OCC type
-    TColStd_Array1OfReal knots(1, knots0.size());
-    TColStd_Array1OfInteger mults(1, knots0.size());
-    for (int i = 0; i < knots0.size(); i++) {
-        std::cout << i << ", knot " << knots0[i] << ", mult " << mults0[i] << std::endl;
-        knots.SetValue(i + 1, knots0[i]);
-        mults.SetValue(i + 1, mults0[i]);
-    }
-
-
-    LDOM_Element controlPtListN = OCXHelper::GetFirstChild(nurbs3DN, "ControlPtList");
-    if (controlPtListN.isNull()) {
-        std::cout << "could not find NURBS3D/ControlPtList in curve id='" << id << "'" << std::endl;
-        return TopoDS_Edge();
-    }
-    // names of the elements we are looking for
-    LDOMString controlPointT = LDOMString((nsPrefix + ":ControlPoint").c_str());
-    LDOMString point3dT = LDOMString((nsPrefix + ":Point3D").c_str());
-    LDOMString xT = LDOMString((nsPrefix + ":X").c_str());
-    LDOMString yT = LDOMString((nsPrefix + ":Y").c_str());
-    LDOMString zT = LDOMString((nsPrefix + ":Z").c_str());
-
-
-    LDOM_Element controlPointN = controlPtListN.GetChildByTagName(controlPointT);
-    if (controlPointN.isNull()) {
-        std::cout << "could not find NURBS3D/ControlPtList/ControlPoint in curve id='" << id << "'" << std::endl;
-        return TopoDS_Edge();
-    }
-
-    TColgp_Array1OfPnt poles(1, numCtrlPts);
-    TColStd_Array1OfReal weights(1, numCtrlPts);
-
-    int i = 0;
-    while (!controlPointN.isNull()) {
-
-        double weight;
-        OCXHelper::GetDoubleAttribute(controlPointN, "weight", weight);
-
-        LDOM_Element pointN = controlPointN.GetChildByTagName(point3dT);
-        LDOM_Element xN = pointN.GetChildByTagName(xT);
-        LDOM_Element yN = pointN.GetChildByTagName(yT);
-        LDOM_Element zN = pointN.GetChildByTagName(zT);
-
-        double x;
-        OCXHelper::GetDoubleAttribute(xN, "numericvalue", x);
-        std::string xUnit = std::string(xN.getAttribute("unit").GetString());
-        x *= ctx->LoopupFactor(xUnit);
-
-        double y;
-        OCXHelper::GetDoubleAttribute(yN, "numericvalue", y);
-        std::string yUnit = std::string(yN.getAttribute("unit").GetString());
-        y *= ctx->LoopupFactor(yUnit);
-
-        double z;
-        OCXHelper::GetDoubleAttribute(zN, "numericvalue", z);
-        std::string zUnit = std::string(zN.getAttribute("unit").GetString());
-        z *= ctx->LoopupFactor(zUnit);
-
-        //        std::cout << controlPointN.getTagName().GetString() <<  " #" << i << " weight " << weight
-        //            << ", [" << x << ", " << y << "," << z << "] " << xUnit  << std::endl;
-
-        poles.SetValue(i + 1, gp_Pnt(x, y, z));
-        weights.SetValue(i + 1, weight);
-
-        controlPointN = controlPointN.GetSiblingByTagName();
-        i++;
-    }
-
-    Handle(Geom_BSplineCurve) curve = new Geom_BSplineCurve(poles, weights, knots, mults, degree);
-
-    TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(curve);
-    return edge;
-
-
-}
 
 void OCXCAFControl_Reader::ParseCoordinateSystem(LDOM_Element &coosysN) {
 

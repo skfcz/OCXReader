@@ -72,9 +72,6 @@ private:
     TopoDS_Shape ParsePanel(LDOM_Element& pannelN, TDF_Label vesselL);
     TopoDS_Shape  ParseUnboundGeometry(LDOM_Element& unboundedGeometryN);
 
-    TopoDS_Wire ParseCurve( LDOM_Element& curveN);
-    TopoDS_Edge ParseNURBSCurve(LDOM_Element& element);
-
 
 };
 

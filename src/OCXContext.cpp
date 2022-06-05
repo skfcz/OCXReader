@@ -16,6 +16,7 @@ OCXContext::OCXContext(LDOM_Element &ocxDocN, std::string nsPrefix) {
     this->nsPrefix =nsPrefix;
 
     this->ocxGUIDRef = LDOMString( (nsPrefix + ":GUIDRef").c_str());
+    this->ocxGUID = LDOMString( (nsPrefix + ":GUID").c_str());
 }
 
 
@@ -63,8 +64,17 @@ LDOMString OCXContext::OCXGUIDRef() {
     return ocxGUIDRef;
 }
 
-void OCXContext::RegisterRefplane(std::string guid, TopoDS_Face face) {
-    guid2refplane[ guid]=face;
-
-
+LDOMString OCXContext::OCXGUID() {
+    return ocxGUID;
 }
+
+
+void OCXContext::RegisterSurface(std::string guid, TopoDS_Face face) {
+    guid2refplane[ guid]=face;
+}
+
+TopoDS_Face OCXContext::LookupSurface(std::string guid) {
+    // TODO: check if exist
+    return guid2refplane[guid];
+}
+
