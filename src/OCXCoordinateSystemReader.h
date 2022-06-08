@@ -7,17 +7,18 @@
 
 
 #include "OCXContext.h"
+#include <TopoDS_Shape.hxx>
 
 class OCXCoordinateSystemReader {
 
 public:
     OCXCoordinateSystemReader( OCXContext * ctx);
-    Standard_Boolean ReadCoordinateSystem( LDOM_Element & vesselN);
+    TopoDS_Shape ReadCoordinateSystem( LDOM_Element & vesselN);
 
 private:
     OCXContext * ctx;
 
-    Standard_Boolean ReadRefPlanes(LDOM_Element & refPlanesN);
+    TopoDS_Shape ReadRefPlanes(LDOM_Element & refPlanesN);
 
 };
 

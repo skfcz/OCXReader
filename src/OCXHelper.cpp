@@ -22,7 +22,16 @@ std::string OCXHelper::GetLocalTagName(LDOM_Element &elem) {
     }
     return tagName;
 
+}
 
+
+std::string OCXHelper::GetLocalAttrName(LDOM_Node &elem) {
+    std::string tagName = std::string(elem.getNodeName().GetString());
+    int idx = tagName.find(':');
+    if (idx != std::string::npos) {
+        return tagName.substr(idx + 1);
+    }
+    return tagName;
 }
 
 LDOM_Element OCXHelper::GetFirstChild(LDOM_Element &parent, std::string localName) {
@@ -66,6 +75,10 @@ void OCXHelper::TokenizeBySpace(const std::string &str, std::vector<std::string>
 void OCXHelper::GetDoubleAttribute(LDOM_Element &elem, std::string attrName, Standard_Real &value) {
 
     LDOMString stringValue = elem.getAttribute(attrName.c_str());
+    if ( stringValue.Type() == LDOMBasicString::StringType::LDOM_NULL) {
+        return;
+    }
+
     if (strlen(stringValue.GetString()) > 0) {
         double d = strtod(stringValue.GetString(), NULL);
         value = Standard_Real(d);
@@ -129,3 +142,4 @@ gp_Dir OCXHelper::ReadDirection(LDOM_Element dirN) {
 
     return gp_Dir(x, y, z);
 }
+

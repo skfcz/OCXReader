@@ -10,6 +10,16 @@
 #include <GC_MakePlane.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <gp_Pln.hxx>
+#include <TopoDS_Compound.hxx>
+#include <BRep_Builder.hxx>
+#include <TDataStd_Name.hxx>
+#include <Geom_TrimmedCurve.hxx>
+#include <GC_MakeSegment.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
+#include <list>
+#include <TopTools_HSequenceOfShape.hxx>
+#include <Quantity_Color.hxx>
 #include "OCXCoordinateSystemReader.h"
 #include "OCXHelper.h"
 
@@ -18,69 +28,101 @@ OCXCoordinateSystemReader::OCXCoordinateSystemReader(OCXContext *ctx) {
 
 }
 
-Standard_Boolean OCXCoordinateSystemReader::ReadCoordinateSystem(LDOM_Element &vesselN) {
+TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(LDOM_Element &vesselN) {
     std::string tag = std::string(vesselN.getTagName().GetString());
     std::size_t index = tag.find("Vessel");
     if (index == std::string::npos) {
         std::cout << "expected a Vessel element, got " << tag << std::endl;
-        return false;
+        return TopoDS_Shape();
     }
 
     LDOM_Element cosysN = OCXHelper::GetFirstChild(vesselN, "CoordinateSystem");
     if (cosysN.isNull()) {
         std::cout << "could not find CoordinateSystem child node" << std::endl;
-        return false;
+        return TopoDS_Shape();
     }
 
     // TODO: do we need to read the LocalCartesian ?
     // TODO: do we need to read the VesselGrid ?
 
+    std::list<TopoDS_Shape> shapes;
+
     LDOM_Element frTblsN = OCXHelper::GetFirstChild(cosysN, "FrameTables");
     if (frTblsN.isNull()) {
         std::cout << "could not find CoordinateSystem/FrameTables child node"<<      std::endl;
-        return false;
+        return TopoDS_Shape();
     }
 
     LDOM_Element xRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "XRefPlanes");
     if (xRefPlanesN.isNull()) {
         std::cout << "could not find CoordinateSystem/FrameTables/XRefPlanes child node"<<  std::endl;
     } else {
-        ReadRefPlanes(xRefPlanesN);
+        TopoDS_Shape comp = ReadRefPlanes(xRefPlanesN);
+        shapes.push_back( comp);
+
     }
 
     LDOM_Element yRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "YRefPlanes");
     if (yRefPlanesN.isNull()) {
         std::cout << "could not find CoordinateSystem/FrameTables/YRefPlanes child node"<<        std::endl;
     } else {
-        ReadRefPlanes(yRefPlanesN);
+        TopoDS_Shape comp =  ReadRefPlanes(yRefPlanesN);
+        shapes.push_back( comp);
     }
 
     LDOM_Element zRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "ZRefPlanes");
     if (zRefPlanesN.isNull()) {
         std::cout << "could not find CoordinateSystem/FrameTables/ZRefPlanes child node"<<   std::endl;
     } else {
-        ReadRefPlanes(zRefPlanesN);
+        TopoDS_Shape comp =   ReadRefPlanes(zRefPlanesN);
+        shapes.push_back( comp);
     }
 
+    TopoDS_Compound refPlanesAssy;
+    BRep_Builder bbuilder;
+    bbuilder.MakeCompound(refPlanesAssy);
+    for( TopoDS_Shape shape : shapes) {
+        bbuilder.Add(refPlanesAssy, shape);
+    }
 
-    return true;
+    TDF_Label label = ctx->GetOCAFShapeTool()->AddShape( refPlanesAssy);//, std::false_type, std::false_type);
+    TDataStd_Name::Set( label, "Reference Planes");
+
+
+
+    return refPlanesAssy;
 }
 
-Standard_Boolean OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN) {
+TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN ) {
 
     std::cout << "ReadRefPlanes from " << refPlanesN.getTagName().GetString() << std::endl;
 
+    std::list<TopoDS_Shape> shapes;
+
+    std::string containerName = "";
+
+
+    Quantity_Color color = Quantity_Color(1,0,0,Quantity_TOC_RGB);
     // too lazy to define enumeration
     int axis = -1;
     if (strstr(refPlanesN.getTagName().GetString(), "XRefPlanes") ) {
         axis =0;
+        containerName= "XRefPlanes";
+        // Material Green 400
+        color = Quantity_Color(102/256.0, 187/256.0, 106/256, Quantity_TOC_RGB);
     } else if (strstr(refPlanesN.getTagName().GetString(), "YRefPlanes") ) {
         axis = 1;
+        containerName= "YRefPlanes";
+        // Material Lime 400
+        color = Quantity_Color(212/256.0, 225/256.0, 87/256, Quantity_TOC_RGB);
     } else if (strstr(refPlanesN.getTagName().GetString(), "ZRefPlanes")) {
         axis = 2;
+        containerName= "ZRefPlanes";
+        // Material Amber 400
+        color = Quantity_Color(255/256.0, 202/256.0, 40/256, Quantity_TOC_RGB);
     } else {
         std::cout << "expected one element from XRefPlanes, YRefPlanes, or ZRefPlanes, got '" << refPlanesN.getTagName().GetString() << "'" << std::endl;
-        return false;
+        return TopoDS_Shape();
     }
 
     int cntPlanes=0;
@@ -97,38 +139,110 @@ Standard_Boolean OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlane
             if ("RefPlane" == OCXHelper::GetLocalTagName(refPlaneN)) {
 
                 std::string guid = std::string( refPlaneN.getAttribute( ctx->OCXGUIDRef()).GetString());
+                std::string name = std::string( refPlaneN.getAttribute( "name").GetString());
+
+                std::cout << "ref plane " << name << ", " << guid << std::endl;
 
                 LDOM_Element refLocN = OCXHelper::GetFirstChild( refPlaneN, "ReferenceLocation");
                 if ( refLocN.isNull()) {
                     std::cout << "could not RefPlane/ReferenceLocation where GUIDRef is '"<< guid << "', skip it" <<  std::endl;
                 } else {
                     double location;
-                    OCXHelper::GetDoubleAttribute( refLocN, "numericalValue", location);
+                    OCXHelper::GetDoubleAttribute( refLocN, "numericvalue", location);
                     std::string xUnit = std::string(refLocN.getAttribute("unit").GetString());
                     location *= ctx->LoopupFactor(xUnit);
 
+                    std::cout << "    location  " << location <<  std::endl;
+
                     // Now create an OCC Plane
+                    double width =50;
+                    double minX=-10;
+                    double maxX=190;
+                    double minZ = -5;
+                    double maxZ= 45;
+
                     gp_Pnt org;
                     gp_Dir direction;
+                    gp_Pnt pnt0, pnt1, pnt2, pnt3;
                     if ( axis ==0) {
                         org = gp_Pnt(location,0,0);
                         direction = gp_Dir( 1,0,0);
+                        pnt0 = gp_Pnt( location, width/2.0,minZ);
+                        pnt1 = gp_Pnt( location, -width/2.0,minZ);
+                        pnt2 = gp_Pnt( location, -width/2.0,maxZ);
+                        pnt3 = gp_Pnt( location, width/2.0,maxZ);
+
                     }else if ( axis ==1) {
                         org = gp_Pnt(0,location,0);
                         direction = gp_Dir( 0,1,0);
+
+                        pnt0 = gp_Pnt( minX, location,minZ);
+                        pnt1 = gp_Pnt( maxX, location,minZ);
+                        pnt2 = gp_Pnt( maxX, location,maxZ);
+                        pnt3 = gp_Pnt(minX, location,maxZ);
+
                     }else if ( axis ==2) {
                         org = gp_Pnt(0,0,location);
                         direction = gp_Dir( 0,0,1);
+
+                        pnt0 = gp_Pnt( minX, width/2.0,location);
+                        pnt1 = gp_Pnt( minX, -width/2.0,location);
+                        pnt2 = gp_Pnt( maxX, -width/2.0, location);
+                        pnt3 = gp_Pnt(maxX, width/2.0,location);
                     }
+
+                    std::cout << "pts " << pnt0.X() << ", " << pnt0.Y() << ", " << pnt0.Z() << std::endl;
 
                     gp_Pln plane =gp_Pln( org, direction);
                     TopoDS_Face refPlane = BRepBuilderAPI_MakeFace(plane);
-
                     ctx->RegisterSurface(guid, refPlane);
+
+                    std::cout << "reg"  << std::endl;
+
+                    // ... and a wire around it
+                    Handle(Geom_TrimmedCurve) seg01= GC_MakeSegment(pnt0, pnt1);
+                    Handle(Geom_TrimmedCurve) seg12= GC_MakeSegment(pnt1, pnt2);
+                    Handle(Geom_TrimmedCurve) seg23= GC_MakeSegment(pnt2, pnt3);
+                    Handle(Geom_TrimmedCurve) seg30= GC_MakeSegment(pnt3, pnt0);
+
+                    std::cout << "seg"  << std::endl;
+
+
+                    TopoDS_Edge edge0 = BRepBuilderAPI_MakeEdge( seg01);
+                    TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge( seg12);
+                    TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge( seg23);
+                    TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge( seg30);
+                    std::cout << "edg"  << std::endl;
+
+                    BRepBuilderAPI_MakeWire makeWire;
+                    makeWire.Add(edge0);
+                    makeWire.Add(edge1);
+                    makeWire.Add(edge2);
+                    makeWire.Add(edge3);
+
+                    makeWire.Build();
+
+                   TopoDS_Wire wire = makeWire.Wire();
+
+
+
+
+                    std::cout << "wr"  << std::endl;
+                    TopoDS_Face surface = BRepBuilderAPI_MakeFace( refPlane, wire);
+//                    std::cout << "sref"  << std::endl;
+
+
+
+                    TDF_Label surfL = ctx->GetOCAFShapeTool()->AddShape( surface, false);
+                    TDataStd_Name::Set( surfL, name.c_str());
+
+                    shapes.push_back( surface);
+
+                    ctx->GetOCAFColorTool()->SetColor( surfL, color, XCAFDoc_ColorSurf );
+
+
                     cntPlanes++;
                 }
-
-
 
             } else {
                 std::cerr << "expected RefPlane element, got  " << refPlaneN.getTagName().GetString() << std::endl;
@@ -136,8 +250,20 @@ Standard_Boolean OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlane
         }
 
         aChildN = aChildN.getNextSibling();
+
+    } // end iterate over reference planes
+
+    TopoDS_Compound refPlanesXYZAssy;
+    BRep_Builder refPlanesBuilder;
+    refPlanesBuilder.MakeCompound(refPlanesXYZAssy);
+    for( TopoDS_Shape shape : shapes) {
+        refPlanesBuilder.Add( refPlanesXYZAssy, shape);
     }
+
+    TDF_Label refSrfLabel = ctx->GetOCAFShapeTool()->AddShape( refPlanesXYZAssy, true);
+    TDataStd_Name::Set(refSrfLabel, containerName.c_str());
+
     std::cout << "    registered #"<< cntPlanes << " planes found in " << refPlanesN.getTagName().GetString() << std::endl;
 
-    return true;
+    return refPlanesXYZAssy;
 }

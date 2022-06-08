@@ -14,6 +14,7 @@
 #include "OCXCoordinateSystemReader.h"
 #include "OCXReferenceSurfacesReader.h"
 #include "OCXCurveReader.h"
+#include "OCXPanelReader.h"
 
 #include <LDOM_DocumentType.hxx>
 #include <LDOM_LDOMImplementation.hxx>
@@ -32,6 +33,9 @@
 
 #include <TopoDS_Compound.hxx>
 #include <BRep_Builder.hxx>
+#include <XCAFDoc_DocumentTool.hxx>
+#include <TDataStd_Name.hxx>
+#include <STEPCAFControl_Writer.hxx>
 
 OCXCAFControl_Reader::OCXCAFControl_Reader() {
 
@@ -111,18 +115,29 @@ Standard_Boolean OCXCAFControl_Reader::Perform(const Standard_CString filename,
 
 Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
                                                 const Message_ProgressRange &theProgress) {
+
     if (ocxDocEL == NULL) {
         std::cerr << "run ReadFile before Transfer" << std::endl;
         return Standard_False;
     }
-
+    //
+    // OCAF
+    //
     Handle(TDocStd_Application) app = new TDocStd_Application;
     app->NewDocument("XmlOcaf", doc);
     if (doc.IsNull()) {
         std::cerr << "Can not create OCAF document" << std::endl;
         return Standard_False;
     }
+    ctx->SetOCAFDoc( doc);
 
+    TDF_Label vesselL = doc->Main();
+    // TODO: use ship name from OCX
+    TDataStd_Name::Set(vesselL, "Vessel");
+
+    //
+    // XML
+    //
     std::string fullTagName = ocxDocEL.getTagName().GetString();
     std::size_t index = fullTagName.find(':');
     if (index == std::string::npos) {
@@ -146,23 +161,43 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
         return Standard_False;
     }
 
+    TopoDS_Compound rootS;
+    BRep_Builder rootBuilder;
+    rootBuilder.MakeCompound (rootS);
+    TDF_Label rootL= ctx->GetOCAFShapeTool()->AddShape(rootS, true);
+    TDataStd_Name::Set(rootL, "Vessel");
+
 
     OCXCoordinateSystemReader* cosysReader = new OCXCoordinateSystemReader(ctx);
-    cosysReader->ReadCoordinateSystem(vesselN);
+    TopoDS_Shape cosysS = cosysReader->ReadCoordinateSystem(vesselN);
+    TDF_Label cosysL = ctx->GetOCAFShapeTool()->AddShape( cosysS, true);
+    TDataStd_Name::Set(cosysL, "Coordinate System");
+
 
     OCXReferenceSurfacesReader* refSrfReader = new OCXReferenceSurfacesReader(ctx);
-    refSrfReader->ReadReferenceSurfaces( vesselN);
+    TopoDS_Shape referenceSurfaces = refSrfReader->ReadReferenceSurfaces( vesselN);
 
 
-    TDF_Label vesselL = doc->Main();
-    TopoDS_Shape shape = ParsePanels(vesselN, vesselL);
+    OCXPanelReader * panelReader = new OCXPanelReader(ctx);
+    TopoDS_Shape panelS = panelReader->ParsePanels(vesselN, vesselL);
+   // rootBuilder.Add(rootS, panelS);
+
+
+
 
     std::string fileName = "vessel.stp";
 
+    STEPCAFControl_Writer writer;
     try {
-        STEPControl_Writer writer;
-        writer.Transfer(shape, STEPControl_AsIs);
-        writer.Write(fileName.c_str());
+        if ( !         writer.Transfer(doc, STEPControl_AsIs)) {
+            std::cerr << "failed to transfer root shape to STEP" << std::endl;
+            return false;
+        }
+        const IFSelect_ReturnStatus ret = writer.Write(fileName.c_str());
+        if ( ! ret != IFSelect_RetDone) {
+            std::cerr << "failed to write to STEP, got " << ret <<  std::endl;
+            return false;
+        }
     } catch (Standard_Failure exp) {
         std::cerr << "an error occurred transferring geometry:" << exp << std::endl;
     }
@@ -171,76 +206,6 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
 }
 
 
-
-TopoDS_Shape OCXCAFControl_Reader::ParsePanels(LDOM_Element &vesselN, TDF_Label vesselL) {
-
-    TopoDS_Compound compound;
-    BRep_Builder aBuilder;
-    aBuilder.MakeCompound (compound);
-
-    // Take the first child. If it doesn't match look for other ones in a loop
-    LDOM_Node aChildNode = vesselN.getFirstChild();
-    while (aChildNode != NULL) {
-        const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
-        if (aNodeType == LDOM_Node::ATTRIBUTE_NODE)
-            break;
-        if (aNodeType == LDOM_Node::ELEMENT_NODE) {
-            LDOM_Element aNextElement = (LDOM_Element &) aChildNode;
-            if ("Panel" == OCXHelper::GetLocalTagName(aNextElement)) {
-                TopoDS_Shape shape = ParsePanel(aNextElement, vesselL);
-                if ( !shape.IsNull()) {
-                    aBuilder.Add(compound, shape);
-                }
-
-
-            }
-        }
-        aChildNode = aChildNode.getNextSibling();
-    }
-
-    return compound;
-
-}
-
-TopoDS_Shape OCXCAFControl_Reader::ParsePanel(LDOM_Element &panelN, TDF_Label vesselL) {
-
-    std::string id = std::string(panelN.getAttribute("id").GetString());
-
-    std::cout << "found Panel " << id << " " << panelN.getAttribute("name").GetString() << std::endl;
-
-    TopoDS_Compound compound;
-    BRep_Builder aBuilder;
-    aBuilder.MakeCompound (compound);
-
-
-    LDOM_Element unboundedGeometryN = OCXHelper::GetFirstChild(panelN, "UnboundedGeometry");
-    if (unboundedGeometryN.isNull()) {
-        std::cerr << "could not find UnboundedGeometry for Panel " << id << std::endl;
-        return TopoDS_Shape();
-    }
-
-
-    LDOM_Element outerContourN = OCXHelper::GetFirstChild(panelN, "OuterContour");
-    if (outerContourN.isNull()) {
-        std::cerr << "could not find OuterContour for Panel " << id << std::endl;
-        return TopoDS_Shape();
-    }
-    try {
-        OCXCurveReader * reader = new OCXCurveReader( ctx);
-        TopoDS_Shape wire = reader->ReadCurve(outerContourN);
-        aBuilder.Add( compound, wire);
-
-
-    } catch (Standard_Failure exp) {
-        std::cerr << "an error occurred transferring OuterContur from panel "
-                  << panelN.getAttribute("id").GetString() << ":" << exp << std::endl;
-    }
-    TDF_Label panelL = TDF_TagSource::NewChild(vesselL);
-
-    return compound;
-
-
-}
 
 
 

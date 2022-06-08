@@ -287,7 +287,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
 
     std::string id = std::string(nurbs3DN.getAttribute("id").GetString());
 
-    std::cout << "ParseNURBSCurve " << id << std::endl;
+    //std::cout << "ParseNURBSCurve " << id << std::endl;
 
     LDOM_Element propsN = OCXHelper::GetFirstChild(nurbs3DN, "NURBSproperties");
     if (propsN.isNull()) {
@@ -303,8 +303,8 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
     std::string form = std::string(propsN.getAttribute("form").GetString());
     bool isRational = std::string(propsN.getAttribute("isRational").GetString()) == "true";
 
-    std::cout << "degree " << degree << ", #ctr " << numCtrlPts << ", #knots " << numKnots << ", form '" << form <<
-              (isRational ? "', rational" : "', irrational") << std::endl;
+    //std::cout << "degree " << degree << ", #ctr " << numCtrlPts << ", #knots " << numKnots << ", form '" << form <<
+    //          (isRational ? "', rational" : "', irrational") << std::endl;
 
     // The number of knots is always equals to the number of control points + curve degree + one
     // == number of control points + curve degree
@@ -317,7 +317,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
         return TopoDS_Edge();
     }
     std::string knotVectorS = std::string(knotVectorN.getAttribute("value").GetString());
-    std::cout << "knots[" << knotVectorS << "]" << std::endl;
+    //std::cout << "knots[" << knotVectorS << "]" << std::endl;
     std::vector<std::string> out;
     OCXHelper::TokenizeBySpace(knotVectorS, out);
 
@@ -362,7 +362,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
     TColStd_Array1OfReal knots(1, knots0.size());
     TColStd_Array1OfInteger mults(1, knots0.size());
     for (int i = 0; i < knots0.size(); i++) {
-        std::cout << i << ", knot " << knots0[i] << ", mult " << mults0[i] << std::endl;
+        //std::cout << i << ", knot " << knots0[i] << ", mult " << mults0[i] << std::endl;
         knots.SetValue(i + 1, knots0[i]);
         mults.SetValue(i + 1, mults0[i]);
     }
@@ -393,7 +393,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
     int i = 0;
     while (!controlPointN.isNull()) {
 
-        double weight;
+        double weight=1;
         OCXHelper::GetDoubleAttribute(controlPointN, "weight", weight);
 
         LDOM_Element pointN = controlPointN.GetChildByTagName(point3dT);

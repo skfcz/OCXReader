@@ -22,10 +22,19 @@ public:
 
    static  std::string GetLocalTagName(  LDOM_Element& elem);
 
+    static  std::string GetLocalAttrName(  LDOM_Node& node);
+
    static LDOM_Element GetFirstChild(LDOM_Element& parent, std::string localName);
 
    static void TokenizeBySpace( std::string const & str, std::vector<std::string> &out);
 
+   /**
+    * Get the double attribute value from an attribute. Does not care if this is more
+    * an integer '50' or double '50.0'. If the atttibute is missing the value is not touched
+    * @param elem the element containing the attribute
+    * @param attrName the attributes name
+    * @param value the variable to put the value
+    */
    static void GetDoubleAttribute( LDOM_Element& elem, std::string attrName , Standard_Real & value);
 
     static gp_Pnt ReadPoint(LDOM_Element element, OCXContext *ctx);

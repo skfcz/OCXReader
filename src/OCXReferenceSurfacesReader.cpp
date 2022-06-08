@@ -7,6 +7,8 @@
 // by the Free Software Foundation.
 //
 
+#include <TopoDS_Compound.hxx>
+#include <BRep_Builder.hxx>
 #include "OCXReferenceSurfacesReader.h"
 #include "OCXHelper.h"
 #include "OCXSurfaceReader.h"
@@ -16,19 +18,24 @@ OCXReferenceSurfacesReader::OCXReferenceSurfacesReader(OCXContext *ctx) {
 
 }
 
-Standard_Boolean OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element &vesselN) {
+TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element &vesselN) {
+
+    TopoDS_Compound compound;
+
+    BRep_Builder compoundBuilder;
+    compoundBuilder.MakeCompound (compound);
 
     std::string tag = std::string(vesselN.getTagName().GetString());
     std::size_t index = tag.find("Vessel");
     if (index == std::string::npos) {
         std::cout << "expected a Vessel element, got " << tag << std::endl;
-        return false;
+        return compound;
     }
 
     LDOM_Element refSrfsN = OCXHelper::GetFirstChild(vesselN, "ReferenceSurfaces");
     if (refSrfsN.isNull()) {
         std::cout << "could not find ReferenceSurfaces child node" << std::endl;
-        return false;
+        return compound;
     }
 
     OCXSurfaceReader * surfaceReader = new OCXSurfaceReader(ctx);
@@ -68,6 +75,13 @@ Standard_Boolean OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element 
 
             if ( ! face.IsNull()) {
                 ctx->RegisterSurface(guid, face);
+
+
+                if ( OCXContext::CreateReferenceSurfaces) {
+
+                }
+
+
             } else {
                 std::cerr << "could not read surface with guid '" << guid << "'" << std::endl;
             }
@@ -76,5 +90,5 @@ Standard_Boolean OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element 
     }
 
 
-    return true;
+    return compound;
 }

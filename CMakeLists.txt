@@ -9,6 +9,9 @@ find_package(OpenCASCADE)
 # Configure C++ compiler's includes dir
 include_directories ( includes SYSTEM ${OpenCASCADE_INCLUDE_DIR} )
 
+set (CMAKE_CXX_FLAGS "--std=c++1z")
+
+
 set( SOURCES src/main.cpp
         src/OCXContext.h src/OCXContext.cpp
         src/OCXCAFControl_Reader.cpp src/OCXCAFControl_Reader.h
@@ -17,6 +20,7 @@ set( SOURCES src/main.cpp
         src/OCXReferenceSurfacesReader.cpp src/OCXReferenceSurfacesReader.h
         src/OCXCurveReader.cpp src/OCXCurveReader.h
         src/OCXSurfaceReader.cpp  src/OCXSurfaceReader.h
+        src/OCXPanelReader.cpp src/OCXPanelReader.h
 
         )
 

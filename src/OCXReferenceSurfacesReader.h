@@ -11,7 +11,7 @@
 class OCXReferenceSurfacesReader {
 public:
     OCXReferenceSurfacesReader( OCXContext * ctx);
-    Standard_Boolean ReadReferenceSurfaces( LDOM_Element & vesselN);
+    TopoDS_Shape ReadReferenceSurfaces( LDOM_Element & vesselN);
 
 private:
     OCXContext * ctx;

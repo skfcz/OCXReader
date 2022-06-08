@@ -88,9 +88,6 @@ private:
 
     void ParseCoordinateSystem(LDOM_Element &coosysN);
 
-    TopoDS_Shape ParsePanels(LDOM_Element &vesselN, TDF_Label vesselL);
-
-    TopoDS_Shape ParsePanel(LDOM_Element &pannelN, TDF_Label vesselL);
 
     TopoDS_Shape ParseUnboundGeometry(LDOM_Element &unboundedGeometryN);
 

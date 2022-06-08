@@ -14,6 +14,11 @@
 #include <map>
 #include <LDOM_Element.hxx>
 #include <TopoDS_Face.hxx>
+#include <XCAFDoc_ShapeTool.hxx>
+#include <XCAFDoc_ColorTool.hxx>
+#include <TDocStd_Application.hxx>
+#include <TDocStd_Document.hxx>
+
 
 class OCXContext {
 
@@ -31,6 +36,16 @@ public:
     LDOMString OCXGUIDRef();
     LDOMString OCXGUID();
 
+    // Some config stuff
+    static inline bool CreatePanelContours=true;
+    static inline bool CreatePanelSurfaces=true;
+    static inline bool CreateReferenceSurfaces=true;
+
+
+    void SetOCAFDoc(opencascade::handle<TDocStd_Document> &handle);
+    opencascade::handle<TDocStd_Document> GetOCAFDoc();
+    opencascade::handle<XCAFDoc_ShapeTool> GetOCAFShapeTool();
+    opencascade::handle<XCAFDoc_ColorTool> GetOCAFColorTool();
 
 
 private:
@@ -41,6 +56,10 @@ private:
     std::string nsPrefix;
     LDOMString ocxGUIDRef;
     LDOMString ocxGUID;
+
+    opencascade::handle<TDocStd_Document> ocafDoc;
+    opencascade::handle<XCAFDoc_ShapeTool> ocafShapeTool;
+    opencascade::handle<XCAFDoc_ColorTool> ocafColorTool;
 
 };
 
