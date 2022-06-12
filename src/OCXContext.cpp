@@ -112,11 +112,11 @@ LDOMString OCXContext::OCXGUID() {
 }
 
 
-void OCXContext::RegisterSurface(std::string guid, TopoDS_Face face) {
+void OCXContext::RegisterSurface(std::string guid, TopoDS_Shape face) {
     guid2refplane[ guid]=face;
 }
 
-TopoDS_Face OCXContext::LookupSurface(std::string guid) {
+TopoDS_Shape OCXContext::LookupSurface(std::string guid) {
     // TODO: check if exist
     return guid2refplane[guid];
 }

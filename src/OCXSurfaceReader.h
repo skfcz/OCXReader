@@ -17,7 +17,7 @@
 class OCXSurfaceReader {
 public:
     OCXSurfaceReader(OCXContext *ctx);
-    TopoDS_Face  ReadSurface( LDOM_Element & vesselN );
+    TopoDS_Shape  ReadSurface( LDOM_Element & vesselN );
 
 private:
     OCXContext * ctx;
@@ -29,7 +29,7 @@ private:
     TopoDS_Face  ReadNURBSurface(LDOM_Element & surfaceN, std::string guid);
     TopoDS_Face  ReadPlane3D(LDOM_Element & surfaceN, std::string guid);
     TopoDS_Face  ReadSphere3D(LDOM_Element & surfaceN, std::string guid);
-    TopoDS_Face  ReadSurfaceCollection(LDOM_Element & surfaceN, std::string guid);
+    TopoDS_Shape  ReadSurfaceCollection(LDOM_Element & surfaceN, std::string guid);
 };
 
 

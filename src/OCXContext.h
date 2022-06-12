@@ -30,8 +30,8 @@ public:
     void PrepareUnits();
     double LoopupFactor( std::string unit);
 
-    void RegisterSurface(std::string guid, TopoDS_Face face);
-    TopoDS_Face LookupSurface(std::string guid);
+    void RegisterSurface(std::string guid, TopoDS_Shape face);
+    TopoDS_Shape LookupSurface(std::string guid);
 
     LDOMString OCXGUIDRef();
     LDOMString OCXGUID();
@@ -49,7 +49,7 @@ public:
 
 
 private:
-    std::map<std::string, TopoDS_Face> guid2refplane;
+    std::map<std::string, TopoDS_Shape> guid2refplane;
 
     std::map<std::string, double> unit2factor;
     LDOM_Element ocxDocN;

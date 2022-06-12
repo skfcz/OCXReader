@@ -18,12 +18,12 @@ class OCXPanelReader {
 public:
     OCXPanelReader(OCXContext *ctx);
 
-    TopoDS_Shape ParsePanels(LDOM_Element &vesselN, TDF_Label vesselL);
+    TopoDS_Shape ParsePanels(LDOM_Element &vesselN);
 
 private:
     OCXContext * ctx;
 
-    TopoDS_Shape ParsePanel(LDOM_Element &pannelN, TDF_Label vesselL);
+    TopoDS_Shape ParsePanel(LDOM_Element &pannelN);
 };
 
 

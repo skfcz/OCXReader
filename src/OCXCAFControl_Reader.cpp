@@ -171,18 +171,20 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
     OCXCoordinateSystemReader* cosysReader = new OCXCoordinateSystemReader(ctx);
     TopoDS_Shape cosysS = cosysReader->ReadCoordinateSystem(vesselN);
     TDF_Label cosysL = ctx->GetOCAFShapeTool()->AddShape( cosysS, true);
-    TDataStd_Name::Set(cosysL, "Coordinate System");
+    //TDataStd_Name::Set(cosysL, "Coordinate System");
 
 
     OCXReferenceSurfacesReader* refSrfReader = new OCXReferenceSurfacesReader(ctx);
     TopoDS_Shape referenceSurfaces = refSrfReader->ReadReferenceSurfaces( vesselN);
+    TDF_Label refSrfL = ctx->GetOCAFShapeTool()->AddShape( referenceSurfaces, true);
+    TDataStd_Name::Set(refSrfL, "Reference Surfaces");
+
 
 
     OCXPanelReader * panelReader = new OCXPanelReader(ctx);
-    TopoDS_Shape panelS = panelReader->ParsePanels(vesselN, vesselL);
-   // rootBuilder.Add(rootS, panelS);
-
-
+    TopoDS_Shape panels = panelReader->ParsePanels(vesselN);
+    TDF_Label panelsL = ctx->GetOCAFShapeTool()->AddShape( panels, true);
+    TDataStd_Name::Set(panelsL, "Panels");
 
 
     std::string fileName = "vessel.stp";

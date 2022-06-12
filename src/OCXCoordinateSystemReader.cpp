@@ -141,7 +141,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
                 std::string guid = std::string( refPlaneN.getAttribute( ctx->OCXGUIDRef()).GetString());
                 std::string name = std::string( refPlaneN.getAttribute( "name").GetString());
 
-                std::cout << "ref plane " << name << ", " << guid << std::endl;
+                //std::cout << "ref plane " << name << ", " << guid << std::endl;
 
                 LDOM_Element refLocN = OCXHelper::GetFirstChild( refPlaneN, "ReferenceLocation");
                 if ( refLocN.isNull()) {
@@ -152,7 +152,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
                     std::string xUnit = std::string(refLocN.getAttribute("unit").GetString());
                     location *= ctx->LoopupFactor(xUnit);
 
-                    std::cout << "    location  " << location <<  std::endl;
+                    //std::cout << "    location  " << location <<  std::endl;
 
                     // Now create an OCC Plane
                     double width =50;
@@ -164,15 +164,18 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
                     gp_Pnt org;
                     gp_Dir direction;
                     gp_Pnt pnt0, pnt1, pnt2, pnt3;
+
                     if ( axis ==0) {
+                        // frames
                         org = gp_Pnt(location,0,0);
                         direction = gp_Dir( 1,0,0);
-                        pnt0 = gp_Pnt( location, width/2.0,minZ);
-                        pnt1 = gp_Pnt( location, -width/2.0,minZ);
-                        pnt2 = gp_Pnt( location, -width/2.0,maxZ);
-                        pnt3 = gp_Pnt( location, width/2.0,maxZ);
+                        pnt0 = gp_Pnt( location, 1.10*width/2.0,minZ);
+                        pnt1 = gp_Pnt( location, -1.10*width/2.0,minZ);
+                        pnt2 = gp_Pnt( location, -1.10*width/2.0,maxZ);
+                        pnt3 = gp_Pnt( location, 1.10*width/2.0,maxZ);
 
                     }else if ( axis ==1) {
+                        // longitudinals
                         org = gp_Pnt(0,location,0);
                         direction = gp_Dir( 0,1,0);
 
@@ -182,22 +185,21 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
                         pnt3 = gp_Pnt(minX, location,maxZ);
 
                     }else if ( axis ==2) {
+                        // verticals
                         org = gp_Pnt(0,0,location);
                         direction = gp_Dir( 0,0,1);
 
-                        pnt0 = gp_Pnt( minX, width/2.0,location);
-                        pnt1 = gp_Pnt( minX, -width/2.0,location);
-                        pnt2 = gp_Pnt( maxX, -width/2.0, location);
-                        pnt3 = gp_Pnt(maxX, width/2.0,location);
+                        pnt0 = gp_Pnt( minX, 1.05*width/2.0,location);
+                        pnt1 = gp_Pnt( minX, -1.05*width/2.0,location);
+                        pnt2 = gp_Pnt( maxX, -1.05*width/2.0, location);
+                        pnt3 = gp_Pnt(maxX, 1.05*width/2.0,location);
                     }
 
-                    std::cout << "pts " << pnt0.X() << ", " << pnt0.Y() << ", " << pnt0.Z() << std::endl;
+                    //std::cout << "pts " << pnt0.X() << ", " << pnt0.Y() << ", " << pnt0.Z() << std::endl;
 
                     gp_Pln plane =gp_Pln( org, direction);
                     TopoDS_Face refPlane = BRepBuilderAPI_MakeFace(plane);
                     ctx->RegisterSurface(guid, refPlane);
-
-                    std::cout << "reg"  << std::endl;
 
                     // ... and a wire around it
                     Handle(Geom_TrimmedCurve) seg01= GC_MakeSegment(pnt0, pnt1);
@@ -205,41 +207,26 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
                     Handle(Geom_TrimmedCurve) seg23= GC_MakeSegment(pnt2, pnt3);
                     Handle(Geom_TrimmedCurve) seg30= GC_MakeSegment(pnt3, pnt0);
 
-                    std::cout << "seg"  << std::endl;
-
-
                     TopoDS_Edge edge0 = BRepBuilderAPI_MakeEdge( seg01);
                     TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge( seg12);
                     TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge( seg23);
                     TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge( seg30);
-                    std::cout << "edg"  << std::endl;
 
                     BRepBuilderAPI_MakeWire makeWire;
                     makeWire.Add(edge0);
                     makeWire.Add(edge1);
                     makeWire.Add(edge2);
                     makeWire.Add(edge3);
-
                     makeWire.Build();
 
                    TopoDS_Wire wire = makeWire.Wire();
-
-
-
-
-                    std::cout << "wr"  << std::endl;
-                    TopoDS_Face surface = BRepBuilderAPI_MakeFace( refPlane, wire);
-//                    std::cout << "sref"  << std::endl;
-
-
+                   TopoDS_Face surface = BRepBuilderAPI_MakeFace( refPlane, wire);
 
                     TDF_Label surfL = ctx->GetOCAFShapeTool()->AddShape( surface, false);
                     TDataStd_Name::Set( surfL, name.c_str());
-
-                    shapes.push_back( surface);
-
                     ctx->GetOCAFColorTool()->SetColor( surfL, color, XCAFDoc_ColorSurf );
 
+                    shapes.push_back( surface);
 
                     cntPlanes++;
                 }
