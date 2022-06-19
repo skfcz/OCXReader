@@ -20,7 +20,6 @@
 #include "OCXSurfaceReader.h"
 
 
-
 OCXPanelReader::OCXPanelReader(OCXContext *ctx) {
     this->ctx = ctx;
 }
@@ -96,8 +95,8 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
 
     std::cout << "    finished panelsurface" << std::endl;
 
-    if (OCXContext::CreatePlateSurfaces ) {
-        if ( panelSurface.IsNull()) {
+    if (OCXContext::CreatePlateSurfaces) {
+        if (panelSurface.IsNull()) {
             std::cerr << "failed to read  panelsurface in Panel " << id << ", name='" << name << "'," << std::endl;
 
         } else {
@@ -108,6 +107,15 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
                 shapes.push_back(plates);
             }
         }
+    }
+    if (OCXContext::CreateStiffenerTraces) {
+        TopoDS_Shape stiffeners = ReadStiffeners(panelN);
+        if (!stiffeners.IsNull()) {
+            TDF_Label label = ctx->OCAFShapeTool()->AddShape(stiffeners, false);
+            TDataStd_Name::Set(label, (id + " Stiffeners").c_str());
+            shapes.push_back(stiffeners);
+        }
+
     }
 
 
@@ -289,6 +297,9 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN, TopoDS_Shape &refer
         return plateShape;
     }
 
+    // material design green 50
+    Quantity_Color plateColor = Quantity_Color(76 / 255.0, 175 / 255.0, 80 / 255.0, Quantity_TOC_RGB);
+
     try {
 
         OCXCurveReader *reader = new OCXCurveReader(ctx);
@@ -302,7 +313,7 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN, TopoDS_Shape &refer
 
         std::cout << "    finished Plate/OuterContour" << std::endl;
 
-        if ( referenceSurface.ShapeType() == TopAbs_FACE) {
+        if (referenceSurface.ShapeType() == TopAbs_FACE) {
             TopoDS_Face face = TopoDS::Face(referenceSurface);
             BRepBuilderAPI_MakeFace faceBuilder = BRepBuilderAPI_MakeFace(face, outerContur);
             faceBuilder.Build();
@@ -316,7 +327,8 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN, TopoDS_Shape &refer
             std::cout << "    created plate surface" << std::endl;
 
             TDF_Label label = ctx->OCAFShapeTool()->AddShape(restricted, true);
-            TDataStd_Name::Set(label, (id + " (" + guid + ")").c_str());
+            TDataStd_Name::Set(label, ("Plate " + id + " (" + guid + ")").c_str());
+            ctx->OCAFColorTool()->SetColor(label, plateColor, XCAFDoc_ColorSurf);
 
             return restricted;
 
@@ -335,10 +347,94 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN, TopoDS_Shape &refer
 }
 
 TopoDS_Shape OCXPanelReader::ReadStiffeners(LDOM_Element &panelN) {
-    return TopoDS_Shape();
+    const char *id = panelN.getAttribute("id").GetString();
+
+    TopoDS_Shape stiffeners = TopoDS_Shape();
+
+
+    LDOM_Element composedOfN = OCXHelper::GetFirstChild(panelN, "StiffenedBy");
+    if (composedOfN.isNull()) {
+        std::cout << "could not find StiffenedBy for Panel " << id << std::endl;
+        return stiffeners;
+    }
+    std::list<TopoDS_Shape> shapes;
+
+    LDOM_Node childN = composedOfN.getFirstChild();
+    while (childN != NULL) {
+        const LDOM_Node::NodeType aNodeType = childN.getNodeType();
+        if (aNodeType == LDOM_Node::ATTRIBUTE_NODE)
+            break;
+        if (aNodeType == LDOM_Node::ELEMENT_NODE) {
+            LDOM_Element stiffenerN = (LDOM_Element &) childN;
+            if ("Stiffener" == OCXHelper::GetLocalTagName(stiffenerN)) {
+
+                TopoDS_Shape stiffener = ReadStiffener(stiffenerN);
+                if (!stiffener.IsNull()) {
+                    shapes.push_back(stiffener);
+                }
+            }
+        }
+        childN = childN.getNextSibling();
+    }
+    std::cout << "finished stiffeners loop, found #" << shapes.size() << " stiffeners" << std::endl;
+    if (shapes.size() == 0) {
+        return stiffeners;
+    }
+
+    TopoDS_Compound stiffenersAssy;
+    BRep_Builder compoundBuilder;
+    compoundBuilder.MakeCompound(stiffenersAssy);
+    for (TopoDS_Shape shape: shapes) {
+        compoundBuilder.Add(stiffenersAssy, shape);
+    }
+
+    TDF_Label panelLabel = ctx->OCAFShapeTool()->AddShape(stiffenersAssy, true);
+    TDataStd_Name::Set(panelLabel, "Stiffeners");
+
+    std::cout << "finished stiffeners" << std::endl;
+
+    return stiffenersAssy;
+
+
 }
 
 TopoDS_Shape OCXPanelReader::ReadStiffener(LDOM_Element &stiffenerN) {
+
+    std::string guid = std::string(stiffenerN.getAttribute(ctx->OCXGUIDRef()).GetString());
+    std::string id = std::string(stiffenerN.getAttribute("id").GetString());
+
+    std::cout << "ReadStiffener, id " << id << " (" << guid << ")" << std::endl;
+
+    try {
+        // material design red 50 500
+        Quantity_Color plateColor = Quantity_Color(244 / 255.0, 67 / 255.0, 54 / 255.0, Quantity_TOC_RGB);
+
+        LDOM_Element traceN = OCXHelper::GetFirstChild(stiffenerN, "TraceLine");
+        if (traceN.isNull()) {
+            std::cerr << "could not find Stiffener/TraceLine element in stiffener with id " << id << ", guid (" << guid
+                      << ")" << std::endl;
+        } else {
+            OCXCurveReader *curveReader = new OCXCurveReader(ctx);
+            TopoDS_Shape trace = curveReader->ReadCurve(traceN);
+
+            if (trace.IsNull()) {
+                std::cerr << "failed to read Stiffener/TraceLine element in stiffener with id " << id << ", guid ("
+                          << guid
+                          << ")" << std::endl;
+            } else {
+                TDF_Label label = ctx->OCAFShapeTool()->AddShape(trace, false);
+                TDataStd_Name::Set(label, ("Stiffener " + id + " (" + guid + ")").c_str());
+                ctx->OCAFColorTool()->SetColor(label, plateColor, XCAFDoc_ColorSurf);
+                return trace;
+            }
+        }
+        // TODO: Add simplified geometry representation of stiffener
+
+    } catch (Standard_Failure exp) {
+        std::cerr << "an error occurred reading stiffener  "
+                  << id << " (" << guid << ") : " << exp << std::endl;
+        return TopoDS_Shape();
+    }
     return TopoDS_Shape();
 }
 

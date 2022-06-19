@@ -39,6 +39,8 @@ private:
     TopoDS_Shape ReadBracket( LDOM_Element &bracketN);
 
 
+
+
 };
 
 

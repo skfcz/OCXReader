@@ -42,6 +42,8 @@ public:
     static inline bool CreatePanelSurfaces=true;
     static inline bool CreateReferenceSurfaces=true;
     static inline bool CreatePlateSurfaces=true;
+    static inline bool CreateStiffenerTraces=true;
+
 
     void OCAFDoc(opencascade::handle<TDocStd_Document> &handle);
     opencascade::handle<TDocStd_Document> OCAFDoc();
