@@ -84,10 +84,6 @@ void OCXContext::PrepareUnits() {
         }
         aChildNode = aChildNode.getNextSibling();
     }
-
-    // TODO: really use the definitions in UnitsSet/Unit
-
-
 }
 
 double OCXContext::LoopupFactor(const std::string unit) {
@@ -112,11 +108,17 @@ LDOMString OCXContext::OCXGUID() {
 }
 
 
-void OCXContext::RegisterSurface(const std::string guid, TopoDS_Shell shell) {
-    guid2refplane[ guid]=shell;
+void OCXContext::RegisterSurface(const std::string guid, TopoDS_Shape shell) {
+
+    if ( shell.ShapeType() == TopAbs_SHELL || shell.ShapeType() == TopAbs_FACE) {
+        guid2refplane[guid] = shell;
+    } else {
+        std::cerr << "RegisterSurfaces expects a SHELL or FACE, got type "
+            << shell.ShapeType() << " for (" << guid << ")" << std::endl;
+    }
 }
 
-TopoDS_Shell OCXContext::LookupSurface(const std::string guid) {
+TopoDS_Shape OCXContext::LookupSurface(const std::string guid) {
     // TODO: check if exist
     return guid2refplane[guid];
 }

@@ -17,7 +17,7 @@
 class OCXSurfaceReader {
 public:
     OCXSurfaceReader(OCXContext *ctx);
-    TopoDS_Shell  ReadSurface( LDOM_Element & vesselN );
+    TopoDS_Shape  ReadSurface( LDOM_Element & vesselN );
 
 private:
     OCXContext * ctx;

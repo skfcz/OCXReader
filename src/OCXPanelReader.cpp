@@ -20,6 +20,7 @@
 #include "OCXSurfaceReader.h"
 
 
+
 OCXPanelReader::OCXPanelReader(OCXContext *ctx) {
     this->ctx = ctx;
 }
@@ -81,7 +82,7 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
     }
     std::cout << "    finished outerContour" << std::endl;
 
-    TopoDS_Shell panelSurface = TopoDS_Shell();
+    TopoDS_Shape panelSurface = TopoDS_Shape();
     if (OCXContext::CreatePanelSurfaces) {
         panelSurface = ReadPanelSurface(panelN, outerContur);
         if (!panelSurface.IsNull()) {
@@ -153,11 +154,11 @@ TopoDS_Wire OCXPanelReader::ReadPanelOuterContour(LDOM_Element &panelN) {
 }
 
 
-TopoDS_Shell OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN, TopoDS_Wire &outerContour) {
+TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN, TopoDS_Wire &outerContour) {
 
     const char *id = panelN.getAttribute("id").GetString();
 
-    TopoDS_Shell shell = TopoDS_Shell();
+    TopoDS_Shape shell = TopoDS_Shape();
 
     LDOM_Element unboundedGeometryN = OCXHelper::GetFirstChild(panelN, "UnboundedGeometry");
     if (unboundedGeometryN.isNull()) {
@@ -226,7 +227,7 @@ TopoDS_Shell OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN, TopoDS_Wire 
 }
 
 
-TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element &panelN, TopoDS_Shell &referenceSurface) {
+TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element &panelN, TopoDS_Shape &referenceSurface) {
     const char *id = panelN.getAttribute("id").GetString();
 
     TopoDS_Shape plates = TopoDS_Shape();
@@ -273,7 +274,7 @@ TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element &panelN, TopoDS_Shell &refe
     return plateAssy;
 }
 
-TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN, TopoDS_Shell &referenceSurface) {
+TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN, TopoDS_Shape &referenceSurface) {
     std::string guid = std::string(plateN.getAttribute(ctx->OCXGUIDRef()).GetString());
     std::string id = std::string(plateN.getAttribute("id").GetString());
 
@@ -301,25 +302,28 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN, TopoDS_Shell &refer
 
         std::cout << "    finished Plate/OuterContour" << std::endl;
 
-        // TODO: limit the faces in the shell by the outer contour
+        if ( referenceSurface.ShapeType() == TopAbs_FACE) {
+            TopoDS_Face face = TopoDS::Face(referenceSurface);
+            BRepBuilderAPI_MakeFace faceBuilder = BRepBuilderAPI_MakeFace(face, outerContur);
+            faceBuilder.Build();
+            TopoDS_Face restricted = faceBuilder.Face();
+            if (restricted.IsNull()) {
+                std::cerr
+                        << "failed to create a restricted surface Panel/UnboundedGeometry + Plate/OuterContour contained in panel "
+                        << id << ", plate " << id << " (" << guid << ") : " << faceBuilder.Error() << std::endl;
+                return plateShape;
+            }
+            std::cout << "    created plate surface" << std::endl;
 
-        /*
-        BRepBuilderAPI_MakeFace faceBuilder = BRepBuilderAPI_MakeFace(referenceSurface, outerContur);
-        faceBuilder.Build();
-        TopoDS_Face restricted = faceBuilder.Face();
-        if (restricted.IsNull()) {
-            std::cerr
-                    << "failed to create a restricted surface Panel/UnboundedGeometry + Plate/OuterContour contained in panel "
-                    << id << ", plate " << id << " (" << guid << ") : " << faceBuilder.Error() << std::endl;
-            return plateShape;
+            TDF_Label label = ctx->OCAFShapeTool()->AddShape(restricted, true);
+            TDataStd_Name::Set(label, (id + " (" + guid + ")").c_str());
+
+            return restricted;
+
+        } else {
+            // TODO: limit the faces in the shell by the outer contour
         }
-        std::cout << "    created plate surface" << std::endl;
 
-        TDF_Label label = ctx->OCAFShapeTool()->AddShape(restricted, true);
-        TDataStd_Name::Set(label, (id + " (" + guid + ")").c_str());
-
-        return restricted;
-         */
         return plateShape;
 
     } catch (Standard_Failure exp) {

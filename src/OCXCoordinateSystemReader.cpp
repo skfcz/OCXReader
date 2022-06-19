@@ -221,28 +221,13 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
 
                    TopoDS_Wire wire = makeWire.Wire();
                    TopoDS_Face surface = BRepBuilderAPI_MakeFace( unlimitedSurface, wire);
+                    ctx->RegisterSurface(guid, surface);
 
                     TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(surface, false);
                     TDataStd_Name::Set( surfL, name.c_str());
                     ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf );
 
                     shapes.push_back( surface);
-
-                    BRepOffsetAPI_Sewing sewedObj;
-                    sewedObj.Add( surface);
-                    sewedObj.Perform();
-                    TopoDS_Shape rawSewer =sewedObj.SewedShape();
-
-                    TopExp_Explorer explorer (rawSewer, TopAbs_SHELL);
-                    if (explorer.More()) {
-
-                        TopoDS_Shape aTmpShape = explorer.Current();
-                        TopoDS_Shell shell =TopoDS::Shell (aTmpShape);
-
-                        ctx->RegisterSurface(guid, shell);
-                    } else {
-                        std::cerr << "failed to create shell from one face " <<  std::endl;
-                    }
 
                     cntPlanes++;
                 }

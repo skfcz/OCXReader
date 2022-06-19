@@ -26,11 +26,11 @@ private:
     TopoDS_Shape ReadPanel(LDOM_Element &panelN);
 
     TopoDS_Wire ReadPanelOuterContour( LDOM_Element &panelN);
-    TopoDS_Shell ReadPanelSurface( LDOM_Element &panelN, TopoDS_Wire & outerContour);
+    TopoDS_Shape ReadPanelSurface( LDOM_Element &panelN, TopoDS_Wire & outerContour);
 
 
-    TopoDS_Shape ReadPlates( LDOM_Element &panelN, TopoDS_Shell &referenceSurface);
-    TopoDS_Shape ReadPlate( LDOM_Element &plateN, TopoDS_Shell &referenceSurface);
+    TopoDS_Shape ReadPlates( LDOM_Element &panelN, TopoDS_Shape &referenceSurface);
+    TopoDS_Shape ReadPlate( LDOM_Element &plateN, TopoDS_Shape &referenceSurface);
 
     TopoDS_Shape ReadStiffeners( LDOM_Element &panelN);
     TopoDS_Shape ReadStiffener( LDOM_Element &stiffenerN);

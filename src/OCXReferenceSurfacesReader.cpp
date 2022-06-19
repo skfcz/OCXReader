@@ -62,36 +62,36 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element &ves
 
             std::cout << "read reference surface " << name << " guid=" << guid << ", type " << surfaceN.getTagName().GetString() <<  std::endl;
 
-            TopoDS_Shell shell = TopoDS_Shell();
+            TopoDS_Shape referenceSurface = TopoDS_Shape();
 
             if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
-                shell = surfaceReader->ReadSurface(surfaceN);
+                referenceSurface = surfaceReader->ReadSurface(surfaceN);
             } else if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                shell = surfaceReader->ReadSurface(surfaceN);
+                referenceSurface = surfaceReader->ReadSurface(surfaceN);
             } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                shell = surfaceReader->ReadSurface(surfaceN);
+                referenceSurface = surfaceReader->ReadSurface(surfaceN);
             } else if ("ReadExtrudedSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                shell = surfaceReader->ReadSurface(surfaceN);
+                referenceSurface = surfaceReader->ReadSurface(surfaceN);
             } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                shell = surfaceReader->ReadSurface(surfaceN);
+                referenceSurface = surfaceReader->ReadSurface(surfaceN);
             } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                shell = surfaceReader->ReadSurface(surfaceN);
+                referenceSurface = surfaceReader->ReadSurface(surfaceN);
             } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                shell = surfaceReader->ReadSurface(surfaceN);
+                referenceSurface = surfaceReader->ReadSurface(surfaceN);
             } else {
-                std::cerr << "found unknown shell type " << surfaceN.getTagName().GetString() << " with guid '" << guid << "'" << std::endl;
+                std::cerr << "found unknown referenceSurface type " << surfaceN.getTagName().GetString() << " with guid '" << guid << "'" << std::endl;
             }
 
-            if ( ! shell.IsNull()) {
-                ctx->RegisterSurface(guid, shell);
+            if ( ! referenceSurface.IsNull()) {
+                ctx->RegisterSurface(guid, referenceSurface);
 
 
                 if ( OCXContext::CreateReferenceSurfaces) {
-                    TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(shell, false);
+                    TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(referenceSurface, false);
                     TDataStd_Name::Set( surfL, name.c_str());
                     ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf );
 
-                    shapes.push_back(shell);
+                    shapes.push_back(referenceSurface);
                 }
 
 

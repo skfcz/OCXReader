@@ -24,51 +24,38 @@ OCXSurfaceReader::OCXSurfaceReader(OCXContext *ctx) : ctx(ctx) {
     this->ctx = ctx;
 }
 
-TopoDS_Shell OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
-
-    TopoDS_Shell shell = TopoDS_Shell();
+TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
 
     std::string guid = std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
     std::string id = std::string(surfaceN.getAttribute("id").GetString());
 
     try {
         if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
-            shell = ReadSurfaceCollection(surfaceN, guid, id);
+            return ReadSurfaceCollection(surfaceN, guid, id);
         } else {
 
-            BRepOffsetAPI_Sewing sewingBuilder;
-
-
-            TopoDS_Face face = TopoDS_Face();
             if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = ReadCone3D(surfaceN, guid, id);
+                return ReadCone3D(surfaceN, guid, id);
             } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = ReadCylinder3D(surfaceN, guid, id);
+                return ReadCylinder3D(surfaceN, guid, id);
             } else if ("ReadExtrudedSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = ReadExtrudedSurface(surfaceN, guid, id);
+                return ReadExtrudedSurface(surfaceN, guid, id);
             } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = ReadNURBSurface(surfaceN, guid, id);
+                return ReadNURBSurface(surfaceN, guid, id);
             } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = ReadPlane3D(surfaceN, guid, id);
+                return ReadPlane3D(surfaceN, guid, id);
             } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = ReadSphere3D(surfaceN, guid, id);
-            } else {
-                std::cerr << "found unknown shell type " << surfaceN.getTagName().GetString() << ", guid (" << guid
-                          << "), id " << id << std::endl;
+                return ReadSphere3D(surfaceN, guid, id);
             }
-            if (face.IsNull()) {
-                std::cerr << "no valid surface read from  " << surfaceN.getTagName().GetString() << ", guid (" << guid
-                          << "), id " << id << std::endl;
-            } else {
-                BRepBuilderAPI_MakeShell shellBuilder(BRep_Tool::Surface(face));
-                shell = shellBuilder.Shell();
-            }
+            std::cerr << "found unknown surface type " << surfaceN.getTagName().GetString() << ", guid (" << guid
+                      << "), id " << id << std::endl;
+            return TopoDS_Shell();
+
         }
-        return shell;
     } catch (Standard_Failure exp) {
         std::cerr << "an error occurred reading surface "
                   << surfaceN.getAttribute("id").GetString() << ":" << exp << std::endl;
-        return shell;
+        return TopoDS_Shell();
     }
 }
 
