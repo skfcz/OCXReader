@@ -101,9 +101,9 @@ double OCXHelper::ReadDimension( LDOM_Element valueN, OCXContext * ctx) {
 
 gp_Pnt OCXHelper::ReadPoint(LDOM_Element pointN, OCXContext *ctx) {
 
-    LDOMString xT = LDOMString((ctx->GetPrefix() + ":X").c_str());
-    LDOMString yT = LDOMString((ctx->GetPrefix() + ":Y").c_str());
-    LDOMString zT = LDOMString((ctx->GetPrefix() + ":Z").c_str());
+    LDOMString xT = LDOMString((ctx->Prefix() + ":X").c_str());
+    LDOMString yT = LDOMString((ctx->Prefix() + ":Y").c_str());
+    LDOMString zT = LDOMString((ctx->Prefix() + ":Z").c_str());
 
     LDOM_Element xN = pointN.GetChildByTagName(xT);
     LDOM_Element yN = pointN.GetChildByTagName(yT);

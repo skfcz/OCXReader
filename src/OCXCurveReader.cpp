@@ -29,7 +29,7 @@ OCXCurveReader::OCXCurveReader(OCXContext *ctx) {
     this->ctx = ctx;
 }
 
-TopoDS_Shape OCXCurveReader::ReadCurve(LDOM_Element &curveRootN) {
+TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element &curveRootN) {
     BRepBuilderAPI_MakeWire makeWire = BRepBuilderAPI_MakeWire();
     LDOM_Node childN = curveRootN.getFirstChild();
 
@@ -287,7 +287,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
 
     std::string id = std::string(nurbs3DN.getAttribute("id").GetString());
 
-    //std::cout << "ParseNURBSCurve " << id << std::endl;
+    std::cout << "ReadNURBS3D " << id << std::endl;
 
     LDOM_Element propsN = OCXHelper::GetFirstChild(nurbs3DN, "NURBSproperties");
     if (propsN.isNull()) {
@@ -374,11 +374,11 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
         return TopoDS_Edge();
     }
     // names of the elements we are looking for
-    LDOMString controlPointT = LDOMString((ctx->GetPrefix() + ":ControlPoint").c_str());
-    LDOMString point3dT = LDOMString((ctx->GetPrefix() + ":Point3D").c_str());
-    LDOMString xT = LDOMString((ctx->GetPrefix() + ":X").c_str());
-    LDOMString yT = LDOMString((ctx->GetPrefix() + ":Y").c_str());
-    LDOMString zT = LDOMString((ctx->GetPrefix() + ":Z").c_str());
+    LDOMString controlPointT = LDOMString((ctx->Prefix() + ":ControlPoint").c_str());
+    LDOMString point3dT = LDOMString((ctx->Prefix() + ":Point3D").c_str());
+    LDOMString xT = LDOMString((ctx->Prefix() + ":X").c_str());
+    LDOMString yT = LDOMString((ctx->Prefix() + ":Y").c_str());
+    LDOMString zT = LDOMString((ctx->Prefix() + ":Z").c_str());
 
 
     LDOM_Element controlPointN = controlPtListN.GetChildByTagName(controlPointT);

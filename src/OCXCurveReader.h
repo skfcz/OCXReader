@@ -29,7 +29,7 @@ public:
      * @param curveParentN the curve parent element element containing the curve(s)
      * @return the created TopoDS_Wire or TopoDS_Edge
      */
-    TopoDS_Shape  ReadCurve( LDOM_Element & curveParentN );
+    TopoDS_Wire  ReadCurve( LDOM_Element & curveParentN );
 
 private:
     OCXContext * ctx;

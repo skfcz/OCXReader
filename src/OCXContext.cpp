@@ -13,7 +13,7 @@
 #include "OCXContext.h"
 #include "OCXHelper.h"
 
-OCXContext::OCXContext(LDOM_Element &ocxDocN, std::string nsPrefix) {
+OCXContext::OCXContext(LDOM_Element &ocxDocN, const std::string nsPrefix) {
     this->ocxDocN = ocxDocN;
     this->nsPrefix =nsPrefix;
 
@@ -90,7 +90,7 @@ void OCXContext::PrepareUnits() {
 
 }
 
-double OCXContext::LoopupFactor(std::string unit) {
+double OCXContext::LoopupFactor(const std::string unit) {
     auto res = unit2factor.find(unit);
     if (res != unit2factor.end()) {
         return res->second;
@@ -99,7 +99,7 @@ double OCXContext::LoopupFactor(std::string unit) {
     return 1;
 }
 
-std::string OCXContext::GetPrefix() {
+std::string OCXContext::Prefix() {
     return nsPrefix;
 }
 
@@ -112,30 +112,31 @@ LDOMString OCXContext::OCXGUID() {
 }
 
 
-void OCXContext::RegisterSurface(std::string guid, TopoDS_Shape face) {
-    guid2refplane[ guid]=face;
+void OCXContext::RegisterSurface(const std::string guid, TopoDS_Shell shell) {
+    guid2refplane[ guid]=shell;
 }
 
-TopoDS_Shape OCXContext::LookupSurface(std::string guid) {
+TopoDS_Shell OCXContext::LookupSurface(const std::string guid) {
     // TODO: check if exist
     return guid2refplane[guid];
 }
 
-void OCXContext::SetOCAFDoc(opencascade::handle<TDocStd_Document> &handle) {
+void OCXContext::OCAFDoc(opencascade::handle<TDocStd_Document> &handle) {
     ocafDoc = handle;
     ocafShapeTool = XCAFDoc_DocumentTool::ShapeTool( ocafDoc->Main() ); // Shape tool.
     ocafColorTool = XCAFDoc_DocumentTool::ColorTool( ocafDoc->Main() ); // Color tool.
 }
 
-opencascade::handle<TDocStd_Document> OCXContext::GetOCAFDoc() {
+opencascade::handle<TDocStd_Document> OCXContext::OCAFDoc() {
     return ocafDoc;
 }
 
-opencascade::handle<XCAFDoc_ShapeTool> OCXContext::GetOCAFShapeTool() {
+opencascade::handle<XCAFDoc_ShapeTool> OCXContext::OCAFShapeTool() {
     return ocafShapeTool;
 }
 
-opencascade::handle<XCAFDoc_ColorTool> OCXContext::GetOCAFColorTool() {
+opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() {
     return ocafColorTool;
 }
+
 

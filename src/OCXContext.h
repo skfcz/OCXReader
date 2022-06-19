@@ -18,44 +18,45 @@
 #include <XCAFDoc_ColorTool.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
+#include <TopoDS_Shell.hxx>
 
 
 class OCXContext {
 
 public:
-    OCXContext(LDOM_Element & ocxDocN, std::string nsPrefix);
-
-    std::string GetPrefix();
+    OCXContext(LDOM_Element & ocxDocN, const std::string nsPrefix);
 
     void PrepareUnits();
     double LoopupFactor( std::string unit);
 
-    void RegisterSurface(std::string guid, TopoDS_Shape face);
-    TopoDS_Shape LookupSurface(std::string guid);
+    void RegisterSurface(std::string guid, TopoDS_Shell shell);
+    TopoDS_Shell LookupSurface(std::string guid);
 
+    std::string Prefix();
     LDOMString OCXGUIDRef();
     LDOMString OCXGUID();
+
 
     // Some config stuff
     static inline bool CreatePanelContours=true;
     static inline bool CreatePanelSurfaces=true;
     static inline bool CreateReferenceSurfaces=true;
+    static inline bool CreatePlateSurfaces=true;
 
-
-    void SetOCAFDoc(opencascade::handle<TDocStd_Document> &handle);
-    opencascade::handle<TDocStd_Document> GetOCAFDoc();
-    opencascade::handle<XCAFDoc_ShapeTool> GetOCAFShapeTool();
-    opencascade::handle<XCAFDoc_ColorTool> GetOCAFColorTool();
+    void OCAFDoc(opencascade::handle<TDocStd_Document> &handle);
+    opencascade::handle<TDocStd_Document> OCAFDoc();
+    opencascade::handle<XCAFDoc_ShapeTool> OCAFShapeTool();
+    opencascade::handle<XCAFDoc_ColorTool> OCAFColorTool();
 
 
 private:
-    std::map<std::string, TopoDS_Shape> guid2refplane;
-
+    std::map<std::string, TopoDS_Shell> guid2refplane;
     std::map<std::string, double> unit2factor;
     LDOM_Element ocxDocN;
     std::string nsPrefix;
     LDOMString ocxGUIDRef;
     LDOMString ocxGUID;
+
 
     opencascade::handle<TDocStd_Document> ocafDoc;
     opencascade::handle<XCAFDoc_ShapeTool> ocafShapeTool;

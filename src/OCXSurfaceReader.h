@@ -17,19 +17,18 @@
 class OCXSurfaceReader {
 public:
     OCXSurfaceReader(OCXContext *ctx);
-    TopoDS_Shape  ReadSurface( LDOM_Element & vesselN );
+    TopoDS_Shell  ReadSurface( LDOM_Element & vesselN );
 
 private:
     OCXContext * ctx;
 
-
-    TopoDS_Face  ReadCone3D(LDOM_Element & surfaceN, std::string guid);
-    TopoDS_Face  ReadCylinder3D(LDOM_Element & surfaceN, std::string guid);
-    TopoDS_Face  ReadExtrudedSurface(LDOM_Element & surfaceN, std::string guid);
-    TopoDS_Face  ReadNURBSurface(LDOM_Element & surfaceN, std::string guid);
-    TopoDS_Face  ReadPlane3D(LDOM_Element & surfaceN, std::string guid);
-    TopoDS_Face  ReadSphere3D(LDOM_Element & surfaceN, std::string guid);
-    TopoDS_Shape  ReadSurfaceCollection(LDOM_Element & surfaceN, std::string guid);
+    TopoDS_Face  ReadCone3D(LDOM_Element & surfaceN, std::string guid, std::string id);
+    TopoDS_Face  ReadCylinder3D(LDOM_Element & surfaceN, std::string guid, std::string id);
+    TopoDS_Face  ReadExtrudedSurface(LDOM_Element & surfaceN, std::string guid, std::string id);
+    TopoDS_Face  ReadNURBSurface(LDOM_Element & surfaceN, std::string guid, std::string id);
+    TopoDS_Face  ReadPlane3D(LDOM_Element & surfaceN, std::string guid, std::string id);
+    TopoDS_Face  ReadSphere3D(LDOM_Element & surfaceN, std::string guid, std::string id);
+    TopoDS_Shell  ReadSurfaceCollection(LDOM_Element & surfaceN, std::string guid, std::string id);
 };
 
 

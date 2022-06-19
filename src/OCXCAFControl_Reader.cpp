@@ -129,7 +129,7 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
         std::cerr << "Can not create OCAF document" << std::endl;
         return Standard_False;
     }
-    ctx->SetOCAFDoc( doc);
+    ctx->OCAFDoc(doc);
 
     TDF_Label vesselL = doc->Main();
     // TODO: use ship name from OCX
@@ -164,26 +164,26 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
     TopoDS_Compound rootS;
     BRep_Builder rootBuilder;
     rootBuilder.MakeCompound (rootS);
-    TDF_Label rootL= ctx->GetOCAFShapeTool()->AddShape(rootS, true);
+    TDF_Label rootL= ctx->OCAFShapeTool()->AddShape(rootS, true);
     TDataStd_Name::Set(rootL, "Vessel");
 
 
     OCXCoordinateSystemReader* cosysReader = new OCXCoordinateSystemReader(ctx);
     TopoDS_Shape cosysS = cosysReader->ReadCoordinateSystem(vesselN);
-    TDF_Label cosysL = ctx->GetOCAFShapeTool()->AddShape( cosysS, true);
+    TDF_Label cosysL = ctx->OCAFShapeTool()->AddShape(cosysS, true);
     //TDataStd_Name::Set(cosysL, "Coordinate System");
 
 
     OCXReferenceSurfacesReader* refSrfReader = new OCXReferenceSurfacesReader(ctx);
     TopoDS_Shape referenceSurfaces = refSrfReader->ReadReferenceSurfaces( vesselN);
-    TDF_Label refSrfL = ctx->GetOCAFShapeTool()->AddShape( referenceSurfaces, true);
+    TDF_Label refSrfL = ctx->OCAFShapeTool()->AddShape(referenceSurfaces, true);
     TDataStd_Name::Set(refSrfL, "Reference Surfaces");
 
 
 
     OCXPanelReader * panelReader = new OCXPanelReader(ctx);
-    TopoDS_Shape panels = panelReader->ParsePanels(vesselN);
-    TDF_Label panelsL = ctx->GetOCAFShapeTool()->AddShape( panels, true);
+    TopoDS_Shape panels = panelReader->ReadPanels(vesselN);
+    TDF_Label panelsL = ctx->OCAFShapeTool()->AddShape(panels, true);
     TDataStd_Name::Set(panelsL, "Panels");
 
 

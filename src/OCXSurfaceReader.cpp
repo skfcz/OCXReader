@@ -11,73 +11,98 @@
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepOffsetAPI_Sewing.hxx>
 #include <TopoDS.hxx>
+#include <BRepAlgoAPI_Fuse.hxx>
+#include <BRepBuilderAPI_MakeShell.hxx>
+#include <BRepAdaptor_Surface.hxx>
+#include <BRep_Tool.hxx>
+#include <TopExp_Explorer.hxx>
 #include "OCXSurfaceReader.h"
 #include "OCXHelper.h"
+#include "OCXCurveReader.h"
 
 OCXSurfaceReader::OCXSurfaceReader(OCXContext *ctx) : ctx(ctx) {
     this->ctx = ctx;
 }
 
-TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
-    TopoDS_Shape surface = TopoDS_Shape();
+TopoDS_Shell OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
 
-    std::string guid = std::string( surfaceN.getAttribute( ctx->OCXGUIDRef()).GetString());
+    TopoDS_Shell shell = TopoDS_Shell();
 
-    if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
-        surface = ReadSurfaceCollection( surfaceN, guid);
-    } else if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        surface = ReadCone3D( surfaceN, guid);
-    } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        surface = ReadCylinder3D(surfaceN, guid);
-    } else if ("ReadExtrudedSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-        surface = ReadExtrudedSurface(surfaceN, guid);
-    } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-        surface = ReadNURBSurface(surfaceN, guid);
-    } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        surface = ReadPlane3D(surfaceN, guid);
-    } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        surface = ReadSphere3D(surfaceN, guid);
-    } else {
-        std::cerr << "found unknown surface type " << surfaceN.getTagName().GetString() << " with guid '" << guid << "'" << std::endl;
+    std::string guid = std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
+    std::string id = std::string(surfaceN.getAttribute("id").GetString());
+
+    try {
+        if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
+            shell = ReadSurfaceCollection(surfaceN, guid, id);
+        } else {
+
+            BRepOffsetAPI_Sewing sewingBuilder;
+
+
+            TopoDS_Face face = TopoDS_Face();
+            if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+                face = ReadCone3D(surfaceN, guid, id);
+            } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+                face = ReadCylinder3D(surfaceN, guid, id);
+            } else if ("ReadExtrudedSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
+                face = ReadExtrudedSurface(surfaceN, guid, id);
+            } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
+                face = ReadNURBSurface(surfaceN, guid, id);
+            } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+                face = ReadPlane3D(surfaceN, guid, id);
+            } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+                face = ReadSphere3D(surfaceN, guid, id);
+            } else {
+                std::cerr << "found unknown shell type " << surfaceN.getTagName().GetString() << ", guid (" << guid
+                          << "), id " << id << std::endl;
+            }
+            if (face.IsNull()) {
+                std::cerr << "no valid surface read from  " << surfaceN.getTagName().GetString() << ", guid (" << guid
+                          << "), id " << id << std::endl;
+            } else {
+                BRepBuilderAPI_MakeShell shellBuilder(BRep_Tool::Surface(face));
+                shell = shellBuilder.Shell();
+            }
+        }
+        return shell;
+    } catch (Standard_Failure exp) {
+        std::cerr << "an error occurred reading surface "
+                  << surfaceN.getAttribute("id").GetString() << ":" << exp << std::endl;
+        return shell;
     }
-    return surface;
 }
 
-TopoDS_Face OCXSurfaceReader::ReadCone3D(LDOM_Element &surfaceN, std::string guid) {
+TopoDS_Face OCXSurfaceReader::ReadCone3D(LDOM_Element &surfaceN, std::string guid, std::string id) {
     return TopoDS_Face();
 }
 
-TopoDS_Face OCXSurfaceReader::ReadCylinder3D(LDOM_Element &surfaceN, std::string guid) {
+TopoDS_Face OCXSurfaceReader::ReadCylinder3D(LDOM_Element &surfaceN, std::string guid, std::string id) {
     return TopoDS_Face();
 }
 
-TopoDS_Face OCXSurfaceReader::ReadExtrudedSurface(LDOM_Element &surfaceN, std::string guid) {
+TopoDS_Face OCXSurfaceReader::ReadExtrudedSurface(LDOM_Element &surfaceN, std::string guid, std::string id) {
     return TopoDS_Face();
 }
 
-TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element &nurbN, std::string guid) {
-    TopoDS_Face surface = TopoDS_Face();
-    std::string colGuid = std::string( nurbN.getAttribute( ctx->OCXGUIDRef()).GetString());
+TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element &nurbN, std::string guid, std::string id) {
+    std::string colGuid = std::string(nurbN.getAttribute(ctx->OCXGUIDRef()).GetString());
 
     return TopoDS_Face();
 }
 
-TopoDS_Face OCXSurfaceReader::ReadSphere3D(LDOM_Element &surfaceN, std::string guid) {
+TopoDS_Face OCXSurfaceReader::ReadSphere3D(LDOM_Element &surfaceN, std::string guid, std::string id) {
     return TopoDS_Face();
 }
 
-TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN, std::string guid) {
+TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN, std::string guid, std::string id) {
 
-    std::string colGuid = std::string( surfColN.getAttribute( ctx->OCXGUIDRef()).GetString());
+    std::string colGuid = std::string(surfColN.getAttribute(ctx->OCXGUIDRef()).GetString());
 
-
-    BRepOffsetAPI_Sewing sewer;
-    sewer.SetTolerance(0.5);
-    sewer.SetMaxTolerance(1.0);
-    sewer.SetMinTolerance(0.1);
+    TopoDS_Shell shell = TopoDS_Shell();
+    // see https://dev.opencascade.org/content/brepbuilderapimakeshell
+    BRepOffsetAPI_Sewing sewedObj;
 
     LDOM_Node childN = surfColN.getFirstChild();
-
     while (childN != NULL) {
         const LDOM_Node::NodeType nodeType = childN.getNodeType();
         if (nodeType == LDOM_Node::ATTRIBUTE_NODE)
@@ -86,61 +111,100 @@ TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN, std
             LDOM_Element surfaceN = (LDOM_Element &) childN;
 
             std::string guid = std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
+            std::string id = std::string(surfaceN.getAttribute("id").GetString());
 
-            std::cout << "    SurfaceCollection/" << OCXHelper::GetLocalTagName(surfaceN) << " guid=" << guid
-                      << std::endl;
+            std::cout << "    SurfaceCollection/" << OCXHelper::GetLocalTagName(surfaceN)
+                      << " guid=" << guid << ", id=" << id << std::endl;
 
+            TopoDS_Face face = TopoDS_Face();
             if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                TopoDS_Face   surface = ReadCone3D(surfaceN, guid);
-                sewer.Add( surface);
+                face = ReadCone3D(surfaceN, guid, id);
             } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                TopoDS_Face   surface = ReadCylinder3D(surfaceN, guid);
-                sewer.Add( surface);
+                face = ReadCylinder3D(surfaceN, guid, id);
             } else if ("ReadExtrudedSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                TopoDS_Face        surface = ReadExtrudedSurface(surfaceN, guid);
-                sewer.Add( surface);
+                face = ReadExtrudedSurface(surfaceN, guid, id);
             } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                TopoDS_Face           surface = ReadNURBSurface(surfaceN, guid);
-                sewer.Add( surface);
+                face = ReadNURBSurface(surfaceN, guid, id);
             } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                TopoDS_Face            surface = ReadPlane3D(surfaceN, guid);
-                sewer.Add( surface);
+                face = ReadPlane3D(surfaceN, guid, id);
             } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                TopoDS_Face         surface = ReadSphere3D(surfaceN, guid);
-                sewer.Add( surface);
+                face = ReadSphere3D(surfaceN, guid, id);
             } else {
-                std::cerr << "found unknown surface type " << surfaceN.getTagName().GetString()
+                std::cerr << "found unknown face type " << surfaceN.getTagName().GetString()
                           << " in SurfaceCollection with guid '" << colGuid << "'" << std::endl;
+                continue;
+            }
+
+            if (face.IsNull()) {
+                std::cerr << "failed to read from face " << surfaceN.getTagName().GetString()
+                          << " (" << guid << ") in SurfaceCollection with guid '" << colGuid << "'" << std::endl;
+            } else {
+                sewedObj.Add(face);
             }
         }
         childN = childN.getNextSibling();
     }
-    sewer.Perform();
-    TopoDS_Shape shape =  sewer.SewedShape();
-    return shape;
+
+    sewedObj.Perform();
+    TopoDS_Shape rawSewer = sewedObj.SewedShape();
+    TopExp_Explorer explorer(rawSewer, TopAbs_SHELL);
+
+    int numShells = 0;
+    if (explorer.More()) {
+
+        TopoDS_Shape aTmpShape = explorer.Current();
+        shell = TopoDS::Shell(aTmpShape);
+        numShells++;
+    }
+    if (numShells != 1) {
+        std::cerr << "expected one shell from failed to read from SurfaceCollection "
+                  << " (" << colGuid << "), got #" << numShells << ", use only last" << std::endl;
+    }
+
+
+    return shell;
 
 }
 
-TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element &surfaceN, std::string guid) {
+TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element &surfaceN, std::string guid, std::string id) {
     LDOM_Element originN = OCXHelper::GetFirstChild(surfaceN, "Origin");
-    if ( originN.isNull()) {
-        std::cout << "could not read surface due to missing Plane3D/Origin element,  GUID is '"<< guid << "'" <<  std::endl;
+    if (originN.isNull()) {
+        std::cout << "could not read surface due to missing Plane3D/Origin element, id '" << guid << "'" << std::endl;
         return TopoDS_Face();
     }
-    gp_Pnt origin = OCXHelper::ReadPoint( originN, ctx);
+    gp_Pnt origin = OCXHelper::ReadPoint(originN, ctx);
 
     LDOM_Element normalN = OCXHelper::GetFirstChild(surfaceN, "Normal");
-    if ( normalN.isNull()) {
-        std::cout << "could not read surface due to missing Plane3D/Normal element,  GUID is '"<< guid << "'" <<  std::endl;
+    if (normalN.isNull()) {
+        std::cout << "could not read surface due to missing Plane3D/Normal element,  GUID is '" << guid << "'"
+                  << std::endl;
         return TopoDS_Face();
     }
-    gp_Dir normal = OCXHelper::ReadDirection( normalN);
+    gp_Dir normal = OCXHelper::ReadDirection(normalN);
 
     // UDirection, FaceBoundaryCurve and LimitedBy are not mandatory in schema
     // TODO: read none mandatory elements from Plane3D
 
-    gp_Pln plane =gp_Pln( origin, normal);
+    gp_Pln plane = gp_Pln(origin, normal);
     TopoDS_Face planeFace = BRepBuilderAPI_MakeFace(plane);
 
-    return planeFace;
+    LDOM_Element faceBoundaryCurveN = OCXHelper::GetFirstChild(surfaceN, "FaceBoundaryCurve");
+    if (faceBoundaryCurveN.isNull()) {
+        std::cout << "could not find  Plane3D/FaceBoundaryCurve in element with (" << guid << ")" << std::endl;
+        return planeFace;
+    }
+
+    OCXCurveReader *curveReader = new OCXCurveReader(ctx);
+    TopoDS_Wire outerContour = curveReader->ReadCurve(faceBoundaryCurveN);
+
+    BRepBuilderAPI_MakeFace faceBuilder = BRepBuilderAPI_MakeFace(planeFace, outerContour);
+    faceBuilder.Build();
+    TopoDS_Face restricted = faceBuilder.Face();
+    if (restricted.IsNull()) {
+        std::cerr << "failed to create a restricted surface from a Plane3D and Plane3D/FaceBoundaryCurveur, guid "
+                  << guid << ", id " << id << ", error " << faceBuilder.Error() << std::endl;
+        restricted = TopoDS_Face();
+    }
+
+    return restricted;
 }

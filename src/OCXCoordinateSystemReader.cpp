@@ -20,6 +20,10 @@
 #include <list>
 #include <TopTools_HSequenceOfShape.hxx>
 #include <Quantity_Color.hxx>
+#include <BRepBuilderAPI_MakeShell.hxx>
+#include <BRepOffsetAPI_Sewing.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
 #include "OCXCoordinateSystemReader.h"
 #include "OCXHelper.h"
 
@@ -85,7 +89,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(LDOM_Element &vesse
         bbuilder.Add(refPlanesAssy, shape);
     }
 
-    TDF_Label label = ctx->GetOCAFShapeTool()->AddShape( refPlanesAssy);//, std::false_type, std::false_type);
+    TDF_Label label = ctx->OCAFShapeTool()->AddShape(refPlanesAssy);//, std::false_type, std::false_type);
     TDataStd_Name::Set( label, "Reference Planes");
 
 
@@ -195,11 +199,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
                         pnt3 = gp_Pnt(maxX, 1.05*width/2.0,location);
                     }
 
-                    //std::cout << "pts " << pnt0.X() << ", " << pnt0.Y() << ", " << pnt0.Z() << std::endl;
-
-                    gp_Pln plane =gp_Pln( org, direction);
-                    TopoDS_Face refPlane = BRepBuilderAPI_MakeFace(plane);
-                    ctx->RegisterSurface(guid, refPlane);
+                    gp_Pln unlimitedSurface =gp_Pln(org, direction);
 
                     // ... and a wire around it
                     Handle(Geom_TrimmedCurve) seg01= GC_MakeSegment(pnt0, pnt1);
@@ -220,13 +220,29 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
                     makeWire.Build();
 
                    TopoDS_Wire wire = makeWire.Wire();
-                   TopoDS_Face surface = BRepBuilderAPI_MakeFace( refPlane, wire);
+                   TopoDS_Face surface = BRepBuilderAPI_MakeFace( unlimitedSurface, wire);
 
-                    TDF_Label surfL = ctx->GetOCAFShapeTool()->AddShape( surface, false);
+                    TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(surface, false);
                     TDataStd_Name::Set( surfL, name.c_str());
-                    ctx->GetOCAFColorTool()->SetColor( surfL, color, XCAFDoc_ColorSurf );
+                    ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf );
 
                     shapes.push_back( surface);
+
+                    BRepOffsetAPI_Sewing sewedObj;
+                    sewedObj.Add( surface);
+                    sewedObj.Perform();
+                    TopoDS_Shape rawSewer =sewedObj.SewedShape();
+
+                    TopExp_Explorer explorer (rawSewer, TopAbs_SHELL);
+                    if (explorer.More()) {
+
+                        TopoDS_Shape aTmpShape = explorer.Current();
+                        TopoDS_Shell shell =TopoDS::Shell (aTmpShape);
+
+                        ctx->RegisterSurface(guid, shell);
+                    } else {
+                        std::cerr << "failed to create shell from one face " <<  std::endl;
+                    }
 
                     cntPlanes++;
                 }
@@ -247,7 +263,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(LDOM_Element &refPlanesN )
         refPlanesBuilder.Add( refPlanesXYZAssy, shape);
     }
 
-    TDF_Label refSrfLabel = ctx->GetOCAFShapeTool()->AddShape( refPlanesXYZAssy, true);
+    TDF_Label refSrfLabel = ctx->OCAFShapeTool()->AddShape(refPlanesXYZAssy, true);
     TDataStd_Name::Set(refSrfLabel, containerName.c_str());
 
     std::cout << "    registered #"<< cntPlanes << " planes found in " << refPlanesN.getTagName().GetString() << std::endl;

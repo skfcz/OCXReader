@@ -41,11 +41,8 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element &ves
         return referenceSurfacesAssy;
     }
 
-
-    // material design teal 50 400
-
-
     std::list<TopoDS_Shape> shapes;
+    // material design teal 50 400
     Quantity_Color color = Quantity_Color(38/255.0, 16/255.0, 154/255.0, Quantity_TOC_RGB);
 
 
@@ -65,36 +62,36 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element &ves
 
             std::cout << "read reference surface " << name << " guid=" << guid << ", type " << surfaceN.getTagName().GetString() <<  std::endl;
 
-            TopoDS_Shape face = TopoDS_Shape();
+            TopoDS_Shell shell = TopoDS_Shell();
 
             if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = surfaceReader->ReadSurface(surfaceN);
+                shell = surfaceReader->ReadSurface(surfaceN);
             } else if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = surfaceReader->ReadSurface(surfaceN);
+                shell = surfaceReader->ReadSurface(surfaceN);
             } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = surfaceReader->ReadSurface(surfaceN);
+                shell = surfaceReader->ReadSurface(surfaceN);
             } else if ("ReadExtrudedSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = surfaceReader->ReadSurface(surfaceN);
+                shell = surfaceReader->ReadSurface(surfaceN);
             } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = surfaceReader->ReadSurface(surfaceN);
+                shell = surfaceReader->ReadSurface(surfaceN);
             } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = surfaceReader->ReadSurface(surfaceN);
+                shell = surfaceReader->ReadSurface(surfaceN);
             } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-                face = surfaceReader->ReadSurface(surfaceN);
+                shell = surfaceReader->ReadSurface(surfaceN);
             } else {
-                std::cerr << "found unknown face type " << surfaceN.getTagName().GetString() << " with guid '" << guid << "'" << std::endl;
+                std::cerr << "found unknown shell type " << surfaceN.getTagName().GetString() << " with guid '" << guid << "'" << std::endl;
             }
 
-            if ( ! face.IsNull()) {
-                ctx->RegisterSurface(guid, face);
+            if ( ! shell.IsNull()) {
+                ctx->RegisterSurface(guid, shell);
 
 
                 if ( OCXContext::CreateReferenceSurfaces) {
-                    TDF_Label surfL = ctx->GetOCAFShapeTool()->AddShape( face, false);
+                    TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(shell, false);
                     TDataStd_Name::Set( surfL, name.c_str());
-                    ctx->GetOCAFColorTool()->SetColor( surfL, color, XCAFDoc_ColorSurf );
+                    ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf );
 
-                    shapes.push_back( face);
+                    shapes.push_back(shell);
                 }
 
 
@@ -110,7 +107,7 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(LDOM_Element &ves
         compoundBuilder.Add( referenceSurfacesAssy, shape);
     }
 
-    TDF_Label refSrfLabel = ctx->GetOCAFShapeTool()->AddShape( referenceSurfacesAssy, true);
+    TDF_Label refSrfLabel = ctx->OCAFShapeTool()->AddShape(referenceSurfacesAssy, true);
     TDataStd_Name::Set(refSrfLabel, "Reference Surfaces");
 
     std::cout << "    registered #"<< shapes.size() << " references surfaces  found in " << refSrfsN.getTagName().GetString() << std::endl;

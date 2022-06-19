@@ -223,6 +223,7 @@ int main()
 
   OCXCAFControl_Reader reader;
   if ( ! reader.ReadFile("Aveva-OHCM-MidShip_V285.3docx")) { // NAPA-D-BULKER-MID_V286.3docx
+    //if ( ! reader.ReadFile("NAPA-D-BULKER-MID_V286.3docx")) { //
       std::cerr << "failed to load" << std::endl;
       return -1;
   }
