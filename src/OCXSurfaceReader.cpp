@@ -1,31 +1,32 @@
-//
-// This file is part of OCXReader library
-// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
-//
+/*
+ * This file is part of OCXReader library
+ * Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ */
 
-#include <gp_Pln.hxx>
-#include <BRepBuilderAPI_MakeFace.hxx>
-#include <BRepOffsetAPI_Sewing.hxx>
-#include <TopoDS.hxx>
-#include <BRepAlgoAPI_Fuse.hxx>
-#include <BRepBuilderAPI_MakeShell.hxx>
+#include "OCXSurfaceReader.h"
+
 #include <BRepAdaptor_Surface.hxx>
+#include <BRepAlgoAPI_Fuse.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakeShell.hxx>
+#include <BRepOffsetAPI_Sewing.hxx>
 #include <BRep_Tool.hxx>
 #include <TopExp_Explorer.hxx>
-#include "OCXSurfaceReader.h"
-#include "OCXHelper.h"
+#include <TopoDS.hxx>
+#include <gp_Pln.hxx>
+
 #include "OCXCurveReader.h"
+#include "OCXHelper.h"
 
 OCXSurfaceReader::OCXSurfaceReader(OCXContext *ctx) : ctx(ctx) {
     this->ctx = ctx;
 }
 
 TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
-
     std::string guid = std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
     std::string id = std::string(surfaceN.getAttribute("id").GetString());
 
@@ -33,7 +34,6 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
         if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
             return ReadSurfaceCollection(surfaceN, guid, id);
         } else {
-
             if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
                 return ReadCone3D(surfaceN, guid, id);
             } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
@@ -50,7 +50,6 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
             std::cerr << "found unknown surface type " << surfaceN.getTagName().GetString() << ", guid (" << guid
                       << "), id " << id << std::endl;
             return TopoDS_Shell();
-
         }
     } catch (Standard_Failure exp) {
         std::cerr << "an error occurred reading surface "
@@ -82,7 +81,6 @@ TopoDS_Face OCXSurfaceReader::ReadSphere3D(LDOM_Element &surfaceN, std::string g
 }
 
 TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN, std::string guid, std::string id) {
-
     std::string colGuid = std::string(surfColN.getAttribute(ctx->OCXGUIDRef()).GetString());
 
     TopoDS_Shell shell = TopoDS_Shell();
@@ -95,7 +93,7 @@ TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN, std
         if (nodeType == LDOM_Node::ATTRIBUTE_NODE)
             break;
         if (nodeType == LDOM_Node::ELEMENT_NODE) {
-            LDOM_Element surfaceN = (LDOM_Element &) childN;
+            LDOM_Element surfaceN = (LDOM_Element &)childN;
 
             std::string guid = std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
             std::string id = std::string(surfaceN.getAttribute("id").GetString());
@@ -138,7 +136,6 @@ TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN, std
 
     int numShells = 0;
     if (explorer.More()) {
-
         TopoDS_Shape aTmpShape = explorer.Current();
         shell = TopoDS::Shell(aTmpShape);
         numShells++;
@@ -148,9 +145,7 @@ TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN, std
                   << " (" << colGuid << "), got #" << numShells << ", use only last" << std::endl;
     }
 
-
     return shell;
-
 }
 
 TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element &surfaceN, std::string guid, std::string id) {

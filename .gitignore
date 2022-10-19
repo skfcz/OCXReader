@@ -39,3 +39,8 @@
 
 
 /cmake_install.cmake
+build
+
+
+# VSCode
+.vscode/

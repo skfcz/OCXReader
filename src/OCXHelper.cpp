@@ -1,29 +1,27 @@
-//
-// This file is part of OCXReader library
-// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
-//
+/*
+ * This file is part of OCXReader library
+ * Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ */
 
 #include "OCXHelper.h"
+
 #include <stdio.h>
 #include <string.h>
+
 #include <vector>
 
-
 std::string OCXHelper::GetLocalTagName(LDOM_Element &elem) {
-
     std::string tagName = std::string(elem.getTagName().GetString());
     int idx = tagName.find(':');
     if (idx != std::string::npos) {
         return tagName.substr(idx + 1);
     }
     return tagName;
-
 }
-
 
 std::string OCXHelper::GetLocalAttrName(LDOM_Node &elem) {
     std::string tagName = std::string(elem.getNodeName().GetString());
@@ -35,8 +33,7 @@ std::string OCXHelper::GetLocalAttrName(LDOM_Node &elem) {
 }
 
 LDOM_Element OCXHelper::GetFirstChild(LDOM_Element &parent, std::string localName) {
-
-    //std::cout << "localName '" <<localName << "'" << std::endl;
+    // std::cout << "localName '" <<localName << "'" << std::endl;
 
     // Verify preconditions
     LDOM_Element aVoidElement;
@@ -50,7 +47,7 @@ LDOM_Element OCXHelper::GetFirstChild(LDOM_Element &parent, std::string localNam
         const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
 
         if (aNodeType == LDOM_Node::ELEMENT_NODE) {
-            LDOM_Element aNextElement = (LDOM_Element &) aChildNode;
+            LDOM_Element aNextElement = (LDOM_Element &)aChildNode;
 
             if (localName.compare(GetLocalTagName(aNextElement)) == 0) {
                 return aNextElement;
@@ -59,23 +56,19 @@ LDOM_Element OCXHelper::GetFirstChild(LDOM_Element &parent, std::string localNam
         aChildNode = aChildNode.getNextSibling();
     }
     return aVoidElement;
-
 }
 
 void OCXHelper::TokenizeBySpace(const std::string &str, std::vector<std::string> &out) {
-
     char *token = strtok(const_cast<char *>(str.c_str()), " ");
     while (token != nullptr) {
         out.push_back(std::string(token));
         token = strtok(nullptr, " ");
     }
-
 }
 
 void OCXHelper::GetDoubleAttribute(LDOM_Element &elem, std::string attrName, Standard_Real &value) {
-
     LDOMString stringValue = elem.getAttribute(attrName.c_str());
-    if ( stringValue.Type() == LDOMBasicString::StringType::LDOM_NULL) {
+    if (stringValue.Type() == LDOMBasicString::StringType::LDOM_NULL) {
         return;
     }
 
@@ -87,11 +80,10 @@ void OCXHelper::GetDoubleAttribute(LDOM_Element &elem, std::string attrName, Sta
 
     int i;
     stringValue.GetInteger(i);
-    value = Standard_Real((double) i);
-
+    value = Standard_Real((double)i);
 }
 
-double OCXHelper::ReadDimension( LDOM_Element valueN, OCXContext * ctx) {
+double OCXHelper::ReadDimension(LDOM_Element valueN, OCXContext *ctx) {
     double x;
     OCXHelper::GetDoubleAttribute(valueN, "numericvalue", x);
     std::string xUnit = std::string(valueN.getAttribute("unit").GetString());
@@ -100,7 +92,6 @@ double OCXHelper::ReadDimension( LDOM_Element valueN, OCXContext * ctx) {
 }
 
 gp_Pnt OCXHelper::ReadPoint(LDOM_Element pointN, OCXContext *ctx) {
-
     LDOMString xT = LDOMString((ctx->Prefix() + ":X").c_str());
     LDOMString yT = LDOMString((ctx->Prefix() + ":Y").c_str());
     LDOMString zT = LDOMString((ctx->Prefix() + ":Z").c_str());
@@ -125,12 +116,10 @@ gp_Pnt OCXHelper::ReadPoint(LDOM_Element pointN, OCXContext *ctx) {
     std::string zUnit = std::string(zN.getAttribute("unit").GetString());
     z *= ctx->LoopupFactor(zUnit);
 
-
     return gp_Pnt(x, y, z);
 }
 
 gp_Dir OCXHelper::ReadDirection(LDOM_Element dirN) {
-
     double x;
     OCXHelper::GetDoubleAttribute(dirN, "x", x);
 
@@ -142,4 +131,3 @@ gp_Dir OCXHelper::ReadDirection(LDOM_Element dirN) {
 
     return gp_Dir(x, y, z);
 }
-

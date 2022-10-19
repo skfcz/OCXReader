@@ -1,29 +1,30 @@
-//
-// This file is part of OCXReader library
-// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
-//
+/*
+ * This file is part of OCXReader library
+ * Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ */
 
-#include <TopoDS_Edge.hxx>
-#include <BRepBuilderAPI_MakeWire.hxx>
-#include <TopoDS.hxx>
-#include <TColStd_Array1OfReal.hxx>
-#include <TColStd_Array1OfInteger.hxx>
-#include <TColgp_Array1OfPnt.hxx>
-#include <Geom_BSplineCurve.hxx>
-#include <BRepBuilderAPI_MakeEdge.hxx>
-#include <Geom_Ellipse.hxx>
-#include <Geom_Circle.hxx>
-#include <GC_MakeCircle.hxx>
-#include <Geom_TrimmedCurve.hxx>
-#include <GC_MakeArcOfCircle.hxx>
-#include <GC_MakeSegment.hxx>
 #include "OCXCurveReader.h"
-#include "OCXHelper.h"
 
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
+#include <GC_MakeArcOfCircle.hxx>
+#include <GC_MakeCircle.hxx>
+#include <GC_MakeSegment.hxx>
+#include <Geom_BSplineCurve.hxx>
+#include <Geom_Circle.hxx>
+#include <Geom_Ellipse.hxx>
+#include <Geom_TrimmedCurve.hxx>
+#include <TColStd_Array1OfInteger.hxx>
+#include <TColStd_Array1OfReal.hxx>
+#include <TColgp_Array1OfPnt.hxx>
+#include <TopoDS.hxx>
+#include <TopoDS_Edge.hxx>
+
+#include "OCXHelper.h"
 
 OCXCurveReader::OCXCurveReader(OCXContext *ctx) {
     this->ctx = ctx;
@@ -38,8 +39,7 @@ TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element &curveRootN) {
         if (nodeType == LDOM_Node::ATTRIBUTE_NODE)
             break;
         if (nodeType == LDOM_Node::ELEMENT_NODE) {
-            LDOM_Element curveN = (LDOM_Element &) childN;
-
+            LDOM_Element curveN = (LDOM_Element &)childN;
 
             TopoDS_Shape edge = TopoDS_Shape();
 
@@ -111,20 +111,19 @@ TopoDS_Wire OCXCurveReader::ReadEllipse3D(LDOM_Element &ellipseN) {
         return TopoDS_Wire();
     }
 
-    gp_Pnt center = OCXHelper::ReadPoint( centerN, ctx);
-    double dMajor = OCXHelper::ReadDimension( majorDiaN, ctx);
-    double dMinor = OCXHelper::ReadDimension( minorDiaN, ctx);
-    gp_Dir majorAxis = OCXHelper::ReadDirection( majorAxisN);
-    gp_Dir minorAxis = OCXHelper::ReadDirection( minorAxisN);
-    gp_Dir normal = majorAxis.Crossed( minorAxis);
+    gp_Pnt center = OCXHelper::ReadPoint(centerN, ctx);
+    double dMajor = OCXHelper::ReadDimension(majorDiaN, ctx);
+    double dMinor = OCXHelper::ReadDimension(minorDiaN, ctx);
+    gp_Dir majorAxis = OCXHelper::ReadDirection(majorAxisN);
+    gp_Dir minorAxis = OCXHelper::ReadDirection(minorAxisN);
+    gp_Dir normal = majorAxis.Crossed(minorAxis);
 
-    gp_Ax2 cosys = gp_Ax2( center, normal, majorAxis);
+    gp_Ax2 cosys = gp_Ax2(center, normal, majorAxis);
     cosys.SetDirection(majorAxis);
 
-    Handle(Geom_Ellipse) ellipse = new Geom_Ellipse( cosys, dMajor/2.0, dMinor/2.0);
+    Handle(Geom_Ellipse) ellipse = new Geom_Ellipse(cosys, dMajor / 2.0, dMinor / 2.0);
     TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(ellipse);
-    return BRepBuilderAPI_MakeWire( edge);
-
+    return BRepBuilderAPI_MakeWire(edge);
 }
 
 TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &circleN) {
@@ -143,22 +142,22 @@ TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &circleN) {
     gp_Pnt p1;
     gp_Pnt p2;
 
-    int pointCnt=0;
+    int pointCnt = 0;
 
     while (childN != NULL) {
         const LDOM_Node::NodeType nodeType = childN.getNodeType();
         if (nodeType == LDOM_Node::ATTRIBUTE_NODE)
             break;
         if (nodeType == LDOM_Node::ELEMENT_NODE) {
-            LDOM_Element pointN = (LDOM_Element &) childN;
+            LDOM_Element pointN = (LDOM_Element &)childN;
 
             if ("Point3D" == OCXHelper::GetLocalTagName(pointN)) {
-                if ( pointCnt==0) {
-                    p0 = OCXHelper::ReadPoint( pointN, ctx);
-                } else if( pointCnt==1) {
-                    p1 = OCXHelper::ReadPoint( pointN, ctx);
-                } else if( pointCnt==2) {
-                    p2 = OCXHelper::ReadPoint( pointN, ctx);
+                if (pointCnt == 0) {
+                    p0 = OCXHelper::ReadPoint(pointN, ctx);
+                } else if (pointCnt == 1) {
+                    p1 = OCXHelper::ReadPoint(pointN, ctx);
+                } else if (pointCnt == 2) {
+                    p2 = OCXHelper::ReadPoint(pointN, ctx);
                 } else {
                     std::cout << "found more that 3 points in  CircumCircle/Positions with curve id='" << id << "'" << std::endl;
                 }
@@ -170,10 +169,9 @@ TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &circleN) {
         childN = childN.getNextSibling();
     }
 
-    Handle(Geom_Circle) circle = GC_MakeCircle( p0,p1, p2);
+    Handle(Geom_Circle) circle = GC_MakeCircle(p0, p1, p2);
     TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(circle);
-    return BRepBuilderAPI_MakeWire( edge);
-
+    return BRepBuilderAPI_MakeWire(edge);
 }
 
 TopoDS_Wire OCXCurveReader::ReadCircle(LDOM_Element &circleN) {
@@ -196,15 +194,15 @@ TopoDS_Wire OCXCurveReader::ReadCircle(LDOM_Element &circleN) {
         return TopoDS_Wire();
     }
 
-    gp_Pnt center = OCXHelper::ReadPoint( centerN, ctx);
-    double diameter = OCXHelper::ReadDimension( diaN, ctx);
-    gp_Dir normal = OCXHelper::ReadDirection( normalN);
+    gp_Pnt center = OCXHelper::ReadPoint(centerN, ctx);
+    double diameter = OCXHelper::ReadDimension(diaN, ctx);
+    gp_Dir normal = OCXHelper::ReadDirection(normalN);
 
-    gp_Ax2 cosys = gp_Ax2( center, normal);
+    gp_Ax2 cosys = gp_Ax2(center, normal);
 
     Handle(Geom_Circle) circle = new Geom_Circle(cosys, diameter / 2.0);
     TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(circle);
-    return BRepBuilderAPI_MakeWire( edge);
+    return BRepBuilderAPI_MakeWire(edge);
 }
 
 TopoDS_Edge OCXCurveReader::ReadCircumArc3D(LDOM_Element &circleN) {
@@ -254,7 +252,7 @@ TopoDS_Edge OCXCurveReader::ReadLine3D(LDOM_Element &lineN) {
     gp_Pnt start = OCXHelper::ReadPoint(startN, ctx);
     gp_Pnt end = OCXHelper::ReadPoint(endN, ctx);
 
-    Handle(Geom_TrimmedCurve) arc = GC_MakeSegment( start, end);
+    Handle(Geom_TrimmedCurve) arc = GC_MakeSegment(start, end);
     return BRepBuilderAPI_MakeEdge(arc);
 }
 
@@ -284,7 +282,6 @@ TopoDS_Shape OCXCurveReader::ReadPolyLine3D(LDOM_Element &curveN) {
 }
 
 TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
-
     std::string id = std::string(nurbs3DN.getAttribute("id").GetString());
 
     std::cout << "ReadNURBS3D " << id << std::endl;
@@ -303,13 +300,11 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
     std::string form = std::string(propsN.getAttribute("form").GetString());
     bool isRational = std::string(propsN.getAttribute("isRational").GetString()) == "true";
 
-    //std::cout << "degree " << degree << ", #ctr " << numCtrlPts << ", #knots " << numKnots << ", form '" << form <<
-    //          (isRational ? "', rational" : "', irrational") << std::endl;
+    // std::cout << "degree " << degree << ", #ctr " << numCtrlPts << ", #knots " << numKnots << ", form '" << form <<
+    //           (isRational ? "', rational" : "', irrational") << std::endl;
 
     // The number of knots is always equals to the number of control points + curve degree + one
     // == number of control points + curve degree
-
-
 
     LDOM_Element knotVectorN = OCXHelper::GetFirstChild(nurbs3DN, "KnotVector");
     if (knotVectorN.isNull()) {
@@ -317,17 +312,16 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
         return TopoDS_Edge();
     }
     std::string knotVectorS = std::string(knotVectorN.getAttribute("value").GetString());
-    //std::cout << "knots[" << knotVectorS << "]" << std::endl;
+    // std::cout << "knots[" << knotVectorS << "]" << std::endl;
     std::vector<std::string> out;
     OCXHelper::TokenizeBySpace(knotVectorS, out);
 
     if (numKnots != static_cast<int>(out.size())) {
-        std::cerr << "failed to parse curve " << id << ", expected #" << numKnots <<
-                  " knot values, but parsing [" << knotVectorS << "] resulted in #" << out.size() << " values"
+        std::cerr << "failed to parse curve " << id << ", expected #" << numKnots << " knot values, but parsing [" << knotVectorS << "] resulted in #" << out.size() << " values"
                   << std::endl;
         return TopoDS_Edge();
     }
-    //  https://github.com/tpaviot/pythonocc-core/issues/706
+    // https://github.com/tpaviot/pythonocc-core/issues/706
     // Typically you'll have in textbooks a knot vector like:     [0 0 0 0.3 0.5 0.7 1 1 1]
     // In OCCT, you have instead:
     //    Knots: [0 0.3 0.5 0.7 1]
@@ -362,11 +356,10 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
     TColStd_Array1OfReal knots(1, knots0.size());
     TColStd_Array1OfInteger mults(1, knots0.size());
     for (int i = 0; i < knots0.size(); i++) {
-        //std::cout << i << ", knot " << knots0[i] << ", mult " << mults0[i] << std::endl;
+        // std::cout << i << ", knot " << knots0[i] << ", mult " << mults0[i] << std::endl;
         knots.SetValue(i + 1, knots0[i]);
         mults.SetValue(i + 1, mults0[i]);
     }
-
 
     LDOM_Element controlPtListN = OCXHelper::GetFirstChild(nurbs3DN, "ControlPtList");
     if (controlPtListN.isNull()) {
@@ -380,7 +373,6 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
     LDOMString yT = LDOMString((ctx->Prefix() + ":Y").c_str());
     LDOMString zT = LDOMString((ctx->Prefix() + ":Z").c_str());
 
-
     LDOM_Element controlPointN = controlPtListN.GetChildByTagName(controlPointT);
     if (controlPointN.isNull()) {
         std::cout << "could not find NURBS3D/ControlPtList/ControlPoint in curve id='" << id << "'" << std::endl;
@@ -392,8 +384,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
 
     int i = 0;
     while (!controlPointN.isNull()) {
-
-        double weight=1;
+        double weight = 1;
         OCXHelper::GetDoubleAttribute(controlPointN, "weight", weight);
 
         LDOM_Element pointN = controlPointN.GetChildByTagName(point3dT);
@@ -434,6 +425,4 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
         return BRepBuilderAPI_MakeWire(edge);
     }
     return edge;
-
-
 }

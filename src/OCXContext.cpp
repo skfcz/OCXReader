@@ -1,30 +1,29 @@
-//
-// This file is part of OCXReader library
-// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
-//
+/*
+ * This file is part of OCXReader library
+ * Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ */
 
-#include <UnitsAPI.hxx>
-#include <TDocStd_Document.hxx>
-#include <XCAFDoc_DocumentTool.hxx>
 #include "OCXContext.h"
+
+#include <TDocStd_Document.hxx>
+#include <UnitsAPI.hxx>
+#include <XCAFDoc_DocumentTool.hxx>
+
 #include "OCXHelper.h"
 
 OCXContext::OCXContext(LDOM_Element &ocxDocN, const std::string nsPrefix) {
     this->ocxDocN = ocxDocN;
-    this->nsPrefix =nsPrefix;
+    this->nsPrefix = nsPrefix;
 
-    this->ocxGUIDRef = LDOMString( (nsPrefix + ":GUIDRef").c_str());
-    this->ocxGUID = LDOMString( (nsPrefix + ":GUID").c_str());
-
+    this->ocxGUIDRef = LDOMString((nsPrefix + ":GUIDRef").c_str());
+    this->ocxGUID = LDOMString((nsPrefix + ":GUID").c_str());
 }
 
-
 void OCXContext::PrepareUnits() {
-
     // we use everything based on m
     UnitsAPI::SetLocalSystem(UnitsAPI_SI);
 
@@ -51,35 +50,34 @@ void OCXContext::PrepareUnits() {
         if (aNodeType == LDOM_Node::ATTRIBUTE_NODE)
             break;
         if (aNodeType == LDOM_Node::ELEMENT_NODE) {
-            LDOM_Element unitN = (LDOM_Element &) aChildNode;
+            LDOM_Element unitN = (LDOM_Element &)aChildNode;
             if ("Unit" == OCXHelper::GetLocalTagName(unitN)) {
                 LDOM_NodeList attributes = unitN.GetAttributesList();
 
                 std::string id;
 
-                for( int i = 0; i < attributes.getLength();i++) {
-                    LDOM_Node theAtt = attributes.item (i);
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    LDOM_Node theAtt = attributes.item(i);
 
-                    std::string name = OCXHelper::GetLocalAttrName( theAtt);
+                    std::string name = OCXHelper::GetLocalAttrName(theAtt);
 
-                    if ( "id" == name) {
+                    if ("id" == name) {
                         id = std::string(theAtt.getNodeValue().GetString());
                     }
                 }
 
-                std::string symbol = OCXHelper::GetFirstChild( unitN, "UnitSymbol").getAttribute("type").GetString();
-                //std::cout << "id  " << id<< ", symbol " << symbol <<  std::endl;
+                std::string symbol = OCXHelper::GetFirstChild(unitN, "UnitSymbol").getAttribute("type").GetString();
+                // std::cout << "id  " << id<< ", symbol " << symbol <<  std::endl;
 
-                if ( "m" == symbol) {
+                if ("m" == symbol) {
                     unit2factor[id] = 1;
-                } else if ( "dm" == symbol) {
-                    unit2factor[id] = 1/10.0;
-                } else if ( "cm" == symbol) {
-                    unit2factor[id] = 1/100.0;
-                } else if ( "mm" == symbol) {
-                    unit2factor[id] = 1/1000.0;
+                } else if ("dm" == symbol) {
+                    unit2factor[id] = 1 / 10.0;
+                } else if ("cm" == symbol) {
+                    unit2factor[id] = 1 / 100.0;
+                } else if ("mm" == symbol) {
+                    unit2factor[id] = 1 / 1000.0;
                 }
-
             }
         }
         aChildNode = aChildNode.getNextSibling();
@@ -107,14 +105,12 @@ LDOMString OCXContext::OCXGUID() {
     return ocxGUID;
 }
 
-
 void OCXContext::RegisterSurface(const std::string guid, TopoDS_Shape shell) {
-
-    if ( shell.ShapeType() == TopAbs_SHELL || shell.ShapeType() == TopAbs_FACE) {
+    if (shell.ShapeType() == TopAbs_SHELL || shell.ShapeType() == TopAbs_FACE) {
         guid2refplane[guid] = shell;
     } else {
         std::cerr << "RegisterSurfaces expects a SHELL or FACE, got type "
-            << shell.ShapeType() << " for (" << guid << ")" << std::endl;
+                  << shell.ShapeType() << " for (" << guid << ")" << std::endl;
     }
 }
 
@@ -125,8 +121,8 @@ TopoDS_Shape OCXContext::LookupSurface(const std::string guid) {
 
 void OCXContext::OCAFDoc(opencascade::handle<TDocStd_Document> &handle) {
     ocafDoc = handle;
-    ocafShapeTool = XCAFDoc_DocumentTool::ShapeTool( ocafDoc->Main() ); // Shape tool.
-    ocafColorTool = XCAFDoc_DocumentTool::ColorTool( ocafDoc->Main() ); // Color tool.
+    ocafShapeTool = XCAFDoc_DocumentTool::ShapeTool(ocafDoc->Main());  // Shape tool.
+    ocafColorTool = XCAFDoc_DocumentTool::ColorTool(ocafDoc->Main());  // Color tool.
 }
 
 opencascade::handle<TDocStd_Document> OCXContext::OCAFDoc() {
@@ -140,5 +136,3 @@ opencascade::handle<XCAFDoc_ShapeTool> OCXContext::OCAFShapeTool() {
 opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() {
     return ocafColorTool;
 }
-
-

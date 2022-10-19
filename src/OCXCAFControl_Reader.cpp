@@ -1,48 +1,42 @@
-//
-// This file is part of OCXReader library
-// Copyright  Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
-//
+/*
+ * This file is part of OCXReader library
+ * Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ */
 
-
-#include <STEPCAFControl_Reader.hxx>
 #include "OCXCAFControl_Reader.h"
-#include "OCXHelper.h"
-#include "OCXCoordinateSystemReader.h"
-#include "OCXReferenceSurfacesReader.h"
-#include "OCXCurveReader.h"
-#include "OCXPanelReader.h"
 
+#include <BRep_Builder.hxx>
+#include <LDOMParser.hxx>
 #include <LDOM_DocumentType.hxx>
 #include <LDOM_LDOMImplementation.hxx>
-#include <LDOMParser.hxx>
 #include <OSD_FileSystem.hxx>
 #include <OSD_Path.hxx>
-
-#include <TDocStd_Document.hxx>
-#include <TDocStd_Application.hxx>
-#include <UnitsAPI.hxx>
-
+#include <STEPCAFControl_Reader.hxx>
+#include <STEPCAFControl_Writer.hxx>
 #include <STEPControl_Writer.hxx>
-
+#include <TDataStd_Name.hxx>
+#include <TDocStd_Application.hxx>
+#include <TDocStd_Document.hxx>
+#include <TopoDS_Compound.hxx>
+#include <UnitsAPI.hxx>
+#include <XCAFDoc_DocumentTool.hxx>
 #include <string>
 #include <vector>
 
-#include <TopoDS_Compound.hxx>
-#include <BRep_Builder.hxx>
-#include <XCAFDoc_DocumentTool.hxx>
-#include <TDataStd_Name.hxx>
-#include <STEPCAFControl_Writer.hxx>
+#include "OCXCoordinateSystemReader.h"
+#include "OCXCurveReader.h"
+#include "OCXHelper.h"
+#include "OCXPanelReader.h"
+#include "OCXReferenceSurfacesReader.h"
 
 OCXCAFControl_Reader::OCXCAFControl_Reader() {
-
 }
 
 OCXCAFControl_Reader::~OCXCAFControl_Reader() {
-
 }
 
 Standard_Boolean
@@ -65,7 +59,6 @@ OCXCAFControl_Reader::ReadFile(const Standard_CString filename) {
     }
 
     ocxDocEL = aParser.getDocument().getDocumentElement();
-
 
     // check we got the right root element
     std::cout << "root element " << ocxDocEL.getTagName().GetString() << std::endl;
@@ -95,17 +88,14 @@ OCXCAFControl_Reader::ReadFile(const Standard_CString filename) {
         return Standard_False;
     }
 
-
     // successfully parsed the file into DOM and made some preliminary checks
     ctx = new OCXContext(ocxDocEL, nsPrefix);
 
     return Standard_True;
-
 }
 
-
 Standard_Boolean OCXCAFControl_Reader::Perform(const Standard_CString filename,
-                                               Handle(TDocStd_Document) &doc,
+                                               Handle(TDocStd_Document) & doc,
                                                const Message_ProgressRange &theProgress) {
     if (ReadFile(filename) == Standard_False) {
         return Standard_False;
@@ -113,9 +103,8 @@ Standard_Boolean OCXCAFControl_Reader::Perform(const Standard_CString filename,
     return Transfer(doc, theProgress);
 }
 
-Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
+Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) & doc,
                                                 const Message_ProgressRange &theProgress) {
-
     if (ocxDocEL == NULL) {
         std::cerr << "run ReadFile before Transfer" << std::endl;
         return Standard_False;
@@ -163,41 +152,36 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
 
     TopoDS_Compound rootS;
     BRep_Builder rootBuilder;
-    rootBuilder.MakeCompound (rootS);
-    TDF_Label rootL= ctx->OCAFShapeTool()->AddShape(rootS, true);
+    rootBuilder.MakeCompound(rootS);
+    TDF_Label rootL = ctx->OCAFShapeTool()->AddShape(rootS, true);
     TDataStd_Name::Set(rootL, "Vessel");
 
-
-    OCXCoordinateSystemReader* cosysReader = new OCXCoordinateSystemReader(ctx);
+    OCXCoordinateSystemReader *cosysReader = new OCXCoordinateSystemReader(ctx);
     TopoDS_Shape cosysS = cosysReader->ReadCoordinateSystem(vesselN);
     TDF_Label cosysL = ctx->OCAFShapeTool()->AddShape(cosysS, true);
-    //TDataStd_Name::Set(cosysL, "Coordinate System");
+    // TDataStd_Name::Set(cosysL, "Coordinate System");
 
-
-    OCXReferenceSurfacesReader* refSrfReader = new OCXReferenceSurfacesReader(ctx);
-    TopoDS_Shape referenceSurfaces = refSrfReader->ReadReferenceSurfaces( vesselN);
+    OCXReferenceSurfacesReader *refSrfReader = new OCXReferenceSurfacesReader(ctx);
+    TopoDS_Shape referenceSurfaces = refSrfReader->ReadReferenceSurfaces(vesselN);
     TDF_Label refSrfL = ctx->OCAFShapeTool()->AddShape(referenceSurfaces, true);
     TDataStd_Name::Set(refSrfL, "Reference Surfaces");
 
-
-
-    OCXPanelReader * panelReader = new OCXPanelReader(ctx);
+    OCXPanelReader *panelReader = new OCXPanelReader(ctx);
     TopoDS_Shape panels = panelReader->ReadPanels(vesselN);
     TDF_Label panelsL = ctx->OCAFShapeTool()->AddShape(panels, true);
     TDataStd_Name::Set(panelsL, "Panels");
-
 
     std::string fileName = "vessel.stp";
 
     STEPCAFControl_Writer writer;
     try {
-        if ( !         writer.Transfer(doc, STEPControl_AsIs)) {
+        if (!writer.Transfer(doc, STEPControl_AsIs)) {
             std::cerr << "failed to transfer root shape to STEP" << std::endl;
             return false;
         }
         const IFSelect_ReturnStatus ret = writer.Write(fileName.c_str());
-        if ( ! ret != IFSelect_RetDone) {
-            std::cerr << "failed to write to STEP, got " << ret <<  std::endl;
+        if (!ret != IFSelect_RetDone) {
+            std::cerr << "failed to write to STEP, got " << ret << std::endl;
             return false;
         }
     } catch (Standard_Failure exp) {
@@ -206,13 +190,3 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) &doc,
 
     return Standard_True;
 }
-
-
-
-
-
-
-
-
-
-
