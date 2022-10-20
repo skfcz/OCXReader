@@ -10,9 +10,18 @@
 #ifndef OCXREADER_OCXPANELREADER_H
 #define OCXREADER_OCXPANELREADER_H
 
-#include <TDF_Label.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRep_Builder.hxx>
+#include <Quantity_Color.hxx>
+#include <TDataStd_Name.hxx>
+#include <TopoDS.hxx>
+#include <TopoDS_Compound.hxx>
+#include <list>
 
-#include "OCXContext.h"
+#include "OCXCurveReader.h"
+#include "OCXHelper.h"
+#include "OCXPanelReader.h"
+#include "OCXSurfaceReader.h"
 
 class OCXPanelReader {
    public:

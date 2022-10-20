@@ -10,6 +10,7 @@
 #ifndef OCXREADER_OCXCURVEREADER_H
 #define OCXREADER_OCXCURVEREADER_H
 
+#include <TopoDS_Edge.hxx>
 #include <TopoDS_Wire.hxx>
 
 #include "OCXContext.h"
