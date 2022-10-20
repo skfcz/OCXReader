@@ -141,7 +141,7 @@ TopoDS_Wire OCXPanelReader::ReadPanelOuterContour(LDOM_Element &panelN) {
         TopoDS_Shape curveShape = reader->ReadCurve(outerContourN);
         if (curveShape.ShapeType() != TopAbs_WIRE) {
             std::cerr << "expect a closed shape as OuterContour, but got " << curveShape.ShapeType() << " in "
-                      << panelN.getAttribute("id").GetString() << ":" << exp << std::endl;
+                      << panelN.getAttribute("id").GetString() << ":" << std::endl;
         }
         return TopoDS::Wire(curveShape);
 
