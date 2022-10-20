@@ -1,32 +1,29 @@
-cmake_minimum_required (VERSION 3.0.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
 # Project name
-project (OCXReader CXX)
+project(OCXReader CXX)
 
 # OpenCascade
 find_package(OpenCASCADE)
 
 # Configure C++ compiler's includes dir
-include_directories ( includes SYSTEM ${OpenCASCADE_INCLUDE_DIR} )
+include_directories(includes SYSTEM ${OpenCASCADE_INCLUDE_DIR})
 
-set (CMAKE_CXX_FLAGS "--std=c++1z")
+set(CMAKE_CXX_FLAGS "--std=c++1z")
 
-
-set( SOURCES src/main.cpp
+set(SOURCES src/main.cpp
         src/OCXContext.h src/OCXContext.cpp
         src/OCXCAFControl_Reader.cpp src/OCXCAFControl_Reader.h
         src/OCXHelper.cpp src/OCXHelper.h
         src/OCXCoordinateSystemReader.cpp src/OCXCoordinateSystemReader.h
         src/OCXReferenceSurfacesReader.cpp src/OCXReferenceSurfacesReader.h
         src/OCXCurveReader.cpp src/OCXCurveReader.h
-        src/OCXSurfaceReader.cpp  src/OCXSurfaceReader.h
+        src/OCXSurfaceReader.cpp src/OCXSurfaceReader.h
         src/OCXPanelReader.cpp src/OCXPanelReader.h
-
-        )
+)
 
 # Add executable
-add_executable (OCXReader ${SOURCES})
-
+add_executable(OCXReader ${SOURCES})
 
 #message(STATUS ${OpenCASCADE_LIBRARIES})
 
@@ -38,6 +35,8 @@ foreach (LIB ${OpenCASCADE_LIBRARIES})
     target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
     target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
   else()
+    message(STATUS "OpenCASCADE_LIBRARIES=${OpenCASCADE_LIBRARIES}")
+    message(STATUS "LIB=${LIB}")
     target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
     target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
   endif()
