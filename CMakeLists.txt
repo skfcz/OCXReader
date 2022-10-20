@@ -25,20 +25,27 @@ set(SOURCES src/main.cpp
 # Add executable
 add_executable(OCXReader ${SOURCES})
 
-#message(STATUS ${OpenCASCADE_LIBRARIES})
+# message(STATUS ${OpenCASCADE_LIBRARIES})
 
 # Add linker options
-set(OpenCASCADE_LIBRARY_DIR /usr/local/lib)
+# TODO: Add Windows configuration
+set(OpenCASCADE_LIBRARY_DIR_WIN32)
+
+set(OpenCASCADE_LIBRARY_DIR_APPLE /opt/homebrew/lib)
+set(OpenCASCADE_LIBRARY_DIR_UNIX /usr/local/lib)
 
 foreach (LIB ${OpenCASCADE_LIBRARIES})
-  if (WIN32)
-    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
-    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-  else()
+  if(WIN32)
+    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_WIN32}d/${LIB}.lib)
+    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_WIN32}/${LIB}.lib)
+  elseif(APPLE)
+    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_APPLE}/lib${LIB}.dylib)
+    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_APPLE}/lib${LIB}.dylib)
+  elseif(UNIX)
     message(STATUS "OpenCASCADE_LIBRARIES=${OpenCASCADE_LIBRARIES}")
     message(STATUS "LIB=${LIB}")
-    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
+    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
   endif()
 endforeach()
 
