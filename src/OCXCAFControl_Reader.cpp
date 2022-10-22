@@ -180,7 +180,7 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(Handle(TDocStd_Document) & doc,
             return false;
         }
         const IFSelect_ReturnStatus ret = writer.Write(fileName.c_str());
-        if (!ret != IFSelect_RetDone) {
+        if (!(ret != IFSelect_RetDone)) {
             std::cerr << "failed to write to STEP, got " << ret << std::endl;
             return false;
         }
