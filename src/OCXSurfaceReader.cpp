@@ -71,8 +71,89 @@ TopoDS_Face OCXSurfaceReader::ReadExtrudedSurface(LDOM_Element &surfaceN, std::s
     return TopoDS_Face();
 }
 
-TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element &nurbN, std::string guid, std::string id) {
-    std::string colGuid = std::string(nurbN.getAttribute(ctx->OCXGUIDRef()).GetString());
+TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element &nurbsSrfN, std::string guid, std::string id) {
+
+    std::string guid = std::string(nurbsSrfN.getAttribute(ctx->OCXGUID()).GetString());
+    std::string id = std::string(nurbsSrfN.getAttribute("id").GetString());
+
+    LDOM_Element uPropsN = OCXHelper::GetFirstChild(nurbsSrfN, "U_NURBSproperties" );
+    if ( uPropsN.isNull()) {
+        std::cerr << "could nit find failed NURBSSurface/U_NURBSproperties in surface with id " << id <<", GUID" << guid << std::endl;
+        return TopoDS_Face();
+    }
+    LDOM_Element vPropsN = OCXHelper::GetFirstChild(nurbsSrfN, "V_NURBSproperties" );
+    if ( vPropsN.isNull()) {
+        std::cerr << "could nit find failed NURBSSurface/V_NURBSproperties in surface with id " << id <<", GUID" << guid << std::endl;
+        return TopoDS_Face();
+    }
+
+    // U properties
+    int uDegree = -1;
+    int uNumCtrlPoints = -1;
+    int uNumKnots =-1;
+    uPropsN.getAttribute("degree").GetInteger(uDegree);
+    uPropsN.getAttribute("numCtrlPts").GetInteger(uNumCtrlPoints);
+    uPropsN.getAttribute("numKnots").GetInteger(uNumKnots);
+    std::string uForm= std::string( uPropsN.getAttribute("form").GetString());
+    bool uIsRational = "true".IsEqual( std::string( uPropsN.getAttribute("isRational").GetString()));
+
+    std::cout << "U degree " << uDegree << ", #ctr " << uNumCtrlPoints << ", #knots " << uNumKnots << ", form '" << uForm <<
+              (uIsRational ? "', rational" : "', irrational") << std::endl;
+
+    // V properties
+    int vDegree = -1;
+    int vNumCtrlPoints = -1;
+    int vNumKnots =-1;
+    vPropsN.getAttribute("degree").GetInteger(vDegree);
+    vPropsN.getAttribute("numCtrlPts").GetInteger(vNumCtrlPoints);
+    vPropsN.getAttribute("numKnots").GetInteger(vNumKnots);
+    std::string vForm= std::string( vPropsN.getAttribute("form").GetString());
+    bool vIsRational = "true".IsEqual( std::string( vPropsN.getAttribute("isRational").GetString()));
+
+    std::cout << "V degree " << vDegree << ", #ctr " << vNumCtrlPoints << ", #knots " << vNumKnots << ", form '" << vForm <<
+              (vIsRational ? "', rational" : "', irrational") << std::endl;
+
+
+    //
+    // the knot vectors
+    //
+    LDOM_Element uKnotVectorN = OCXHelper::GetFirstChild(nurbsSrfN, "UKnotVector");
+    if (uKnotVectorN.isNull()) {
+        std::cout << "could not find NURBSSurface/UKnotVector in surface id='" << id << "'" << std::endl;
+        return TopoDS_Face();
+    }
+
+    std::string uKnotVectorS = std::string(uKnotVectorN.getAttribute("value").GetString());
+
+    KnotMults uKN = OCXHelper::ParseKnotVector( uKnotVectorS, uNumKnots);
+    if ( uKN.IsNull) {
+        return TopoDS_Face();
+    }
+    LDOM_Element vKnotVectorN = OCXHelper::GetFirstChild(nurbsSrfN, "VKnotVector");
+    if (uKnotVectorN.isNull()) {
+        std::cout << "could not find NURBSSurface/VKnotVector in surface id='" << id << "'" << std::endl;
+        return TopoDS_Face();
+    }
+
+    std::string vKnotVectorS = std::string(vKnotVectorN.getAttribute("value").GetString());
+
+    KnotMults vKN = OCXHelper::ParseKnotVector( vKnotVectorS, vNumKnots);
+    if ( vKN.IsNull) {
+        return TopoDS_Face();
+    }
+
+    //
+    // the control points
+    //
+    LDOM_Element controlPtListN = OCXHelper::GetFirstChild(nurbsSrfN, "ControlPtList");
+    if (controlPtListN.isNull()) {
+        std::cout << "could not find NURBSSurface/ControlPtList in surface id='" << id << "'" << std::endl;
+        return TopoDS_Face();
+    }
+    PolesWeights pw = OCXHelper::ParseControlPoints( controlPtListN, uNumKnots, vNumKnots);
+    if ( pw.IsNull) {
+        return TopoDS_Face();
+    }
 
     return TopoDS_Face();
 }
