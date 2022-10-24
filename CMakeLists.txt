@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 project(OCXReader CXX)
 
 # OpenCascade
-find_package(OpenCASCADE)
+find_package(OpenCASCADE REQUIRED)
 
 # Configure C++ compiler's includes dir
 include_directories(includes SYSTEM ${OpenCASCADE_INCLUDE_DIR})
@@ -35,6 +35,7 @@ set(OpenCASCADE_LIBRARY_DIR_WIN32)
 
 set(OpenCASCADE_LIBRARY_DIR_APPLE /opt/homebrew/lib)
 set(OpenCASCADE_LIBRARY_DIR_UNIX /usr/local/lib)
+set(OpenCASCADE_LIBRARY_DIR_UNIX_WSL_BREW /home/linuxbrew/.linuxbrew/lib)
 
 foreach (LIB ${OpenCASCADE_LIBRARIES})
   if(WIN32)
@@ -44,10 +45,14 @@ foreach (LIB ${OpenCASCADE_LIBRARIES})
     target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_APPLE}/lib${LIB}.dylib)
     target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_APPLE}/lib${LIB}.dylib)
   elseif(UNIX)
-    message(STATUS "OpenCASCADE_LIBRARIES=${OpenCASCADE_LIBRARIES}")
-    message(STATUS "LIB=${LIB}")
-    target_link_libraries(OCXReader debug lib${LIB}.so)
-    target_link_libraries(OCXReader optimized lib${LIB}.so)
+    # Ceck if OpenCASCADE is linked from usr/local/lib otherwise assume it is linked from homebrew on WSL
+    if(${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
+      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
+      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
+    else()
+      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_UNIX_WSL_BREW}/lib${LIB}.so)
+      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_UNIX_WSL_BREW}/lib${LIB}.so)
+    endif()
   endif()
 endforeach()
 
