@@ -188,6 +188,17 @@ int main() {
     Handle(TDocStd_Document) doc;
 
     OCXCAFControl_Reader reader;
+    // if ( ! reader.ReadFile("Aveva-OHCM-MidShip_V285.3docx")) { // NAPA-D-BULKER-MID_V286.3docx
+    if (!reader.ReadFile("NAPA-D-BULKER-MID_V286.3docx")) {  //
+        std::cerr << "failed to load" << std::endl;
+        return -1;
+    }
+    if (!reader.Transfer(doc)) {
+        std::cerr << "failed to parse" << std::endl;
+        return -1;
+    }
+
+    OCXCAFControl_Reader reader;
     if (!reader.ReadFile("Aveva-OHCM-MidShip_V285.3docx")) {  // NAPA-D-BULKER-MID_V286.3docx
                                                               // if ( ! reader.ReadFile("NAPA-D-BULKER-MID_V286.3docx")) { //
         std::cerr << "failed to load" << std::endl;
