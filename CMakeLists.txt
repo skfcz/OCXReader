@@ -9,9 +9,9 @@ endmacro()
 project(OCXReader CXX)
 
 # Set OCCT cmake directory on windows
-if(WIN32)
+if (WIN32)
   set(OpenCASCADE_DIR "C:/Program Files/OCCT/cmake")
-endif()
+endif ()
 
 find_package(OpenCASCADE REQUIRED)
 
@@ -46,35 +46,49 @@ set(SOURCES
 add_executable(OCXReader ${SOURCES})
 
 # message(STATUS ${OpenCASCADE_LIBRARIES})
-foreach(LIB ${OpenCASCADE_LIBRARIES})
-  if(WIN32)
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-      set(DEBUG_SUFFIX "d")
-    endif()
-    message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib")
-    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
-    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-  elseif(APPLE)
-    message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib")
-    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.dylib)
-    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.dylib)
-  elseif(UNIX)
-    message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib")
-    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-  endif()
-endforeach()
+foreach (LIB ${OpenCASCADE_LIBRARIES})
+  if (WIN32)
+    if (EXISTS ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib)
+      if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        set(DEBUG_SUFFIX "d")
+      endif ()
+      message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib")
+      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
+      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    else ()
+      message(FATAL_ERROR "Library ${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}")
+    endif ()
+  elseif (APPLE)
+    if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
+      message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib")
+      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
+      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
+    else ()
+      message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
+    endif ()
+  elseif (UNIX)
+    if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+      message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so")
+      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+    else ()
+      message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
+    endif ()
+  endif ()
+endforeach ()
 
 # Copy runtime dlls to build directory
 # cmake-format: off
 # ocxr_include_cmake_file("adm/cmake/ocxr_copy_runtime_dlls")
 # cmake-format: on
 
-# Adjust runtime environment for Visual Studio message(STATUS "OpenCASCADE_BINARY_DIR:
-# ${OpenCASCADE_BINARY_DIR}")
+# Adjust runtime environment for Visual Studio
+# cmake-format: off
+# message(STATUS "OpenCASCADE_BINARY_DIR: ${OpenCASCADE_BINARY_DIR}")
+# cmake-format: on
 set_property(
   TARGET OCXReader
   PROPERTY
-    VS_DEBUGGER_ENVIRONMENT
-    "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
+  VS_DEBUGGER_ENVIRONMENT
+  "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
 )
