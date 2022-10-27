@@ -1,60 +1,80 @@
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
-# set(CMAKE_OSX_ARCHITECTURES "x86_64")
+# macro: include patched file if it exists
+macro(OCXR_INCLUDE_CMAKE_FILE BEING_INCLUDED_FILE)
+  include(${CMAKE_SOURCE_DIR}/${BEING_INCLUDED_FILE}.cmake)
+endmacro()
 
 # Project name
 project(OCXReader CXX)
 
-# OpenCascade
+# Set OCCT cmake directory on windows
+if(WIN32)
+  set(OpenCASCADE_DIR "C:/Program Files/OCCT/cmake")
+endif()
+
 find_package(OpenCASCADE REQUIRED)
 
 # Configure C++ compiler's includes dir
 include_directories(includes SYSTEM ${OpenCASCADE_INCLUDE_DIR})
+# message("OpenCASCADE_INCLUDE_DIR: ${OpenCASCADE_INCLUDE_DIR}")
 
-set(CMAKE_CXX_FLAGS "--std=c++1z")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(SOURCES src/main.cpp
-        src/OCXContext.h src/OCXContext.cpp
-        src/OCXCAFControl_Reader.cpp src/OCXCAFControl_Reader.h
-        src/OCXHelper.cpp src/OCXHelper.h
-        src/OCXCoordinateSystemReader.cpp src/OCXCoordinateSystemReader.h
-        src/OCXReferenceSurfacesReader.cpp src/OCXReferenceSurfacesReader.h
-        src/OCXCurveReader.cpp src/OCXCurveReader.h
-        src/OCXSurfaceReader.cpp src/OCXSurfaceReader.h
-        src/OCXPanelReader.cpp src/OCXPanelReader.h
-)
+set(SOURCES
+    src/main.cpp
+    src/OCXContext.h
+    src/OCXContext.cpp
+    src/OCXCAFControl_Reader.cpp
+    src/OCXCAFControl_Reader.h
+    src/OCXHelper.cpp
+    src/OCXHelper.h
+    src/OCXCoordinateSystemReader.cpp
+    src/OCXCoordinateSystemReader.h
+    src/OCXReferenceSurfacesReader.cpp
+    src/OCXReferenceSurfacesReader.h
+    src/OCXCurveReader.cpp
+    src/OCXCurveReader.h
+    src/OCXSurfaceReader.cpp
+    src/OCXSurfaceReader.h
+    src/OCXPanelReader.cpp
+    src/OCXPanelReader.h)
 
 # Add executable
 add_executable(OCXReader ${SOURCES})
 
 # message(STATUS ${OpenCASCADE_LIBRARIES})
-
-# Add linker options
-# TODO: Add Windows configuration
-set(OpenCASCADE_LIBRARY_DIR_WIN32)
-
-set(OpenCASCADE_LIBRARY_DIR_APPLE /opt/homebrew/lib)
-set(OpenCASCADE_LIBRARY_DIR_UNIX /usr/local/lib)
-set(OpenCASCADE_LIBRARY_DIR_UNIX_WSL_BREW /home/linuxbrew/.linuxbrew/lib)
-
-foreach (LIB ${OpenCASCADE_LIBRARIES})
+foreach(LIB ${OpenCASCADE_LIBRARIES})
   if(WIN32)
-    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_WIN32}d/${LIB}.lib)
-    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_WIN32}/${LIB}.lib)
-  elseif(APPLE)
-    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_APPLE}/lib${LIB}.dylib)
-    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_APPLE}/lib${LIB}.dylib)
-  elseif(UNIX)
-    # Ceck if OpenCASCADE is linked from usr/local/lib otherwise assume it is linked from homebrew on WSL
-    if(${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
-      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
-      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_UNIX}/lib${LIB}.so)
-    else()
-      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR_UNIX_WSL_BREW}/lib${LIB}.so)
-      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR_UNIX_WSL_BREW}/lib${LIB}.so)
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set(DEBUG_SUFFIX "d")
     endif()
+    message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib")
+    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
+    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+  elseif(APPLE)
+    message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib")
+    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+  elseif(UNIX)
+    message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib")
+    target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+    target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
   endif()
 endforeach()
 
-# Adjust runtime environment
-set_property(TARGET OCXReader PROPERTY VS_DEBUGGER_ENVIRONMENT "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%")
+# Copy runtime dlls to build directory
+# cmake-format: off
+# ocxr_include_cmake_file("adm/cmake/ocxr_copy_runtime_dlls")
+# cmake-format: on
+
+# Adjust runtime environment for Visual Studio message(STATUS "OpenCASCADE_BINARY_DIR:
+# ${OpenCASCADE_BINARY_DIR}")
+set_property(
+  TARGET OCXReader
+  PROPERTY
+    VS_DEBUGGER_ENVIRONMENT
+    "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
+)
