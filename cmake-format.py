@@ -56,7 +56,7 @@ with section("format"):
     max_rows_cmdline = 2
 
     # If true, separate flow control names from their parentheses with a space
-    separate_ctrl_name_with_space = False
+    separate_ctrl_name_with_space = True
 
     # If true, separate function names from parentheses with a space
     separate_fn_name_with_space = False

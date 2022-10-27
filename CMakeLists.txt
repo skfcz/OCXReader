@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
 # macro: include patched file if it exists
-macro(OCXR_INCLUDE_CMAKE_FILE BEING_INCLUDED_FILE)
+macro (OCXR_INCLUDE_CMAKE_FILE BEING_INCLUDED_FILE)
   include(${CMAKE_SOURCE_DIR}/${BEING_INCLUDED_FILE}.cmake)
-endmacro()
+endmacro ()
 
 # Project name
 project(OCXReader CXX)
