@@ -11,11 +11,23 @@
 #define OCXREADER_OCXHELPER_H
 
 #include <LDOM_Element.hxx>
+#include <TColgp_Array1OfPnt.hxx>
+#include <TColgp_Array2OfPnt.hxx>
 #include <gp_Pnt.hxx>
-#include <string>
-#include <vector>
 
 #include "OCXContext.h"
+
+struct KnotMults {
+    TColStd_Array1OfReal knots;
+    TColStd_Array1OfInteger mults;
+    bool IsNull;
+};
+
+struct PolesWeights {
+    TColgp_Array2OfPnt poles;
+    TColStd_Array1OfReal weights;
+    bool IsNull;
+};
 
 class OCXHelper {
    public:
@@ -41,6 +53,10 @@ class OCXHelper {
     static gp_Dir ReadDirection(LDOM_Element dirN);
 
     static double ReadDimension(LDOM_Element valueN, OCXContext* ctx);
+
+    static KnotMults ParseKnotVector(std::string value, int numKnots);
+
+    static PolesWeights ParseControlPoints(LDOM_Element controlPtListN, int uNumCtrlPoints, int vNumCtrlPoints);
 };
 
 #endif  // OCXREADER_OCXHELPER_H

@@ -23,7 +23,7 @@ class OCXSurfaceReader {
     TopoDS_Face ReadCone3D(LDOM_Element &surfaceN, std::string guid, std::string id);
     TopoDS_Face ReadCylinder3D(LDOM_Element &surfaceN, std::string guid, std::string id);
     TopoDS_Face ReadExtrudedSurface(LDOM_Element &surfaceN, std::string guid, std::string id);
-    TopoDS_Face ReadNURBSurface(LDOM_Element &surfaceN, std::string guid, std::string id);
+    TopoDS_Face ReadNURBSurface(LDOM_Element &nurbsSrfN, std::string guid, std::string id);
     TopoDS_Face ReadPlane3D(LDOM_Element &surfaceN, std::string guid, std::string id);
     TopoDS_Face ReadSphere3D(LDOM_Element &surfaceN, std::string guid, std::string id);
     TopoDS_Shell ReadSurfaceCollection(LDOM_Element &surfaceN, std::string guid, std::string id);
