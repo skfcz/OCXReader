@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 # macro: include patched file if it exists
 macro (OCXR_INCLUDE_CMAKE_FILE BEING_INCLUDED_FILE)
@@ -23,27 +23,34 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+enable_testing()
+
+set(HEADERS
+    src/OCXContext.h
+    src/OCXCAFControl_Reader.h
+    src/OCXHelper.h
+    src/OCXCoordinateSystemReader.h
+    src/OCXReferenceSurfacesReader.h
+    src/OCXCurveReader.h
+    src/OCXSurfaceReader.h
+    src/OCXPanelReader.h)
 set(SOURCES
     src/main.cpp
-    src/OCXContext.h
     src/OCXContext.cpp
     src/OCXCAFControl_Reader.cpp
-    src/OCXCAFControl_Reader.h
     src/OCXHelper.cpp
-    src/OCXHelper.h
     src/OCXCoordinateSystemReader.cpp
-    src/OCXCoordinateSystemReader.h
     src/OCXReferenceSurfacesReader.cpp
-    src/OCXReferenceSurfacesReader.h
     src/OCXCurveReader.cpp
-    src/OCXCurveReader.h
     src/OCXSurfaceReader.cpp
-    src/OCXSurfaceReader.h
-    src/OCXPanelReader.cpp
-    src/OCXPanelReader.h)
+    src/OCXPanelReader.cpp)
 
 # Add executable
-add_executable(OCXReader ${SOURCES})
+#add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
+# Add Library
+add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
+
+add_subdirectory(test)
 
 # message(STATUS ${OpenCASCADE_LIBRARIES})
 foreach (LIB ${OpenCASCADE_LIBRARIES})
@@ -53,24 +60,24 @@ foreach (LIB ${OpenCASCADE_LIBRARIES})
         set(DEBUG_SUFFIX "d")
       endif ()
       message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib")
-      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
-      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
+      target_link_libraries(${PROJECT_NAME} debug ${OpenCASCADE_LIBRARY_DIR}d/${LIB}.lib)
+      target_link_libraries(${PROJECT_NAME} optimized ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
     else ()
       message(FATAL_ERROR "Library ${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}")
     endif ()
   elseif (APPLE)
     if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
       message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib")
-      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
+      target_link_libraries(${PROJECT_NAME} debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
+      target_link_libraries(${PROJECT_NAME} optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
     else ()
       message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
     endif ()
   elseif (UNIX)
     if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
       message(STATUS "Adding ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so")
-      target_link_libraries(OCXReader debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-      target_link_libraries(OCXReader optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+      target_link_libraries(${PROJECT_NAME} debug ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
+      target_link_libraries(${PROJECT_NAME} optimized ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
     else ()
       message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
     endif ()
@@ -87,7 +94,7 @@ endforeach ()
 # message(STATUS "OpenCASCADE_BINARY_DIR: ${OpenCASCADE_BINARY_DIR}")
 # cmake-format: on
 set_property(
-  TARGET OCXReader
+  TARGET ${PROJECT_NAME}
   PROPERTY
   VS_DEBUGGER_ENVIRONMENT
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
