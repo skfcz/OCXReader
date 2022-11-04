@@ -22,12 +22,14 @@
 #include <TopoDS_Compound.hxx>
 #include <gp_Pln.hxx>
 #include <list>
+#include <memory>
+#include <utility>
 
 #include "ocx/internal/ocx-helper.h"
 
-OCXCoordinateSystemReader::OCXCoordinateSystemReader(OCXContext *ctx) {
-  this->ctx = ctx;
-}
+OCXCoordinateSystemReader::OCXCoordinateSystemReader(
+    std::shared_ptr<OCXContext> ctx)
+    : ctx(std::move(ctx)) {}
 
 TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
     LDOM_Element &vesselN) {
@@ -211,7 +213,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(
             pnt3 = gp_Pnt(maxX, 1.05 * width / 2.0, location);
           }
 
-          gp_Pln unlimitedSurface = gp_Pln(org, direction);
+          auto unlimitedSurface = gp_Pln(org, direction);
 
           // ... and a wire around it
           Handle(Geom_TrimmedCurve) seg01 = GC_MakeSegment(pnt0, pnt1);
@@ -257,7 +259,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlanes(
   TopoDS_Compound refPlanesXYZAssy;
   BRep_Builder refPlanesBuilder;
   refPlanesBuilder.MakeCompound(refPlanesXYZAssy);
-  for (TopoDS_Shape shape : shapes) {
+  for (const TopoDS_Shape &shape : shapes) {
     refPlanesBuilder.Add(refPlanesXYZAssy, shape);
   }
 

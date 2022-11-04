@@ -15,16 +15,17 @@
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shell.hxx>
 #include <string>
+#include <memory>
 
 #include "ocx/internal/ocx-context.h"
 
 class OCXSurfaceReader {
  public:
-  OCXSurfaceReader(OCXContext *ctx);
+  explicit OCXSurfaceReader(std::shared_ptr<OCXContext> ctx);
   TopoDS_Shape ReadSurface(LDOM_Element &vesselN);
 
  private:
-  OCXContext *ctx;
+  std::shared_ptr<OCXContext> ctx;
 
   TopoDS_Face ReadCone3D(LDOM_Element &surfaceN,
                          std::string guid,

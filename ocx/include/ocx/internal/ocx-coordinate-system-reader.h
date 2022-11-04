@@ -12,17 +12,18 @@
 
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
+#include <memory>
 
 #include "ocx/internal/ocx-context.h"
 
 class OCXCoordinateSystemReader {
  public:
-  OCXCoordinateSystemReader(OCXContext *ctx);
+  explicit OCXCoordinateSystemReader(std::shared_ptr<OCXContext> ctx);
+  
   TopoDS_Shape ReadCoordinateSystem(LDOM_Element &vesselN);
 
  private:
-  OCXContext *ctx;
-
+  std::shared_ptr<OCXContext> ctx;
   TopoDS_Shape ReadRefPlanes(LDOM_Element &refPlanesN);
 };
 

@@ -13,6 +13,7 @@
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
+#include <memory>
 
 #include "ocx/internal/ocx-curve-reader.h"
 #include "ocx/internal/ocx-helper.h"
@@ -20,12 +21,12 @@
 
 class OCXPanelReader {
  public:
-  OCXPanelReader(OCXContext *ctx);
+  explicit OCXPanelReader(std::shared_ptr<OCXContext> ctx);
 
   TopoDS_Shape ReadPanels(LDOM_Element &vesselN);
 
  private:
-  OCXContext *ctx;
+  std::shared_ptr<OCXContext> ctx;
 
   TopoDS_Shape ReadPanel(LDOM_Element &panelN);
 

@@ -12,14 +12,15 @@
 #ifndef OCXREADERLIB_INCLUDE_OCX_OCX_H_
 #define OCXREADERLIB_INCLUDE_OCX_OCX_H_
 
-#include "ocx/ocx-caf-control-reader.h"
 #include "ocx/internal/ocx-context.h"
 #include "ocx/internal/ocx-coordinate-system-reader.h"
 #include "ocx/internal/ocx-curve-reader.h"
 #include "ocx/internal/ocx-helper.h"
-#include "ocx/internal/ocx-panel.h"
 #include "ocx/internal/ocx-panel-reader.h"
+#include "ocx/internal/ocx-panel.h"
 #include "ocx/internal/ocx-reference-surfaces-reader.h"
 #include "ocx/internal/ocx-surface-reader.h"
+#include "ocx/internal/ocx-util.h"
+#include "ocx/ocx-caf-control-reader.h"
 
-#endif //OCXREADERLIB_INCLUDE_OCX_OCX_H_
+#endif  // OCXREADERLIB_INCLUDE_OCX_OCX_H_

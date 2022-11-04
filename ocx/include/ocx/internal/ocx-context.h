@@ -22,33 +22,32 @@
 
 class OCXContext {
  public:
-  OCXContext(LDOM_Element &ocxDocN, const std::string nsPrefix);
+  OCXContext(const LDOM_Element &ocxDocN, const std::string &nsPrefix);
 
-  void PrepareUnits();
-  double LoopupFactor(std::string unit);
-
-  void RegisterSurface(std::string guid, TopoDS_Shape shell);
-  TopoDS_Shape LookupSurface(std::string guid);
-
-  std::string Prefix();
-  LDOMString OCXGUIDRef();
-  LDOMString OCXGUID();
-
-  // Some config stuff
   static inline bool CreatePanelContours = true;
   static inline bool CreatePanelSurfaces = true;
   static inline bool CreateReferenceSurfaces = true;
   static inline bool CreatePlateSurfaces = true;
   static inline bool CreateStiffenerTraces = true;
 
-  void OCAFDoc(opencascade::handle<TDocStd_Document> &handle);
+  [[nodiscard]] std::string Prefix() const;
+  [[nodiscard]] LDOMString OCXGUIDRef() const;
+  [[nodiscard]] LDOMString OCXGUID() const;
+
+  void PrepareUnits();
+  double LoopupFactor(const std::string &unit);
+
+  void RegisterSurface(const std::string &guid, const TopoDS_Shape &shell);
+  TopoDS_Shape LookupSurface(const std::string &guid);
+
+  void OCAFDoc(const opencascade::handle<TDocStd_Document> &handle);
   opencascade::handle<TDocStd_Document> OCAFDoc();
   opencascade::handle<XCAFDoc_ShapeTool> OCAFShapeTool();
   opencascade::handle<XCAFDoc_ColorTool> OCAFColorTool();
 
  private:
-  std::map<std::string, TopoDS_Shape> guid2refplane;
-  std::map<std::string, double> unit2factor;
+  std::map<std::string, TopoDS_Shape, std::less<>> guid2refplane;
+  std::map<std::string, double, std::less<>> unit2factor;
   LDOM_Element ocxDocN;
   std::string nsPrefix;
   LDOMString ocxGUIDRef;

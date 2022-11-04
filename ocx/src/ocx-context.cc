@@ -15,19 +15,23 @@
 
 #include "ocx/internal/ocx-helper.h"
 
-OCXContext::OCXContext(LDOM_Element &ocxDocN, const std::string nsPrefix) {
-  this->ocxDocN = ocxDocN;
-  this->nsPrefix = nsPrefix;
-
+OCXContext::OCXContext(const LDOM_Element &ocxDocN, const std::string &nsPrefix)
+    : ocxDocN(ocxDocN), nsPrefix(nsPrefix) {
   this->ocxGUIDRef = LDOMString((nsPrefix + ":GUIDRef").c_str());
   this->ocxGUID = LDOMString((nsPrefix + ":GUID").c_str());
 }
 
+std::string OCXContext::Prefix() const { return nsPrefix; }
+
+LDOMString OCXContext::OCXGUIDRef() const { return ocxGUIDRef; }
+
+LDOMString OCXContext::OCXGUID() const { return ocxGUID; }
+
 void OCXContext::PrepareUnits() {
-  // we use everything based on m
+  // Set main unit
   UnitsAPI::SetLocalSystem(UnitsAPI_SI);
 
-  // set some default values
+  // Set defaults
   unit2factor["Um"] = 1;
   unit2factor["Udm"] = 0.1;
   unit2factor["Ucm"] = 0.01;
@@ -45,7 +49,7 @@ void OCXContext::PrepareUnits() {
     return;
   }
   LDOM_Node aChildNode = unitsSetN.getFirstChild();
-  while (aChildNode != NULL) {
+  while (aChildNode != nullptr) {
     const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
@@ -54,7 +58,6 @@ void OCXContext::PrepareUnits() {
         LDOM_NodeList attributes = unitN.GetAttributesList();
 
         std::string id;
-
         for (int i = 0; i < attributes.getLength(); i++) {
           LDOM_Node theAtt = attributes.item(i);
 
@@ -68,7 +71,6 @@ void OCXContext::PrepareUnits() {
         std::string symbol = OCXHelper::GetFirstChild(unitN, "UnitSymbol")
                                  .getAttribute("type")
                                  .GetString();
-        // std::cout << "id  " << id<< ", symbol " << symbol <<  std::endl;
 
         if ("m" == symbol) {
           unit2factor[id] = 1;
@@ -85,23 +87,17 @@ void OCXContext::PrepareUnits() {
   }
 }
 
-double OCXContext::LoopupFactor(const std::string unit) {
-  auto res = unit2factor.find(unit);
-  if (res != unit2factor.end()) {
+double OCXContext::LoopupFactor(const std::string &unit) {
+  if (auto res = unit2factor.find(unit); res != unit2factor.end()) {
     return res->second;
   }
-  std::cout << "could not find factor for unit '" << unit << "', use 1.0"
+  std::cout << "could not find factor for unit '" << unit << "', using 1.0"
             << std::endl;
   return 1;
 }
 
-std::string OCXContext::Prefix() { return nsPrefix; }
-
-LDOMString OCXContext::OCXGUIDRef() { return ocxGUIDRef; }
-
-LDOMString OCXContext::OCXGUID() { return ocxGUID; }
-
-void OCXContext::RegisterSurface(const std::string guid, TopoDS_Shape shell) {
+void OCXContext::RegisterSurface(const std::string &guid,
+                                 const TopoDS_Shape &shell) {
   if (shell.ShapeType() == TopAbs_SHELL || shell.ShapeType() == TopAbs_FACE) {
     guid2refplane[guid] = shell;
   } else {
@@ -110,17 +106,15 @@ void OCXContext::RegisterSurface(const std::string guid, TopoDS_Shape shell) {
   }
 }
 
-TopoDS_Shape OCXContext::LookupSurface(const std::string guid) {
+TopoDS_Shape OCXContext::LookupSurface(const std::string &guid) {
   // TODO: check if exist
   return guid2refplane[guid];
 }
 
-void OCXContext::OCAFDoc(opencascade::handle<TDocStd_Document> &handle) {
+void OCXContext::OCAFDoc(const opencascade::handle<TDocStd_Document> &handle) {
   ocafDoc = handle;
-  ocafShapeTool =
-      XCAFDoc_DocumentTool::ShapeTool(ocafDoc->Main());  // Shape tool.
-  ocafColorTool =
-      XCAFDoc_DocumentTool::ColorTool(ocafDoc->Main());  // Color tool.
+  ocafShapeTool = XCAFDoc_DocumentTool::ShapeTool(ocafDoc->Main());
+  ocafColorTool = XCAFDoc_DocumentTool::ColorTool(ocafDoc->Main());
 }
 
 opencascade::handle<TDocStd_Document> OCXContext::OCAFDoc() { return ocafDoc; }

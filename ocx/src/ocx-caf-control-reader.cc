@@ -22,27 +22,27 @@
 #include <TDocStd_Document.hxx>
 #include <TopoDS_Compound.hxx>
 #include <UnitsAPI.hxx>
+#include <memory>
 #include <string>
-#include <vector>
 
 #include "ocx/internal/ocx-coordinate-system-reader.h"
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-panel-reader.h"
 #include "ocx/internal/ocx-reference-surfaces-reader.h"
+#include "ocx/internal/ocx-util.h"
 
-OCXCAFControl_Reader::OCXCAFControl_Reader() {}
+OCXCAFControl_Reader::OCXCAFControl_Reader() = default;
 
-OCXCAFControl_Reader::~OCXCAFControl_Reader() {}
+OCXCAFControl_Reader::~OCXCAFControl_Reader() = default;
 
-Standard_Boolean OCXCAFControl_Reader::ReadFile(
-    const Standard_CString filename) {
+Standard_Boolean OCXCAFControl_Reader::ReadFile(Standard_CString filename) {
   // Load the OCX Document as DOM
   const Handle(OSD_FileSystem) &aFileSystem =
       OSD_FileSystem::DefaultFileSystem();
   opencascade::std::shared_ptr<std::istream> aFileStream =
       aFileSystem->OpenIStream(filename, std::ios::in);
 
-  if (aFileStream.get() == NULL || !aFileStream->good()) {
+  if (aFileStream == nullptr || !aFileStream->good()) {
     std::cerr << "cannot open '" << filename << "' for reading" << std::endl;
     return Standard_False;
   }
@@ -55,12 +55,10 @@ Standard_Boolean OCXCAFControl_Reader::ReadFile(
     return Standard_False;
   }
 
+  // Get the DOM document
   ocxDocEL = aParser.getDocument().getDocumentElement();
 
-  // check we got the right root element
-  std::cout << "root element " << ocxDocEL.getTagName().GetString()
-            << std::endl;
-
+  // Check that we got the right root element
   std::string rtn(ocxDocEL.getTagName().GetString());
   std::size_t pos = rtn.find(':');
   if (pos == std::string::npos) {
@@ -70,33 +68,34 @@ Standard_Boolean OCXCAFControl_Reader::ReadFile(
   nsPrefix = rtn.substr(0, pos);
   std::cout << "ocx prefix '" << nsPrefix << "'" << std::endl;
 
-  if (rtn.compare(nsPrefix + ":ocxXML") != 0) {
+  if (rtn != nsPrefix + ":ocxXML") {
     std::cerr << "expected root element <" << nsPrefix << ":ocxXML>, but got <"
               << rtn << ">" << std::endl;
     return Standard_False;
   }
 
-  // check the version
+  // Check the version compatibility
   std::string schemaVersion(ocxDocEL.getAttribute("schemaVersion").GetString());
   if (schemaVersion.empty()) {
     std::cerr << "no schemaVersion attribute found in root element"
               << std::endl;
     return Standard_False;
   }
-  if (schemaVersion != "2.8.5") {
-    std::cerr << "expect schemaVersion 2.8.5, got " << schemaVersion
+  if (Version(schemaVersion) < Version("2.8.5") &&
+      Version(schemaVersion) > Version("2.9.0")) {
+    std::cerr << "expect schemaVersion ^2.8.5, got " << schemaVersion
               << std::endl;
     return Standard_False;
   }
 
-  // successfully parsed the file into DOM and made some preliminary checks
-  ctx = new OCXContext(ocxDocEL, nsPrefix);
+  // Create context
+  ctx = std::make_shared<OCXContext>(ocxDocEL, nsPrefix);
 
   return Standard_True;
 }
 
 Standard_Boolean OCXCAFControl_Reader::Perform(
-    const Standard_CString filename, Handle(TDocStd_Document) & doc,
+    Standard_CString filename, Handle(TDocStd_Document) & doc,
     const Message_ProgressRange &theProgress) {
   if (ReadFile(filename) == Standard_False) {
     return Standard_False;
@@ -106,10 +105,11 @@ Standard_Boolean OCXCAFControl_Reader::Perform(
 
 Standard_Boolean OCXCAFControl_Reader::Transfer(
     Handle(TDocStd_Document) & doc, const Message_ProgressRange &theProgress) {
-  if (ocxDocEL == NULL) {
+  if (ocxDocEL == nullptr) {
     std::cerr << "run ReadFile before Transfer" << std::endl;
     return Standard_False;
   }
+
   //
   // OCAF
   //
@@ -137,8 +137,8 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(
   }
   nsPrefix = fullTagName.substr(0, index);
 
-  std::string expectedTagName = nsPrefix + ":ocxXML";
-  if (expectedTagName.compare(fullTagName) != 0) {
+  if (std::string expectedTagName = nsPrefix + ":ocxXML";
+      expectedTagName != fullTagName) {
     std::cerr << "expect document to start with " << expectedTagName
               << ", but found " << fullTagName << "'" << std::endl;
     return Standard_False;
@@ -158,19 +158,21 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(
   TDF_Label rootL = ctx->OCAFShapeTool()->AddShape(rootS, true);
   TDataStd_Name::Set(rootL, "Vessel");
 
-  OCXCoordinateSystemReader *cosysReader = new OCXCoordinateSystemReader(ctx);
-  TopoDS_Shape cosysS = cosysReader->ReadCoordinateSystem(vesselN);
+  // Read coordinate system
+  OCXCoordinateSystemReader cosysReader(ctx);
+  TopoDS_Shape cosysS = cosysReader.ReadCoordinateSystem(vesselN);
   TDF_Label cosysL = ctx->OCAFShapeTool()->AddShape(cosysS, true);
-  // TDataStd_Name::Set(cosysL, "Coordinate System");
+  TDataStd_Name::Set(cosysL, "Coordinate System");
 
-  OCXReferenceSurfacesReader *refSrfReader =
-      new OCXReferenceSurfacesReader(ctx);
-  TopoDS_Shape referenceSurfaces = refSrfReader->ReadReferenceSurfaces(vesselN);
+  // Read reference surfaces
+  OCXReferenceSurfacesReader refSrfReader(ctx);
+  TopoDS_Shape referenceSurfaces = refSrfReader.ReadReferenceSurfaces(vesselN);
   TDF_Label refSrfL = ctx->OCAFShapeTool()->AddShape(referenceSurfaces, true);
   TDataStd_Name::Set(refSrfL, "Reference Surfaces");
 
-  OCXPanelReader *panelReader = new OCXPanelReader(ctx);
-  TopoDS_Shape panels = panelReader->ReadPanels(vesselN);
+  // Read panels
+  OCXPanelReader panelReader(ctx);
+  TopoDS_Shape panels = panelReader.ReadPanels(vesselN);
   TDF_Label panelsL = ctx->OCAFShapeTool()->AddShape(panels, true);
   TDataStd_Name::Set(panelsL, "Panels");
 
@@ -183,11 +185,11 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(
       return false;
     }
     const IFSelect_ReturnStatus ret = writer.Write(fileName.c_str());
-    if (!(ret != IFSelect_RetDone)) {
+    if (ret == IFSelect_RetDone) {
       std::cerr << "failed to write to STEP, got " << ret << std::endl;
       return false;
     }
-  } catch (Standard_Failure exp) {
+  } catch (Standard_Failure const &exp) {
     std::cerr << "an error occurred transferring geometry:" << exp << std::endl;
   }
 

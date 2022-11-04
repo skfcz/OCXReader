@@ -16,19 +16,22 @@
 #include <TopoDS.hxx>
 #include <TopoDS_Compound.hxx>
 #include <list>
+#include <memory>
+#include <utility>
 
 #include "ocx/internal/ocx-curve-reader.h"
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-surface-reader.h"
 
-OCXPanelReader::OCXPanelReader(OCXContext *ctx) { this->ctx = ctx; }
+OCXPanelReader::OCXPanelReader(std::shared_ptr<OCXContext> ctx)
+    : ctx(std::move(ctx)) {}
 
 TopoDS_Shape OCXPanelReader::ReadPanels(LDOM_Element &vesselN) {
   std::list<TopoDS_Shape> shapes;
 
   // Take the first child. If it doesn't match look for other ones in a loop
   LDOM_Node aChildNode = vesselN.getFirstChild();
-  while (aChildNode != NULL) {
+  while (aChildNode != nullptr) {
     const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {

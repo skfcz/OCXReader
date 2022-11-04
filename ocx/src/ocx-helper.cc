@@ -9,48 +9,44 @@
 
 #include "ocx/internal/ocx-helper.h"
 
-#include <stdio.h>
 #include <string.h>
 
+#include <TColStd_Array1OfReal.hxx>
+#include <memory>
 #include <vector>
 
-std::string OCXHelper::GetLocalTagName(LDOM_Element &elem) {
-  std::string tagName = std::string(elem.getTagName().GetString());
-  int idx = tagName.find(':');
-  if (idx != std::string::npos) {
+std::string OCXHelper::GetLocalTagName(const LDOM_Element &elem) {
+  auto tagName = std::string(elem.getTagName().GetString());
+  if (size_t idx = tagName.find(':'); idx != std::string::npos) {
     return tagName.substr(idx + 1);
   }
   return tagName;
 }
 
-std::string OCXHelper::GetLocalAttrName(LDOM_Node &elem) {
-  std::string tagName = std::string(elem.getNodeName().GetString());
-  int idx = tagName.find(':');
-  if (idx != std::string::npos) {
+std::string OCXHelper::GetLocalAttrName(const LDOM_Node &elem) {
+  auto tagName = std::string(elem.getNodeName().GetString());
+  if (size_t idx = tagName.find(':'); idx != std::string::npos) {
     return tagName.substr(idx + 1);
   }
   return tagName;
 }
 
-LDOM_Element OCXHelper::GetFirstChild(LDOM_Element &parent,
-                                      std::string localName) {
-  // std::cout << "localName '" <<localName << "'" << std::endl;
-
+LDOM_Element OCXHelper::GetFirstChild(const LDOM_Element &parent,
+                                      const std::string_view &localName) {
   // Verify preconditions
   LDOM_Element aVoidElement;
-  if (parent == NULL || localName.length() == 0) {
+  if (parent == nullptr || localName.length() == 0) {
     return aVoidElement;
   }
 
   // Take the first child. If it doesn't match look for other ones in a loop
   LDOM_Node aChildNode = parent.getFirstChild();
-  while (aChildNode != NULL) {
-    const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
-
-    if (aNodeType == LDOM_Node::ELEMENT_NODE) {
+  while (aChildNode != nullptr) {
+    if (const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
+        aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element aNextElement = (LDOM_Element &)aChildNode;
 
-      if (localName.compare(GetLocalTagName(aNextElement)) == 0) {
+      if (localName == GetLocalTagName(aNextElement)) {
         return aNextElement;
       }
     }
@@ -100,7 +96,8 @@ void OCXHelper::GetDoubleAttribute(const LDOM_Element &elem,
   value = Standard_Real((double)i);
 }
 
-double OCXHelper::ReadDimension(const LDOM_Element &valueN, OCXContext *ctx) {
+double OCXHelper::ReadDimension(const LDOM_Element &valueN,
+                                const std::shared_ptr<OCXContext> &ctx) {
   double value = 0;
   OCXHelper::GetDoubleAttribute(valueN, "numericvalue", value);
   auto xUnit = std::string(valueN.getAttribute("unit").GetString());
@@ -108,7 +105,8 @@ double OCXHelper::ReadDimension(const LDOM_Element &valueN, OCXContext *ctx) {
   return value;
 }
 
-gp_Pnt OCXHelper::ReadPoint(const LDOM_Element &pointN, OCXContext *ctx) {
+gp_Pnt OCXHelper::ReadPoint(const LDOM_Element &pointN,
+                            const std::shared_ptr<OCXContext> &ctx) {
   auto xT = LDOMString((ctx->Prefix() + ":X").c_str());
   auto yT = LDOMString((ctx->Prefix() + ":Y").c_str());
   auto zT = LDOMString((ctx->Prefix() + ":Z").c_str());
@@ -193,11 +191,9 @@ KnotMults OCXHelper::ParseKnotVector(const std::string &knotVectorS,
   return kn;
 }
 
-PolesWeights OCXHelper::ParseControlPoints(const LDOM_Element &controlPtListN,
-                                           int uNumCtrlPoints,
-                                           int vNumCtrlPoints,
-                                           const std::string &id,
-                                           OCXContext *ctx) {
+PolesWeights OCXHelper::ParseControlPoints(
+    const LDOM_Element &controlPtListN, int uNumCtrlPoints, int vNumCtrlPoints,
+    const std::string &id, const std::shared_ptr<OCXContext> &ctx) {
   auto polesWeights = PolesWeights();
 
   TColgp_Array2OfPnt cpArray(1, uNumCtrlPoints, 1, vNumCtrlPoints);
@@ -218,7 +214,7 @@ PolesWeights OCXHelper::ParseControlPoints(const LDOM_Element &controlPtListN,
   int u = 1;
   int v = 1;
   while (!controlPointN.isNull()) {
-    double weight = 1;
+    double weight = 1;  // default weight
     OCXHelper::GetDoubleAttribute(controlPointN, "weight", weight);
 
     LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
@@ -229,42 +225,16 @@ PolesWeights OCXHelper::ParseControlPoints(const LDOM_Element &controlPtListN,
       return polesWeights;
     }
     gp_Pnt point = ReadPoint(pointN, ctx);
-    LDOM_Element xN = pointN.GetChildByTagName("xT");
-    LDOM_Element yN = pointN.GetChildByTagName("yT");
-    LDOM_Element zN = pointN.GetChildByTagName("zT");
 
-    double x = 0;
-    OCXHelper::GetDoubleAttribute(xN, "numericvalue", x);
-    auto xUnit = std::string(xN.getAttribute("unit").GetString());
-    x *= ctx->LoopupFactor(xUnit);
-
-    double y = 0;
-    OCXHelper::GetDoubleAttribute(yN, "numericvalue", y);
-    auto yUnit = std::string(yN.getAttribute("unit").GetString());
-    y *= ctx->LoopupFactor(yUnit);
-
-    double z = 0;
-    OCXHelper::GetDoubleAttribute(zN, "numericvalue", z);
-    auto zUnit = std::string(zN.getAttribute("unit").GetString());
-    z *= ctx->LoopupFactor(zUnit);
-
-    cpArray.SetValue(u, v, point);
-
-    std::cout << controlPointN.getTagName().GetString() << " #" << i
-              << " weight " << weight << ", [" << x << ", " << y << "," << z
-              << "] " << xUnit << std::endl;
-
-    // polesWeights.poles.SetValue(i + 1, gp_Pnt(x, y, z));
-    // polesWeights.weights.SetValue(i + 1, weight);
+    // cpArray.SetValue(u, v, point);
+    polesWeights.poles.SetValue(i + 1, point);
+    polesWeights.weights.SetValue(i + 1, weight);
 
     controlPointN = controlPointN.GetSiblingByTagName();
     i++;
   }
 
-  // for (int i = 1; i <= uNumCtrlPoints; i++) {
-  //   for (int j = 1; j <= vNumCtrlPoints; j++) {
-  //
-  //   }
-  // }
+  // polesWeights.poles = cpArray;
+
   return polesWeights;
 }

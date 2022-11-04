@@ -23,10 +23,13 @@
 #include <TColgp_Array1OfPnt.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
+#include <memory>
+#include <utility>
 
 #include "ocx/internal/ocx-helper.h"
 
-OCXCurveReader::OCXCurveReader(OCXContext *ctx) { this->ctx = ctx; }
+OCXCurveReader::OCXCurveReader(std::shared_ptr<OCXContext> ctx)
+    : ctx(std::move(ctx)) {}
 
 TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element &curveRootN) {
   BRepBuilderAPI_MakeWire makeWire = BRepBuilderAPI_MakeWire();

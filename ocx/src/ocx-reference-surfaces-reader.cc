@@ -15,13 +15,15 @@
 #include <TDataStd_Name.hxx>
 #include <TopoDS_Compound.hxx>
 #include <list>
+#include <memory>
+#include <utility>
 
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-surface-reader.h"
 
-OCXReferenceSurfacesReader::OCXReferenceSurfacesReader(OCXContext *ctx) {
-  this->ctx = ctx;
-}
+OCXReferenceSurfacesReader::OCXReferenceSurfacesReader(
+    std::shared_ptr<OCXContext> ctx)
+    : ctx(std::move(ctx)) {}
 
 TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
     LDOM_Element &vesselN) {

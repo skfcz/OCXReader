@@ -13,11 +13,13 @@
 #include <LDOM_Element.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Wire.hxx>
+#include <memory>
 
 #include "ocx/internal/ocx-context.h"
 
 /**
- * This class is used to read OCX XML for curves and create OpenCascade TopoDS_Wires.
+ * This class is used to read OCX XML for curves and create OpenCascade
+ * TopoDS_Wires.
  */
 class OCXCurveReader {
  public:
@@ -25,17 +27,19 @@ class OCXCurveReader {
    * Create a new curve reader
    * @param ctx the context used lookup scaling factor
    */
-  OCXCurveReader(OCXContext *ctx);
+  explicit OCXCurveReader(std::shared_ptr<OCXContext> ctx);
 
   /**
-   * Read a curve from the element,e.g. an FaceBoundaryCurve or OuterContour node
-   * @param curveParentN the curve parent element element containing the curve(s)
+   * Read a curve from the element,e.g. an FaceBoundaryCurve or OuterContour
+   * node
+   * @param curveParentN the curve parent element element containing the
+   * curve(s)
    * @return the created TopoDS_Wire or TopoDS_Edge
    */
   TopoDS_Wire ReadCurve(LDOM_Element &curveParentN);
 
  private:
-  OCXContext *ctx;
+  std::shared_ptr<OCXContext> ctx;
 
   TopoDS_Wire ReadEllipse3D(LDOM_Element &curveN);
   TopoDS_Wire ReadCircumCircle3D(LDOM_Element &circleN);

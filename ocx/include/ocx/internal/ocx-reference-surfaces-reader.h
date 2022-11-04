@@ -12,12 +12,13 @@
 
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
+#include <memory>
 
 #include "ocx/internal/ocx-context.h"
 
 class OCXReferenceSurfacesReader {
  public:
-  OCXReferenceSurfacesReader(OCXContext *ctx);
+  explicit OCXReferenceSurfacesReader(std::shared_ptr<OCXContext> ctx);
 
   /**
    * Read the references surfaces from the OCX file.
@@ -28,7 +29,7 @@ class OCXReferenceSurfacesReader {
   TopoDS_Shape ReadReferenceSurfaces(LDOM_Element &vesselN);
 
  private:
-  OCXContext *ctx;
+  std::shared_ptr<OCXContext> ctx;
 };
 
 #endif  // OCXREADERLIB_INCLUDE_OCX_OCX_REFERENCE_SURFACES_READER_H_

@@ -21,3 +21,4 @@
 #include "src/ocx-panel.cc"
 #include "src/ocx-reference-surfaces-reader.cc"
 #include "src/ocx-surface-reader.cc"
+#include "src/ocx-util.cc"

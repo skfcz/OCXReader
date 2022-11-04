@@ -16,13 +16,14 @@
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <gp_Pln.hxx>
+#include <memory>
+#include <utility>
 
 #include "ocx/internal/ocx-curve-reader.h"
 #include "ocx/internal/ocx-helper.h"
 
-OCXSurfaceReader::OCXSurfaceReader(OCXContext *ctx) : ctx(ctx) {
-  this->ctx = ctx;
-}
+OCXSurfaceReader::OCXSurfaceReader(std::shared_ptr<OCXContext> ctx)
+    : ctx(std::move(ctx)) {}
 
 TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
   std::string guid =

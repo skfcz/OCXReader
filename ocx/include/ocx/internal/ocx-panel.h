@@ -25,7 +25,6 @@ class OCXBaseType {
   TDF_Label m_root;
 };
 
-class OCXPanel : OCXBaseType {
-};
+class OCXPanel : OCXBaseType {};
 
 #endif  // OCXREADERLIB_INCLUDE_OCX_OCX_PANEL_H_

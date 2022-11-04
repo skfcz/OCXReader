@@ -15,6 +15,7 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array2OfPnt.hxx>
+#include <memory>
 #include <vector>
 
 #include "ocx/internal/ocx-context.h"
@@ -26,19 +27,20 @@ struct KnotMults {
 };
 
 struct PolesWeights {
-  TColgp_Array2OfPnt poles;
+  // TColgp_Array2OfPnt poles;
+  TColgp_Array1OfPnt poles;
   TColStd_Array1OfReal weights;
   bool IsNull;
 };
 
 class OCXHelper {
  public:
-  static std::string GetLocalTagName(LDOM_Element &elem);
+  static std::string GetLocalTagName(const LDOM_Element &elem);
 
-  static std::string GetLocalAttrName(LDOM_Node &node);
+  static std::string GetLocalAttrName(const LDOM_Node &node);
 
-  static LDOM_Element GetFirstChild(LDOM_Element &parent,
-                                    std::string localName);
+  static LDOM_Element GetFirstChild(const LDOM_Element &parent,
+                                    const std::string_view &localName);
 
   /**
    * Split a string by given delimiter and return a Container of type T
@@ -68,11 +70,13 @@ class OCXHelper {
                                  const std::string &attrName,
                                  Standard_Real &value);
 
-  static gp_Pnt ReadPoint(const LDOM_Element &pointN, OCXContext *ctx);
+  static gp_Pnt ReadPoint(const LDOM_Element &pointN,
+                          const std::shared_ptr<OCXContext> &ctx);
 
   static gp_Dir ReadDirection(const LDOM_Element &dirN);
 
-  static double ReadDimension(const LDOM_Element &valueN, OCXContext *ctx);
+  static double ReadDimension(const LDOM_Element &valueN,
+                              const std::shared_ptr<OCXContext> &ctx);
 
   /**
    * Parse a string of values, separated by spaces, under consideration of
@@ -85,10 +89,10 @@ class OCXHelper {
    */
   static KnotMults ParseKnotVector(const std::string &value, int numKnots);
 
-  static PolesWeights ParseControlPoints(const LDOM_Element &controlPtListN,
-                                         int uNumCtrlPoints, int vNumCtrlPoints,
-                                         const std::string &id,
-                                         OCXContext *ctx);
+  static PolesWeights ParseControlPoints(
+      const LDOM_Element &controlPtListN, int uNumCtrlPoints,
+      int vNumCtrlPoints, const std::string &id,
+      const std::shared_ptr<OCXContext> &ctx);
 };
 
 #endif  // OCXREADERLIB_INCLUDE_OCX_OCX_HELPER_H_

@@ -3,29 +3,42 @@
 #include <gtest/gtest.h>
 
 TEST(OCXHelperTest, ParseKnotVector) {
-  std::string knotVectorS = "0 0 7.625 13.625 21.25 27.25 27.25";
+  // Provide test cases in following format:
+  // {
+  //    {
+  //      knotVectorToParse: "0 1 2 2 3",
+  //      number of knots in knotVectorToParse: 5,
+  //      number of unique knots in knotVectorToParse: 4,
+  //      multiplicity vector {1, 1, 2, 1}
+  //    },
+  // }
+  std::vector<std::tuple<std::string, int, int, std::vector<int>>> testCases = {
+      {"0 0 7.625 13.625 21.25 27.25 27.25", 7, 5, {2, 1, 1, 1, 2}},
+      {"0 0 1 1 ", 4, 2, {2, 2}}};
 
-  KnotMults knots = OCXHelper::ParseKnotVector(knotVectorS, 7);
+  for (auto [knotVector, numKnots, numKnotsUnique, expectedMults] : testCases) {
+    KnotMults knots = OCXHelper::ParseKnotVector(knotVector, numKnots);
 
-  EXPECT_EQ(knots.IsNull, false)
-      << "Expected knots to be parsed successfully, but got knots.IsNull = "
-      << knots.IsNull;
+    EXPECT_EQ(knots.IsNull, false)
+        << "Expected knots to be parsed successfully, but got knots.IsNull = "
+        << knots.IsNull;
 
-  EXPECT_EQ(5, knots.knots.Length())
-      << "Expected knot length to be 5, but got " << knots.knots.Length();
+    EXPECT_EQ(numKnotsUnique, knots.knots.Length())
+        << "Expected knot length to be " << numKnotsUnique << " , but got "
+        << knots.knots.Length();
 
-  std::vector<int> expectedMults = {2, 1, 1, 1, 2};
-  for (int i = 0; i < knots.knots.Length(); i++) {
-    EXPECT_EQ(expectedMults[i], knots.mults[i + 1])
-        << "Expected multiplicity at index " << i << " to be "
-        << expectedMults[i] << ", but got " << knots.mults[i + 1];
+    for (int i = 0; i < knots.knots.Length(); i++) {
+      EXPECT_EQ(expectedMults[i], knots.mults[i + 1])
+          << "Expected multiplicity at index " << i << " to be "
+          << expectedMults[i] << ", but got " << knots.mults[i + 1];
+    }
   }
 }
 
 TEST(OCXHelperTest, ParseKnotVectorIsNull) {
-  std::string knotVectorS = "0 0 7.625 13.625 21.25 27.25 27.25";
+  std::string knotVector = "0 1";
 
-  KnotMults knots = OCXHelper::ParseKnotVector(knotVectorS, 6);
+  KnotMults knots = OCXHelper::ParseKnotVector(knotVector, 1);
 
   EXPECT_EQ(knots.IsNull, true)
       << "Expected knots to NOT be parsed successfully, but got knots.IsNull = "
