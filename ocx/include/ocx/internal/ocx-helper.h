@@ -7,13 +7,13 @@
 // by the Free Software Foundation.
 //
 
-#ifndef OCXREADERLIB_INCLUDE_OCX_OCX_HELPER_H_
-#define OCXREADERLIB_INCLUDE_OCX_OCX_HELPER_H_
+#ifndef OCX_INCLUDE_OCX_OCX_HELPER_H_
+#define OCX_INCLUDE_OCX_OCX_HELPER_H_
 
 #include <LDOM_Element.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
-#include <TColgp_Array1OfPnt.hxx>
+#include <TColStd_Array2OfReal.hxx>
 #include <TColgp_Array2OfPnt.hxx>
 #include <memory>
 #include <vector>
@@ -26,18 +26,33 @@ struct KnotMults {
   bool IsNull;
 };
 
-struct PolesWeights {
-  // TColgp_Array2OfPnt poles;
+struct PolesWeightsCurve {
   TColgp_Array1OfPnt poles;
   TColStd_Array1OfReal weights;
-  bool IsNull;
+  bool IsNull = false;
+
+  explicit PolesWeightsCurve(int const &num) : poles(1, num), weights(1, num) {}
+};
+
+// https://dev.opencascade.org/doc/refman/html/class_geom___b_spline_surface.html#a4ccceccdf053e7164b6a6ac38251b709
+struct PolesWeightsSurface {
+  TColgp_Array2OfPnt poles;
+  TColStd_Array2OfReal weights;
+  bool IsNull = false;
+
+  PolesWeightsSurface(int const &uNum, int const &vNum)
+      : poles(1, uNum, 1, vNum), weights(1, uNum, 1, vNum) {}
 };
 
 class OCXHelper {
  public:
-  static std::string GetLocalTagName(const LDOM_Element &elem);
+  static std::string GetLocalTagName(const LDOM_Element &elem,
+                                     bool keepPrefix = false);
 
   static std::string GetLocalAttrName(const LDOM_Node &node);
+
+  static std::string GetChildTagName(const LDOM_Element &parent,
+                                     bool keepPrefix = false);
 
   static LDOM_Element GetFirstChild(const LDOM_Element &parent,
                                     const std::string_view &localName);
@@ -87,12 +102,35 @@ class OCXHelper {
    * @return a struct containing the knot values and their corresponding
    * multiplicities
    */
-  static KnotMults ParseKnotVector(const std::string &value, int numKnots);
+  static KnotMults ParseKnotVector(std::string_view knotVectorS, int numKnots);
 
-  static PolesWeights ParseControlPoints(
-      const LDOM_Element &controlPtListN, int uNumCtrlPoints,
-      int vNumCtrlPoints, const std::string &id,
-      const std::shared_ptr<OCXContext> &ctx);
+  /**
+   * Read the poles and weights of a NURBS curve
+   *
+   * @param controlPtListN the control point list element
+   * @param numCtrlPoints the number of control points
+   * @param id the id of the curve
+   * @param ctx the context used to lookup scaling factor
+   * @return a struct containing the poles and weights of the curve
+   */
+  static PolesWeightsCurve ParseControlPointsCurve(
+      LDOM_Element const &controlPtListN, int const &numCtrlPoints,
+      std::string const &id, std::shared_ptr<OCXContext> const &ctx);
+
+  /**
+   * Read the poles and weights of a NURBS surface
+   *
+   * @param controlPtListN the control point list element
+   * @param uNumCtrlPoints the number of control points in u direction
+   * @param vNumCtrlPoints the number of control points in v direction
+   * @param id the id of the surface
+   * @param ctx the context used to lookup scaling factor
+   * @return a struct containing the poles and weights of the surface
+   */
+  static PolesWeightsSurface ParseControlPointsSurface(
+      LDOM_Element const &controlPtListN, int const &uNumCtrlPoints,
+      int const &vNumCtrlPoints, std::string const &id,
+      std::shared_ptr<OCXContext> const &ctx);
 };
 
-#endif  // OCXREADERLIB_INCLUDE_OCX_OCX_HELPER_H_
+#endif  // OCX_INCLUDE_OCX_OCX_HELPER_H_

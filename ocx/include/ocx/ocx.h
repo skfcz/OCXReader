@@ -9,8 +9,8 @@
 
 // This is the main header file a user should include.
 
-#ifndef OCXREADERLIB_INCLUDE_OCX_OCX_H_
-#define OCXREADERLIB_INCLUDE_OCX_OCX_H_
+#ifndef OCX_INCLUDE_OCX_OCX_H_
+#define OCX_INCLUDE_OCX_OCX_H_
 
 #include "ocx/internal/ocx-context.h"
 #include "ocx/internal/ocx-coordinate-system-reader.h"
@@ -23,4 +23,4 @@
 #include "ocx/internal/ocx-util.h"
 #include "ocx/ocx-caf-control-reader.h"
 
-#endif  // OCXREADERLIB_INCLUDE_OCX_OCX_H_
+#endif  // OCX_INCLUDE_OCX_OCX_H_

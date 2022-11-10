@@ -50,7 +50,7 @@ TopoDS_Shape OCXPanelReader::ReadPanels(LDOM_Element &vesselN) {
   BRep_Builder panelsBuilder;
   panelsBuilder.MakeCompound(panelsAssy);
 
-  for (TopoDS_Shape shape : shapes) {
+  for (const TopoDS_Shape &shape : shapes) {
     panelsBuilder.Add(panelsAssy, shape);
   }
 
@@ -58,16 +58,16 @@ TopoDS_Shape OCXPanelReader::ReadPanels(LDOM_Element &vesselN) {
 }
 
 TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
-  std::string id = std::string(panelN.getAttribute("id").GetString());
-  std::string name = std::string(panelN.getAttribute("name").GetString());
+  auto id = std::string(panelN.getAttribute("id").GetString());
+  auto name = std::string(panelN.getAttribute("name").GetString());
 
   std::cout << "parse Panel " << id << ", name='" << name << "'" << std::endl;
 
   std::list<TopoDS_Shape> shapes;
-  Quantity_Color contourColor =
+  auto contourColor =
       Quantity_Color(20 / 256.0, 20 / 256.0, 20 / 256, Quantity_TOC_RGB);
   // Material Design Light Green 50 300
-  Quantity_Color surfaceColor =
+  auto surfaceColor =
       Quantity_Color(174 / 256.0, 213 / 256.0, 129 / 256, Quantity_TOC_RGB);
 
   TopoDS_Wire outerContour = ReadPanelOuterContour(panelN);
@@ -81,7 +81,7 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
   }
   std::cout << "    finished outerContour" << std::endl;
 
-  TopoDS_Shape panelSurface = TopoDS_Shape();
+  auto panelSurface = TopoDS_Shape();
   if (OCXContext::CreatePanelSurfaces) {
     panelSurface = ReadPanelSurface(panelN, outerContour);
     if (!panelSurface.IsNull()) {
@@ -97,7 +97,7 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
 
   if (OCXContext::CreatePlateSurfaces) {
     if (panelSurface.IsNull()) {
-      std::cerr << "failed to read  panelsurface in Panel " << id << ", name='"
+      std::cerr << "failed to read panelsurface in Panel " << id << ", name='"
                 << name << "'," << std::endl;
 
     } else {
@@ -121,7 +121,7 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
   TopoDS_Compound panelAssy;
   BRep_Builder compoundBuilder;
   compoundBuilder.MakeCompound(panelAssy);
-  for (TopoDS_Shape shape : shapes) {
+  for (const TopoDS_Shape &shape : shapes) {
     compoundBuilder.Add(panelAssy, shape);
   }
 
@@ -132,7 +132,7 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
 }
 
 TopoDS_Wire OCXPanelReader::ReadPanelOuterContour(LDOM_Element &panelN) {
-  TopoDS_Wire outerContour = TopoDS_Wire();
+  auto outerContour = TopoDS_Wire();
 
   LDOM_Element outerContourN = OCXHelper::GetFirstChild(panelN, "OuterContour");
   if (outerContourN.isNull()) {
@@ -141,7 +141,7 @@ TopoDS_Wire OCXPanelReader::ReadPanelOuterContour(LDOM_Element &panelN) {
     return outerContour;
   }
   try {
-    OCXCurveReader *reader = new OCXCurveReader(ctx);
+    auto *reader = new OCXCurveReader(ctx);
     TopoDS_Shape curveShape = reader->ReadCurve(outerContourN);
     if (curveShape.ShapeType() != TopAbs_WIRE) {
       std::cerr << "expect a closed shape as OuterContour, but got "
@@ -150,7 +150,7 @@ TopoDS_Wire OCXPanelReader::ReadPanelOuterContour(LDOM_Element &panelN) {
     }
     return TopoDS::Wire(curveShape);
 
-  } catch (Standard_Failure exp) {
+  } catch (Standard_Failure const &exp) {
     std::cerr << "an error occurred transferring OuterContour from panel "
               << panelN.getAttribute("id").GetString() << ":" << exp
               << std::endl;
@@ -162,7 +162,7 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN,
                                               TopoDS_Wire &outerContour) {
   const char *id = panelN.getAttribute("id").GetString();
 
-  TopoDS_Shape shell = TopoDS_Shape();
+  auto shell = TopoDS_Shape();
 
   LDOM_Element unboundedGeometryN =
       OCXHelper::GetFirstChild(panelN, "UnboundedGeometry");
@@ -210,17 +210,18 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN,
     }
 
     LDOM_Node aChildNode = unboundedGeometryN.getFirstChild();
-    while (aChildNode != NULL) {
+    while (aChildNode != nullptr) {
       const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
       if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
       if (aNodeType == LDOM_Node::ELEMENT_NODE) {
         LDOM_Element surfaceN = (LDOM_Element &)aChildNode;
-        OCXSurfaceReader *surfaceReader = new OCXSurfaceReader(ctx);
+        auto *surfaceReader = new OCXSurfaceReader(ctx);
         shell = surfaceReader->ReadSurface(surfaceN);
         if (shell.IsNull()) {
           std::cerr << "failed to read shell definition from "
                        "Panel/UnboundedGeometry contained in panel "
                     << id << std::endl;
+
         }
         return shell;  // we expect only one child element
       }
@@ -230,7 +231,7 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN,
         << "failed to find geometry Panel/UnboundedGeometry contained in panel "
         << id << std::endl;
     return shell;
-  } catch (Standard_Failure exp) {
+  } catch (Standard_Failure const &exp) {
     std::cerr << "an error occurred reading panel shell from panel "
               << panelN.getAttribute("id").GetString() << ":" << exp
               << std::endl;
@@ -252,14 +253,14 @@ TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element &panelN,
   std::list<TopoDS_Shape> shapes;
 
   LDOM_Node childN = composedOfN.getFirstChild();
-  while (childN != NULL) {
+  while (childN != nullptr) {
     const LDOM_Node::NodeType aNodeType = childN.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element plateN = (LDOM_Element &)childN;
       if ("Plate" == OCXHelper::GetLocalTagName(plateN)) {
-        TopoDS_Shape plate = ReadPlate(plateN, referenceSurface);
-        if (!plate.IsNull()) {
+        if (TopoDS_Shape plate = ReadPlate(plateN, referenceSurface);
+            !plate.IsNull()) {
           shapes.push_back(plate);
         }
         std::cout << "finished plate" << std::endl;
@@ -272,7 +273,7 @@ TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element &panelN,
   TopoDS_Compound plateAssy;
   BRep_Builder compoundBuilder;
   compoundBuilder.MakeCompound(plateAssy);
-  for (TopoDS_Shape shape : shapes) {
+  for (const TopoDS_Shape &shape : shapes) {
     compoundBuilder.Add(plateAssy, shape);
   }
 
@@ -286,13 +287,12 @@ TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element &panelN,
 
 TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN,
                                        TopoDS_Shape &referenceSurface) {
-  std::string guid =
-      std::string(plateN.getAttribute(ctx->OCXGUIDRef()).GetString());
-  std::string id = std::string(plateN.getAttribute("id").GetString());
+  auto guid = std::string(plateN.getAttribute(ctx->OCXGUIDRef()).GetString());
+  auto id = std::string(plateN.getAttribute("id").GetString());
 
   std::cout << "ReadPlate, id " << id << " (" << guid << ")" << std::endl;
 
-  TopoDS_Shape plateShape = TopoDS_Shape();
+  auto plateShape = TopoDS_Shape();
 
   LDOM_Element outerContourN = OCXHelper::GetFirstChild(plateN, "OuterContour");
   if (outerContourN.isNull()) {
@@ -306,7 +306,7 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN,
       Quantity_Color(76 / 255.0, 175 / 255.0, 80 / 255.0, Quantity_TOC_RGB);
 
   try {
-    OCXCurveReader *reader = new OCXCurveReader(ctx);
+    auto *reader = new OCXCurveReader(ctx);
     TopoDS_Shape curveShape = reader->ReadCurve(outerContourN);
     if (curveShape.ShapeType() != TopAbs_WIRE) {
       std::cerr << "expect a closed shape as OuterContour, but got "
@@ -320,8 +320,7 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN,
 
     if (referenceSurface.ShapeType() == TopAbs_FACE) {
       TopoDS_Face face = TopoDS::Face(referenceSurface);
-      BRepBuilderAPI_MakeFace faceBuilder =
-          BRepBuilderAPI_MakeFace(face, outerContour);
+      auto faceBuilder = BRepBuilderAPI_MakeFace(face, outerContour);
       faceBuilder.Build();
       TopoDS_Face restricted = faceBuilder.Face();
       if (restricted.IsNull()) {
@@ -346,17 +345,17 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element &plateN,
 
     return plateShape;
 
-  } catch (Standard_Failure exp) {
+  } catch (Standard_Failure const &exp) {
     std::cerr << "an error occurred transferring OuterContour from plate  "
               << id << " (" << guid << ") : " << exp << std::endl;
-    return TopoDS_Shape();
+    return {};
   }
 }
 
 TopoDS_Shape OCXPanelReader::ReadStiffeners(LDOM_Element &panelN) {
   const char *id = panelN.getAttribute("id").GetString();
 
-  TopoDS_Shape stiffeners = TopoDS_Shape();
+  auto stiffeners = TopoDS_Shape();
 
   LDOM_Element composedOfN = OCXHelper::GetFirstChild(panelN, "StiffenedBy");
   if (composedOfN.isNull()) {
@@ -366,14 +365,14 @@ TopoDS_Shape OCXPanelReader::ReadStiffeners(LDOM_Element &panelN) {
   std::list<TopoDS_Shape> shapes;
 
   LDOM_Node childN = composedOfN.getFirstChild();
-  while (childN != NULL) {
+  while (childN != nullptr) {
     const LDOM_Node::NodeType aNodeType = childN.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element stiffenerN = (LDOM_Element &)childN;
       if ("Stiffener" == OCXHelper::GetLocalTagName(stiffenerN)) {
-        TopoDS_Shape stiffener = ReadStiffener(stiffenerN);
-        if (!stiffener.IsNull()) {
+        if (TopoDS_Shape stiffener = ReadStiffener(stiffenerN);
+            !stiffener.IsNull()) {
           shapes.push_back(stiffener);
         }
       }
@@ -382,14 +381,14 @@ TopoDS_Shape OCXPanelReader::ReadStiffeners(LDOM_Element &panelN) {
   }
   std::cout << "finished stiffeners loop, found #" << shapes.size()
             << " stiffeners" << std::endl;
-  if (shapes.size() == 0) {
+  if (shapes.empty()) {
     return stiffeners;
   }
 
   TopoDS_Compound stiffenersAssy;
   BRep_Builder compoundBuilder;
   compoundBuilder.MakeCompound(stiffenersAssy);
-  for (TopoDS_Shape shape : shapes) {
+  for (const TopoDS_Shape &shape : shapes) {
     compoundBuilder.Add(stiffenersAssy, shape);
   }
 
@@ -402,9 +401,9 @@ TopoDS_Shape OCXPanelReader::ReadStiffeners(LDOM_Element &panelN) {
 }
 
 TopoDS_Shape OCXPanelReader::ReadStiffener(LDOM_Element &stiffenerN) {
-  std::string guid =
+  auto guid =
       std::string(stiffenerN.getAttribute(ctx->OCXGUIDRef()).GetString());
-  std::string id = std::string(stiffenerN.getAttribute("id").GetString());
+  auto id = std::string(stiffenerN.getAttribute("id").GetString());
 
   std::cout << "ReadStiffener, id " << id << " (" << guid << ")" << std::endl;
 
@@ -419,7 +418,7 @@ TopoDS_Shape OCXPanelReader::ReadStiffener(LDOM_Element &stiffenerN) {
           << "could not find Stiffener/TraceLine element in stiffener with id "
           << id << ", guid (" << guid << ")" << std::endl;
     } else {
-      OCXCurveReader *curveReader = new OCXCurveReader(ctx);
+      auto *curveReader = new OCXCurveReader(ctx);
       TopoDS_Shape trace = curveReader->ReadCurve(traceN);
 
       if (trace.IsNull()) {
@@ -436,12 +435,12 @@ TopoDS_Shape OCXPanelReader::ReadStiffener(LDOM_Element &stiffenerN) {
     }
     // TODO: Add simplified geometry representation of stiffener
 
-  } catch (Standard_Failure exp) {
+  } catch (Standard_Failure const &exp) {
     std::cerr << "an error occurred reading stiffener  " << id << " (" << guid
               << ") : " << exp << std::endl;
-    return TopoDS_Shape();
+    return {};
   }
-  return TopoDS_Shape();
+  return {};
 }
 
 TopoDS_Shape OCXPanelReader::ReadBrackets(LDOM_Element &panelN) {

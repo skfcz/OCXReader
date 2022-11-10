@@ -7,8 +7,8 @@
 // by the Free Software Foundation.
 //
 
-#ifndef OCXREADERLIB_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_
-#define OCXREADERLIB_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_
+#ifndef OCX_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_
+#define OCX_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_
 
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
@@ -27,4 +27,4 @@ class OCXCoordinateSystemReader {
   TopoDS_Shape ReadRefPlanes(LDOM_Element &refPlanesN);
 };
 
-#endif  // OCXREADERLIB_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_
+#endif  // OCX_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_

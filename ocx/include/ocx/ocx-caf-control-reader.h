@@ -7,8 +7,8 @@
 // by the Free Software Foundation.
 //
 
-#ifndef OCXREADERLIB_INCLUDE_OCX_OCX_CAF_CONTROL_READER_H_
-#define OCXREADERLIB_INCLUDE_OCX_OCX_CAF_CONTROL_READER_H_
+#ifndef OCX_INCLUDE_OCX_OCX_CAF_CONTROL_READER_H_
+#define OCX_INCLUDE_OCX_OCX_CAF_CONTROL_READER_H_
 
 #include <IFSelect_ReturnStatus.hxx>
 #include <Resource_FormatType.hxx>
@@ -89,4 +89,4 @@ class OCXCAFControl_Reader {
   TopoDS_Shape ParseUnboundGeometry(LDOM_Element &unboundedGeometryN);
 };
 
-#endif  // OCXREADERLIB_INCLUDE_OCX_OCX_CAF_CONTROL_READER_H_
+#endif  // OCX_INCLUDE_OCX_OCX_CAF_CONTROL_READER_H_

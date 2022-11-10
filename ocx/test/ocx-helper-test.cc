@@ -3,16 +3,13 @@
 #include <gtest/gtest.h>
 
 TEST(OCXHelperTest, ParseKnotVector) {
-  // Provide test cases in following format:
-  // {
-  //    {
-  //      knotVectorToParse: "0 1 2 2 3",
-  //      number of knots in knotVectorToParse: 5,
-  //      number of unique knots in knotVectorToParse: 4,
-  //      multiplicity vector {1, 1, 2, 1}
-  //    },
-  // }
-  std::vector<std::tuple<std::string, int, int, std::vector<int>>> testCases = {
+  struct TestCase {
+    std::string knotVectorToParse;
+    int numberOfKnots;
+    int numberOfUniqueKnots;
+    std::vector<int> multiplicityVector;
+  };
+  std::vector<TestCase> testCases = {
       {"0 0 7.625 13.625 21.25 27.25 27.25", 7, 5, {2, 1, 1, 1, 2}},
       {"0 0 1 1 ", 4, 2, {2, 2}}};
 

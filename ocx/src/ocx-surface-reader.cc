@@ -13,6 +13,7 @@
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepOffsetAPI_Sewing.hxx>
 #include <BRep_Tool.hxx>
+#include <Geom_BSplineSurface.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <gp_Pln.hxx>
@@ -21,14 +22,14 @@
 
 #include "ocx/internal/ocx-curve-reader.h"
 #include "ocx/internal/ocx-helper.h"
+#include "ocx/internal/ocx-util.h"
 
 OCXSurfaceReader::OCXSurfaceReader(std::shared_ptr<OCXContext> ctx)
     : ctx(std::move(ctx)) {}
 
-TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
-  std::string guid =
-      std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
-  std::string id = std::string(surfaceN.getAttribute("id").GetString());
+TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element const &surfaceN) const {
+  auto guid = std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
+  auto id = std::string(surfaceN.getAttribute("id").GetString());
 
   try {
     if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
@@ -43,17 +44,17 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
         return ReadExtrudedSurface(surfaceN, guid, id);
       } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
         return ReadNURBSurface(surfaceN, guid, id);
-      } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        return ReadPlane3D(surfaceN, guid, id);
       } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
         return ReadSphere3D(surfaceN, guid, id);
+      } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+        return ReadPlane3D(surfaceN, guid, id);
       }
       std::cerr << "found unknown surface type "
                 << surfaceN.getTagName().GetString() << ", guid (" << guid
                 << "), id " << id << std::endl;
       return TopoDS_Shell();
     }
-  } catch (Standard_Failure exp) {
+  } catch (Standard_Failure const &exp) {
     std::cerr << "an error occurred reading surface "
               << surfaceN.getAttribute("id").GetString() << ":" << exp
               << std::endl;
@@ -61,160 +62,28 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element &surfaceN) {
   }
 }
 
-TopoDS_Face OCXSurfaceReader::ReadCone3D(LDOM_Element &surfaceN,
-                                         std::string guid, std::string id) {
-  return TopoDS_Face();
-}
-
-TopoDS_Face OCXSurfaceReader::ReadCylinder3D(LDOM_Element &surfaceN,
-                                             std::string guid, std::string id) {
-  return TopoDS_Face();
-}
-
-TopoDS_Face OCXSurfaceReader::ReadExtrudedSurface(LDOM_Element &surfaceN,
-                                                  std::string guid,
-                                                  std::string id) {
-  return TopoDS_Face();
-}
-
-TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element &nurbsSrfN,
-                                              std::string guid,
-                                              std::string id) {
-  // std::string guid =
-  //     std::string(nurbsSrfN.getAttribute(ctx->OCXGUID()).GetString());
-  // std::string id = std::string(nurbsSrfN.getAttribute("id").GetString());
-
-  LDOM_Element uPropsN =
-      OCXHelper::GetFirstChild(nurbsSrfN, "U_NURBSproperties");
-  if (uPropsN.isNull()) {
-    std::cerr << "could nit find failed NURBSSurface/U_NURBSproperties in "
-                 "surface with id "
-              << id << ", GUID" << guid << std::endl;
-    return TopoDS_Face();
-  }
-  LDOM_Element vPropsN =
-      OCXHelper::GetFirstChild(nurbsSrfN, "V_NURBSproperties");
-  if (vPropsN.isNull()) {
-    std::cerr << "could nit find failed NURBSSurface/V_NURBSproperties in "
-                 "surface with id "
-              << id << ", GUID" << guid << std::endl;
-    return TopoDS_Face();
-  }
-
-  // U properties
-  int uDegree = -1;
-  int uNumCtrlPoints = -1;
-  int uNumKnots = -1;
-  uPropsN.getAttribute("degree").GetInteger(uDegree);
-  uPropsN.getAttribute("numCtrlPts").GetInteger(uNumCtrlPoints);
-  uPropsN.getAttribute("numKnots").GetInteger(uNumKnots);
-  auto uForm = std::string(uPropsN.getAttribute("form").GetString());
-  bool uIsRational =
-      "true" == std::string(uPropsN.getAttribute("isRational").GetString());
-
-  std::cout << "U degree " << uDegree << ", #ctr " << uNumCtrlPoints
-            << ", #knots " << uNumKnots << ", form '" << uForm
-            << (uIsRational ? "', rational" : "', irrational") << std::endl;
-
-  // V properties
-  int vDegree = -1;
-  int vNumCtrlPoints = -1;
-  int vNumKnots = -1;
-  vPropsN.getAttribute("degree").GetInteger(vDegree);
-  vPropsN.getAttribute("numCtrlPts").GetInteger(vNumCtrlPoints);
-  vPropsN.getAttribute("numKnots").GetInteger(vNumKnots);
-  auto vForm = std::string(vPropsN.getAttribute("form").GetString());
-  bool vIsRational =
-      "true" == std::string(vPropsN.getAttribute("isRational").GetString());
-
-  std::cout << "V degree " << vDegree << ", #ctr " << vNumCtrlPoints
-            << ", #knots " << vNumKnots << ", form '" << vForm
-            << (vIsRational ? "', rational" : "', irrational") << std::endl;
-
-  //
-  // the knot vectors
-  //
-  LDOM_Element uKnotVectorN =
-      OCXHelper::GetFirstChild(nurbsSrfN, "UKnotVector");
-  if (uKnotVectorN.isNull()) {
-    std::cout << "could not find NURBSSurface/UKnotVector in surface id='" << id
-              << "'" << std::endl;
-    return TopoDS_Face();
-  }
-
-  std::string uKnotVectorS =
-      std::string(uKnotVectorN.getAttribute("value").GetString());
-
-  KnotMults uKN = OCXHelper::ParseKnotVector(uKnotVectorS, uNumKnots);
-  if (uKN.IsNull) {
-    return TopoDS_Face();
-  }
-  LDOM_Element vKnotVectorN =
-      OCXHelper::GetFirstChild(nurbsSrfN, "VKnotVector");
-  if (uKnotVectorN.isNull()) {
-    std::cout << "could not find NURBSSurface/VKnotVector in surface id='" << id
-              << "'" << std::endl;
-    return TopoDS_Face();
-  }
-
-  std::string vKnotVectorS =
-      std::string(vKnotVectorN.getAttribute("value").GetString());
-
-  KnotMults vKN = OCXHelper::ParseKnotVector(vKnotVectorS, vNumKnots);
-  if (vKN.IsNull) {
-    return TopoDS_Face();
-  }
-
-  //
-  // the control points
-  //
-  LDOM_Element controlPtListN =
-      OCXHelper::GetFirstChild(nurbsSrfN, "ControlPtList");
-  if (controlPtListN.isNull()) {
-    std::cout << "could not find NURBSSurface/ControlPtList in surface id='"
-              << id << "'" << std::endl;
-    return TopoDS_Face();
-  }
-  PolesWeights pw = OCXHelper::ParseControlPoints(controlPtListN, uNumKnots,
-                                                  vNumKnots, id, ctx);
-  if (pw.IsNull) {
-    return TopoDS_Face();
-  }
-
-  return TopoDS_Face();
-}
-
-TopoDS_Face OCXSurfaceReader::ReadSphere3D(LDOM_Element &surfaceN,
-                                           std::string guid, std::string id) {
-  return TopoDS_Face();
-}
-
-TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN,
-                                                     std::string guid,
-                                                     std::string id) {
+TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(
+    LDOM_Element const &surfaceColN, std::string const &guid,
+    std::string const &id) const {
   std::string colGuid =
-      std::string(surfColN.getAttribute(ctx->OCXGUIDRef()).GetString());
+      std::string(surfaceColN.getAttribute(ctx->OCXGUIDRef()).GetString());
 
-  TopoDS_Shell shell = TopoDS_Shell();
+  auto shell = TopoDS_Shell();
   // see https://dev.opencascade.org/content/brepbuilderapimakeshell
   BRepOffsetAPI_Sewing sewedObj;
 
-  LDOM_Node childN = surfColN.getFirstChild();
-  while (childN != NULL) {
+  LDOM_Node childN = surfaceColN.getFirstChild();
+  while (childN != nullptr) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element surfaceN = (LDOM_Element &)childN;
 
-      std::string guid =
-          std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
-      std::string id = std::string(surfaceN.getAttribute("id").GetString());
-
       std::cout << "    SurfaceCollection/"
                 << OCXHelper::GetLocalTagName(surfaceN) << " guid=" << guid
                 << ", id=" << id << std::endl;
 
-      TopoDS_Face face = TopoDS_Face();
+      auto face = TopoDS_Face();
       if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
         face = ReadCone3D(surfaceN, guid, id);
       } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
@@ -224,10 +93,10 @@ TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN,
         face = ReadExtrudedSurface(surfaceN, guid, id);
       } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
         face = ReadNURBSurface(surfaceN, guid, id);
-      } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        face = ReadPlane3D(surfaceN, guid, id);
       } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
         face = ReadSphere3D(surfaceN, guid, id);
+      } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+        face = ReadPlane3D(surfaceN, guid, id);
       } else {
         std::cerr << "found unknown face type "
                   << surfaceN.getTagName().GetString()
@@ -268,8 +137,149 @@ TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(LDOM_Element &surfColN,
   return shell;
 }
 
-TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element &surfaceN,
-                                          std::string guid, std::string id) {
+TopoDS_Face OCXSurfaceReader::ReadCone3D(LDOM_Element const &surfaceN,
+                                         std::string const &guid,
+                                         std::string const &id) const {
+  return {};
+}
+
+TopoDS_Face OCXSurfaceReader::ReadCylinder3D(LDOM_Element const &surfaceN,
+                                             std::string const &guid,
+                                             std::string const &id) const {
+  return {};
+}
+
+TopoDS_Face OCXSurfaceReader::ReadExtrudedSurface(LDOM_Element const &surfaceN,
+                                                  std::string const &guid,
+                                                  std::string const &id) const {
+  return {};
+}
+
+TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element const &nurbsSrfN,
+                                              std::string const &guid,
+                                              std::string const &id) const {
+  // Read FaceBoundaryCurve
+  LDOM_Element faceBoundaryCurveN =
+      OCXHelper::GetFirstChild(nurbsSrfN, "FaceBoundaryCurve");
+  if (faceBoundaryCurveN.isNull()) {
+    std::cout << "could not find  Plane3D/FaceBoundaryCurve in element with ("
+              << guid << ")" << std::endl;
+    return {};
+  }
+  auto *curveReader = new OCXCurveReader(ctx);
+  TopoDS_Wire outerContour = curveReader->ReadCurve(faceBoundaryCurveN);
+
+  // Read U_NURBS properties
+  LDOM_Element uPropsN =
+      OCXHelper::GetFirstChild(nurbsSrfN, "U_NURBSproperties");
+  if (uPropsN.isNull()) {
+    std::cerr << "could nit find failed NURBSSurface/U_NURBSproperties in "
+                 "surface with id "
+              << id << ", GUID" << guid << std::endl;
+    return {};
+  }
+  int uDegree{}, uNumCtrlPoints{}, uNumKnots{};
+  uPropsN.getAttribute("degree").GetInteger(uDegree);
+  uPropsN.getAttribute("numCtrlPts").GetInteger(uNumCtrlPoints);
+  uPropsN.getAttribute("numKnots").GetInteger(uNumKnots);
+  auto uForm = std::string(uPropsN.getAttribute("form").GetString());
+  bool uIsRational =
+      stob(std::string(uPropsN.getAttribute("isRational").GetString()));
+  std::cout << "U degree " << uDegree << ", #ctr " << uNumCtrlPoints
+            << ", #knots " << uNumKnots << ", form '" << uForm
+            << (uIsRational ? "', rational" : "', irrational") << std::endl;
+
+  // Read V_NURBS properties
+  LDOM_Element vPropsN =
+      OCXHelper::GetFirstChild(nurbsSrfN, "V_NURBSproperties");
+  if (vPropsN.isNull()) {
+    std::cerr << "could nit find failed NURBSSurface/V_NURBSproperties in "
+                 "surface with id "
+              << id << ", GUID" << guid << std::endl;
+    return {};
+  }
+  int vDegree{}, vNumCtrlPoints{}, vNumKnots{};
+  vPropsN.getAttribute("degree").GetInteger(vDegree);
+  vPropsN.getAttribute("numCtrlPts").GetInteger(vNumCtrlPoints);
+  vPropsN.getAttribute("numKnots").GetInteger(vNumKnots);
+  auto vForm = std::string(vPropsN.getAttribute("form").GetString());
+  bool vIsRational =
+      stob(std::string(vPropsN.getAttribute("isRational").GetString()));
+  std::cout << "V degree " << vDegree << ", #ctr " << vNumCtrlPoints
+            << ", #knots " << vNumKnots << ", form '" << vForm
+            << (vIsRational ? "', rational" : "', irrational") << std::endl;
+
+  // Parse knotVectors
+  LDOM_Element uKnotVectorN =
+      OCXHelper::GetFirstChild(nurbsSrfN, "UknotVector");
+  if (uKnotVectorN.isNull()) {
+    std::cout << "could not find NURBSSurface/UknotVector in surface id='" << id
+              << "'" << std::endl;
+    return {};
+  }
+  auto uKnotVectorS =
+      std::string(uKnotVectorN.getAttribute("value").GetString());
+  KnotMults uKN = OCXHelper::ParseKnotVector(uKnotVectorS, uNumKnots);
+  if (uKN.IsNull) {
+    return {};
+  }
+
+  LDOM_Element vKnotVectorN =
+      OCXHelper::GetFirstChild(nurbsSrfN, "VknotVector");
+  if (uKnotVectorN.isNull()) {
+    std::cout << "could not find NURBSSurface/VknotVector in surface id='" << id
+              << "'" << std::endl;
+    return {};
+  }
+  auto vKnotVectorS =
+      std::string(vKnotVectorN.getAttribute("value").GetString());
+  KnotMults vKN = OCXHelper::ParseKnotVector(vKnotVectorS, vNumKnots);
+  if (vKN.IsNull) {
+    return {};
+  }
+
+  // Parse control points
+  LDOM_Element controlPtListN =
+      OCXHelper::GetFirstChild(nurbsSrfN, "ControlPtList");
+  if (controlPtListN.isNull()) {
+    std::cout << "could not find NURBSSurface/ControlPtList in surface id='"
+              << id << "'" << std::endl;
+    return {};
+  }
+  PolesWeightsSurface pw = OCXHelper::ParseControlPointsSurface(
+      controlPtListN, uNumCtrlPoints, vNumCtrlPoints, id, ctx);
+  if (pw.IsNull) {
+    return {};
+  }
+
+  // Create the surface
+  Handle(Geom_BSplineSurface) srf =
+      new Geom_BSplineSurface(pw.poles, pw.weights, uKN.knots, vKN.knots,
+                              uKN.mults, vKN.mults, uDegree, vDegree);
+  auto faceBuilder = BRepBuilderAPI_MakeFace(srf, outerContour);
+  faceBuilder.Build();
+  TopoDS_Face restricted = faceBuilder.Face();
+  if (restricted.IsNull()) {
+    std::cerr
+        << "failed to create a restricted surface from a NURBSSurface and "
+           "FaceBoundaryCurve, guid "
+        << guid << ", id " << id << ", error " << faceBuilder.Error()
+        << std::endl;
+    restricted = TopoDS_Face();
+  }
+
+  return restricted;
+}
+
+TopoDS_Face OCXSurfaceReader::ReadSphere3D(LDOM_Element const &surfaceN,
+                                           std::string const &guid,
+                                           std::string const &id) const {
+  return {};
+}
+
+TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
+                                          std::string const &guid,
+                                          std::string const &id) const {
   LDOM_Element originN = OCXHelper::GetFirstChild(surfaceN, "Origin");
   if (originN.isNull()) {
     std::cout
@@ -302,16 +312,15 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element &surfaceN,
     return planeFace;
   }
 
-  OCXCurveReader *curveReader = new OCXCurveReader(ctx);
+  auto *curveReader = new OCXCurveReader(ctx);
   TopoDS_Wire outerContour = curveReader->ReadCurve(faceBoundaryCurveN);
 
-  BRepBuilderAPI_MakeFace faceBuilder =
-      BRepBuilderAPI_MakeFace(planeFace, outerContour);
+  auto faceBuilder = BRepBuilderAPI_MakeFace(planeFace, outerContour);
   faceBuilder.Build();
   TopoDS_Face restricted = faceBuilder.Face();
   if (restricted.IsNull()) {
     std::cerr << "failed to create a restricted surface from a Plane3D and "
-                 "Plane3D/FaceBoundaryCurveur, guid "
+                 "Plane3D/FaceBoundaryCurve, guid "
               << guid << ", id " << id << ", error " << faceBuilder.Error()
               << std::endl;
     restricted = TopoDS_Face();

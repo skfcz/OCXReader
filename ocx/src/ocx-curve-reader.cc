@@ -18,8 +18,6 @@
 #include <Geom_Circle.hxx>
 #include <Geom_Ellipse.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <TColStd_Array1OfInteger.hxx>
-#include <TColStd_Array1OfReal.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
@@ -27,40 +25,41 @@
 #include <utility>
 
 #include "ocx/internal/ocx-helper.h"
+#include "ocx/internal/ocx-util.h"
 
 OCXCurveReader::OCXCurveReader(std::shared_ptr<OCXContext> ctx)
     : ctx(std::move(ctx)) {}
 
-TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element &curveRootN) {
-  BRepBuilderAPI_MakeWire makeWire = BRepBuilderAPI_MakeWire();
-  LDOM_Node childN = curveRootN.getFirstChild();
+TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element const &curveRootN) {
+  auto wireBuilder = BRepBuilderAPI_MakeWire();
 
-  while (childN != NULL) {
+  LDOM_Node childN = curveRootN.getFirstChild();
+  while (childN != nullptr) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
+      auto edge = TopoDS_Shape();
+
       LDOM_Element curveN = (LDOM_Element &)childN;
-
-      TopoDS_Shape edge = TopoDS_Shape();
-
-      if ("Ellipse3D" == OCXHelper::GetLocalTagName(curveN)) {
-        // we can have only one closed curve
-        return ReadEllipse3D(curveN);
-      } else if ("CircumCircle3D" == OCXHelper::GetLocalTagName(curveN)) {
-        // we can have only one closed curve
-        return ReadCircumCircle3D(curveN);
-      } else if ("Circle3D" == OCXHelper::GetLocalTagName(curveN)) {
-        // we can have only one closed curve
-        return ReadCircle(curveN);
-      } else if ("CircumArc3D" == OCXHelper::GetLocalTagName(curveN)) {
-        edge = ReadCircumArc3D(curveN);
-      } else if ("Line3D" == OCXHelper::GetLocalTagName(curveN)) {
-        edge = ReadLine3D(curveN);
-      } else if ("CompositeCurve3D" == OCXHelper::GetLocalTagName(curveN)) {
+      std::string curveType = OCXHelper::GetLocalTagName(curveN);
+      if (curveType == "CompositeCurve3D") {
         edge = ReadCompositeCurve3D(curveN);
-      } else if ("PolyLine3D" == OCXHelper::GetLocalTagName(curveN)) {
+      } else if (curveType == "Ellipse3D") {
+        // By default, Ellipse3D should be a closed curve
+        return ReadEllipse3D(curveN);
+      } else if (curveType == "CircumCircle3D") {
+        // By default, CircumCircle3D should be a closed curve
+        return ReadCircumCircle3D(curveN);
+      } else if (curveType == "Circle3D") {
+        // By default, Circle3D should be a closed curve
+        return ReadCircle3D(curveN);
+      } else if (curveType == "CircumArc3D") {
+        edge = ReadCircumArc3D(curveN);
+      } else if (curveType == "Line3D") {
+        edge = ReadLine3D(curveN);
+      } else if (curveType == "PolyLine3D") {
         edge = ReadPolyLine3D(curveN);
-      } else if ("NURBS3D" == OCXHelper::GetLocalTagName(curveN)) {
+      } else if (curveType == "NURBS3D") {
         edge = ReadNURBS3D(curveN);
       } else {
         std::cerr << "found unknown curve type "
@@ -68,18 +67,73 @@ TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element &curveRootN) {
         continue;
       }
 
-      if (edge.ShapeType() == TopAbs_WIRE) {
-        // we find a closed curve and return it immediately
-        return TopoDS::Wire(edge);
-      } else if (edge.ShapeType() == TopAbs_EDGE) {
-        // we combine it to a
-
-        makeWire.Add(TopoDS::Edge(edge));
+      if (!edge.IsNull()) {
+        switch (edge.ShapeType()) {
+          case TopAbs_WIRE:
+            // Return immediately if the shape is a wire
+            return TopoDS::Wire(edge);
+          case TopAbs_EDGE:
+            // Add the edge to the wireBuilder
+            wireBuilder.Add(TopoDS::Edge(edge));
+            break;
+          default:
+            std::cerr << "found unknown shape type " << edge.ShapeType()
+                      << std::endl;
+            break;
+        }
       }
     }
     childN = childN.getNextSibling();
   }
-  return makeWire.Wire();
+  return wireBuilder.Wire();
+}
+
+TopoDS_Shape OCXCurveReader::ReadCompositeCurve3D(LDOM_Element const &cCurveN) {
+  auto wireBuilder = BRepBuilderAPI_MakeWire();
+
+  LDOM_Node childN = cCurveN.getFirstChild();
+  while (childN != nullptr) {
+    const LDOM_Node::NodeType nodeType = childN.getNodeType();
+    if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
+    if (nodeType == LDOM_Node::ELEMENT_NODE) {
+      auto edge = TopoDS_Shape();
+
+      LDOM_Element curveN = (LDOM_Element &)childN;
+      std::string curveType = OCXHelper::GetLocalTagName(curveN);
+      if (curveType == "Line3D") {
+        edge = ReadLine3D(curveN);
+      } else if (curveType == "CircumArc3D") {
+        edge = ReadCircumArc3D(curveN);
+      } else if (curveType == "NURBS3D") {
+        edge = ReadNURBS3D(curveN);
+      } else if (curveType == "PolyLine3D") {
+        edge = ReadPolyLine3D(curveN);
+      } else {
+        std::cerr << "found unknown curve type in CompositeCurve3D "
+                  << curveType << std::endl;
+        continue;
+      }
+
+      if (!edge.IsNull()) {
+        switch (edge.ShapeType()) {
+          case TopAbs_WIRE:
+            // Return immediately if the shape is a wire
+            return TopoDS::Wire(edge);
+          case TopAbs_EDGE:
+            // Add the edge to the wireBuilder
+            wireBuilder.Add(TopoDS::Edge(edge));
+            break;
+          default:
+            std::cerr << "found unknown shape type in CompositeCurve3D "
+                      << edge.ShapeType() << std::endl;
+            break;
+        }
+      }
+    }
+    childN = childN.getNextSibling();
+  }
+
+  return wireBuilder.Wire();
 }
 
 TopoDS_Wire OCXCurveReader::ReadEllipse3D(LDOM_Element &ellipseN) {
@@ -141,7 +195,7 @@ TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &circleN) {
   if (positionsN.isNull()) {
     std::cout << "could not find CircumCircle/Positions with curve id='" << id
               << "'" << std::endl;
-    return TopoDS_Wire();
+    return {};
   }
 
   LDOM_Node childN = positionsN.getFirstChild();
@@ -152,7 +206,7 @@ TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &circleN) {
 
   int pointCnt = 0;
 
-  while (childN != NULL) {
+  while (childN != nullptr) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
@@ -185,9 +239,9 @@ TopoDS_Wire OCXCurveReader::ReadCircumCircle3D(LDOM_Element &circleN) {
   return BRepBuilderAPI_MakeWire(edge);
 }
 
-TopoDS_Wire OCXCurveReader::ReadCircle(LDOM_Element &circleN) {
+TopoDS_Wire OCXCurveReader::ReadCircle3D(LDOM_Element &circleN) {
   std::string id = std::string(circleN.getAttribute("id").GetString());
-  std::cout << "ReadCircle " << id << std::endl;
+  std::cout << "ReadCircle3D " << id << std::endl;
 
   LDOM_Element centerN = OCXHelper::GetFirstChild(circleN, "Center");
   if (centerN.isNull()) {
@@ -275,184 +329,62 @@ TopoDS_Edge OCXCurveReader::ReadLine3D(LDOM_Element &lineN) {
   return BRepBuilderAPI_MakeEdge(arc);
 }
 
-TopoDS_Shape OCXCurveReader::ReadCompositeCurve3D(LDOM_Element &curveN) {
-  std::cerr << "ReadCompositeCurve3D is not implemented yet" << std::endl;
-
-  TopoDS_Shape wire = TopoDS_Shape();
-
-  if ("Line3D" == OCXHelper::GetLocalTagName(curveN)) {
-    wire = ReadLine3D(curveN);
-  } else if ("CircumArc3D" == OCXHelper::GetLocalTagName(curveN)) {
-    wire = ReadCircumArc3D(curveN);
-  } else if ("NURBS3D" == OCXHelper::GetLocalTagName(curveN)) {
-    wire = ReadNURBS3D(curveN);
-  } else if ("PolyLine3D" == OCXHelper::GetLocalTagName(curveN)) {
-    wire = ReadPolyLine3D(curveN);
-  } else {
-    std::cerr << "found unknown curve type in CompositeCurve3D "
-              << curveN.getTagName().GetString() << std::endl;
-  }
-  return wire;
-}
-
 TopoDS_Shape OCXCurveReader::ReadPolyLine3D(LDOM_Element &curveN) {
   std::cerr << "ReadPolyLine3D is not implemented yet" << std::endl;
-  return TopoDS_Shape();
+  return {};
 }
 
-TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element &nurbs3DN) {
-  std::string id = std::string(nurbs3DN.getAttribute("id").GetString());
-
+TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element const &nurbs3DN) const {
+  auto id = std::string(nurbs3DN.getAttribute("id").GetString());
   std::cout << "ReadNURBS3D " << id << std::endl;
 
   LDOM_Element propsN = OCXHelper::GetFirstChild(nurbs3DN, "NURBSproperties");
   if (propsN.isNull()) {
     std::cout << "could not find NURBS3D/NURBSProperties in curve id='" << id
               << "'" << std::endl;
-    return TopoDS_Edge();
+    return {};
   }
   int degree;
   propsN.getAttribute("degree").GetInteger(degree);
-  int numCtrlPts;
-  propsN.getAttribute("numCtrlPts").GetInteger(numCtrlPts);
+  int numCtrlPoints;
+  propsN.getAttribute("numCtrlPts").GetInteger(numCtrlPoints);
   int numKnots;
   propsN.getAttribute("numKnots").GetInteger(numKnots);
-  std::string form = std::string(propsN.getAttribute("form").GetString());
+  auto form = std::string(propsN.getAttribute("form").GetString());
   bool isRational =
-      std::string(propsN.getAttribute("isRational").GetString()) == "true";
+      stob(std::string(propsN.getAttribute("isRational").GetString()));
 
-  // std::cout << "degree " << degree << ", #ctr " << numCtrlPts << ", #knots "
-  // << numKnots << ", form '" << form <<
-  //           (isRational ? "', rational" : "', irrational") << std::endl;
-
-  // The number of knots is always equals to the number of control points +
-  // curve degree + one
-  // == number of control points + curve degree
-
+  // Parse knotVector
   LDOM_Element knotVectorN = OCXHelper::GetFirstChild(nurbs3DN, "KnotVector");
   if (knotVectorN.isNull()) {
     std::cout << "could not find NURBS3D/KnotVector in curve id='" << id << "'"
               << std::endl;
     return TopoDS_Edge();
   }
-  std::string knotVectorS =
-      std::string(knotVectorN.getAttribute("value").GetString());
-  // std::cout << "knots[" << knotVectorS << "]" << std::endl;
-  std::vector<std::string> out;
-  OCXHelper::Tokenize(knotVectorS, out);
-
-  if (numKnots != static_cast<int>(out.size())) {
-    std::cerr << "failed to parse curve " << id << ", expected #" << numKnots
-              << " knot values, but parsing [" << knotVectorS
-              << "] resulted in #" << out.size() << " values" << std::endl;
-    return TopoDS_Edge();
-  }
-  // https://github.com/tpaviot/pythonocc-core/issues/706
-  // Typically you'll have in textbooks a knot vector like:     [0 0 0 0.3 0.5
-  // 0.7 1 1 1] In OCCT, you have instead:
-  //    Knots: [0 0.3 0.5 0.7 1]
-  //    Mults [3 1 1 1 3]
-
-  std::vector<double> knots0;
-  std::vector<int> mults0;
-  double lastKnot = -1;
-  double currentMult = -1;
-  for (int i = 0; i < out.size(); i++) {
-    double currentKnot = std::stod(out[i]);
-    if (i == 0) {
-      lastKnot = currentKnot;
-      currentMult = 1;
-      continue;
-    }
-    if (abs(currentKnot - lastKnot) < 1e-3) {
-      currentMult++;
-    } else {
-      // knot value changed from lastKnot to currentKnot
-      knots0.push_back(lastKnot);
-      mults0.push_back(currentMult);
-      lastKnot = currentKnot;
-      currentMult = 1;
-    }
-  }
-  knots0.push_back(lastKnot);
-  mults0.push_back(currentMult);
-
-  // now we know the size of the knot and multiplicities vector and
-  //  could create the OCC type
-  TColStd_Array1OfReal knots(1, knots0.size());
-  TColStd_Array1OfInteger mults(1, knots0.size());
-  for (int i = 0; i < knots0.size(); i++) {
-    // std::cout << i << ", knot " << knots0[i] << ", mult " << mults0[i] <<
-    // std::endl;
-    knots.SetValue(i + 1, knots0[i]);
-    mults.SetValue(i + 1, mults0[i]);
+  auto knotVectorS = std::string(knotVectorN.getAttribute("value").GetString());
+  KnotMults kn = OCXHelper::ParseKnotVector(knotVectorS, numKnots);
+  if (kn.IsNull) {
+    return {};
   }
 
+  // Parse control Points
   LDOM_Element controlPtListN =
       OCXHelper::GetFirstChild(nurbs3DN, "ControlPtList");
   if (controlPtListN.isNull()) {
     std::cout << "could not find NURBS3D/ControlPtList in curve id='" << id
               << "'" << std::endl;
-    return TopoDS_Edge();
+    return {};
   }
-  // names of the elements we are looking for
-  LDOMString controlPointT =
-      LDOMString((ctx->Prefix() + ":ControlPoint").c_str());
-  LDOMString point3dT = LDOMString((ctx->Prefix() + ":Point3D").c_str());
-  LDOMString xT = LDOMString((ctx->Prefix() + ":X").c_str());
-  LDOMString yT = LDOMString((ctx->Prefix() + ":Y").c_str());
-  LDOMString zT = LDOMString((ctx->Prefix() + ":Z").c_str());
-
-  LDOM_Element controlPointN = controlPtListN.GetChildByTagName(controlPointT);
-  if (controlPointN.isNull()) {
-    std::cout
-        << "could not find NURBS3D/ControlPtList/ControlPoint in curve id='"
-        << id << "'" << std::endl;
-    return TopoDS_Edge();
+  PolesWeightsCurve pw = OCXHelper::ParseControlPointsCurve(
+      controlPtListN, numCtrlPoints, id, ctx);
+  if (pw.IsNull) {
+    return {};
   }
 
-  TColgp_Array1OfPnt poles(1, numCtrlPts);
-  TColStd_Array1OfReal weights(1, numCtrlPts);
-
-  int i = 0;
-  while (!controlPointN.isNull()) {
-    double weight = 1;
-    OCXHelper::GetDoubleAttribute(controlPointN, "weight", weight);
-
-    LDOM_Element pointN = controlPointN.GetChildByTagName(point3dT);
-    LDOM_Element xN = pointN.GetChildByTagName(xT);
-    LDOM_Element yN = pointN.GetChildByTagName(yT);
-    LDOM_Element zN = pointN.GetChildByTagName(zT);
-
-    double x;
-    OCXHelper::GetDoubleAttribute(xN, "numericvalue", x);
-    std::string xUnit = std::string(xN.getAttribute("unit").GetString());
-    x *= ctx->LoopupFactor(xUnit);
-
-    double y;
-    OCXHelper::GetDoubleAttribute(yN, "numericvalue", y);
-    std::string yUnit = std::string(yN.getAttribute("unit").GetString());
-    y *= ctx->LoopupFactor(yUnit);
-
-    double z;
-    OCXHelper::GetDoubleAttribute(zN, "numericvalue", z);
-    std::string zUnit = std::string(zN.getAttribute("unit").GetString());
-    z *= ctx->LoopupFactor(zUnit);
-
-    //        std::cout << controlPointN.getTagName().GetString() <<  " #" << i
-    //        << " weight " << weight
-    //            << ", [" << x << ", " << y << "," << z << "] " << xUnit  <<
-    //            std::endl;
-
-    poles.SetValue(i + 1, gp_Pnt(x, y, z));
-    weights.SetValue(i + 1, weight);
-
-    controlPointN = controlPointN.GetSiblingByTagName();
-    i++;
-  }
-
+  // Create the curve
   Handle(Geom_BSplineCurve) curve =
-      new Geom_BSplineCurve(poles, weights, knots, mults, degree);
+      new Geom_BSplineCurve(pw.poles, pw.weights, kn.knots, kn.mults, degree,
+                            Standard_False, isRational);
 
   TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(curve);
 

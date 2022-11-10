@@ -7,8 +7,8 @@
 // by the Free Software Foundation.
 //
 
-#ifndef OCXREADERLIB_INCLUDE_OCX_OCX_CONTEXT_H_
-#define OCXREADERLIB_INCLUDE_OCX_OCX_CONTEXT_H_
+#ifndef OCX_INCLUDE_OCX_OCX_CONTEXT_H_
+#define OCX_INCLUDE_OCX_OCX_CONTEXT_H_
 
 #include <LDOM_Element.hxx>
 #include <TDocStd_Application.hxx>
@@ -58,4 +58,4 @@ class OCXContext {
   opencascade::handle<XCAFDoc_ColorTool> ocafColorTool;
 };
 
-#endif  // OCXREADERLIB_INCLUDE_OCX_OCX_CONTEXT_H_
+#endif  // OCX_INCLUDE_OCX_OCX_CONTEXT_H_

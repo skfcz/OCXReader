@@ -11,13 +11,15 @@
 
 #include <string.h>
 
-#include <TColStd_Array1OfReal.hxx>
+#include <TColStd_Array2OfReal.hxx>
+#include <TColgp_Array2OfPnt.hxx>
 #include <memory>
 #include <vector>
 
-std::string OCXHelper::GetLocalTagName(const LDOM_Element &elem) {
+std::string OCXHelper::GetLocalTagName(const LDOM_Element &elem,
+                                       bool keepPrefix) {
   auto tagName = std::string(elem.getTagName().GetString());
-  if (size_t idx = tagName.find(':'); idx != std::string::npos) {
+  if (size_t idx = tagName.find(':'); idx != std::string::npos && !keepPrefix) {
     return tagName.substr(idx + 1);
   }
   return tagName;
@@ -29,6 +31,19 @@ std::string OCXHelper::GetLocalAttrName(const LDOM_Node &elem) {
     return tagName.substr(idx + 1);
   }
   return tagName;
+}
+
+std::string OCXHelper::GetChildTagName(const LDOM_Element &parent,
+                                       bool keepPrefix) {
+  auto aChildNode = parent.getFirstChild();
+  while (!aChildNode.isNull()) {
+    if (const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
+        aNodeType == LDOM_Node::ELEMENT_NODE) {
+      return GetLocalTagName((LDOM_Element &)aChildNode, keepPrefix);
+    }
+    aChildNode = aChildNode.getNextSibling();
+  }
+  return {};
 }
 
 LDOM_Element OCXHelper::GetFirstChild(const LDOM_Element &parent,
@@ -133,7 +148,7 @@ gp_Dir OCXHelper::ReadDirection(const LDOM_Element &dirN) {
   return {x, y, z};
 }
 
-KnotMults OCXHelper::ParseKnotVector(const std::string &knotVectorS,
+KnotMults OCXHelper::ParseKnotVector(std::string_view knotVectorS,
                                      int numKnots) {
   auto kn = KnotMults();
 
@@ -148,10 +163,10 @@ KnotMults OCXHelper::ParseKnotVector(const std::string &knotVectorS,
     return kn;
   }
 
-  // Parse the knot values under consideration of multiplicity.
+  // Parse the knot values under consideration of multiplicity
   std::vector<double> knots0;
   std::vector<int> mults0;
-  // Get the quantity of knots and their multiplicities values..
+  // Get the quantity of knots and their multiplicities values
   double lastKnot;
   int mult;
   for (int i = 0; i < out.size(); i++) {
@@ -191,18 +206,68 @@ KnotMults OCXHelper::ParseKnotVector(const std::string &knotVectorS,
   return kn;
 }
 
-PolesWeights OCXHelper::ParseControlPoints(
-    const LDOM_Element &controlPtListN, int uNumCtrlPoints, int vNumCtrlPoints,
-    const std::string &id, const std::shared_ptr<OCXContext> &ctx) {
-  auto polesWeights = PolesWeights();
+PolesWeightsCurve OCXHelper::ParseControlPointsCurve(
+    LDOM_Element const &controlPtListN, int const &numCtrlPoints,
+    std::string const &id, std::shared_ptr<OCXContext> const &ctx) {
+  auto polesWeights = PolesWeightsCurve(numCtrlPoints);
 
-  TColgp_Array2OfPnt cpArray(1, uNumCtrlPoints, 1, vNumCtrlPoints);
-  TColStd_Array1OfInteger uMultsArray(1, uNumCtrlPoints);
-  TColStd_Array1OfInteger vMultsArray(1, vNumCtrlPoints);
+  LDOM_Node childN = controlPtListN.getFirstChild();
+  if (childN.isNull()) {
+    std::cerr << "could not find NURBS3D/ControlPtList/ControlPoint[0] in "
+                 "curve id='"
+              << id << "'" << std::endl;
+    polesWeights.IsNull = true;
+    return polesWeights;
+  }
 
-  LDOM_Element controlPointN =
-      controlPtListN.GetChildByTagName(controlPtListN.getTagName());
-  if (controlPointN.isNull()) {
+  int i = 1;  // index starts at 1
+  while (childN != nullptr) {
+    // Check for valid node type
+    const LDOM_Node::NodeType nodeType = childN.getNodeType();
+    if (nodeType == LDOM_Node::ATTRIBUTE_NODE) {
+      std::cerr
+          << "expected ControlPoint node of type LDOM_Node::ELEMENT_NODE, "
+             "but got LDOM_Node::ATTRIBUTE_NODE in curve id='"
+          << id << "'" << std::endl;
+      polesWeights.IsNull = true;
+      return polesWeights;
+    }
+
+    // Parse the control point
+    if (nodeType == LDOM_Node::ELEMENT_NODE) {
+      LDOM_Element controlPointN = (LDOM_Element &)childN;
+      LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
+      if (pointN.isNull()) {
+        std::cerr << "could not find NURBS3D/ControlPtList/ControlPoint[" << i
+                  << "] in curve id='" << id << "'" << std::endl;
+        polesWeights.IsNull = true;
+        return polesWeights;
+      }
+
+      // Read the point
+      polesWeights.poles.SetValue(i, OCXHelper::ReadPoint(pointN, ctx));
+
+      // Read the weight
+      double weight = 1.0;  // default weight
+      OCXHelper::GetDoubleAttribute(pointN, "weight", weight);
+      polesWeights.weights.SetValue(i, weight);
+
+      childN = controlPointN.getNextSibling();
+      i++;
+    }
+  }
+
+  return polesWeights;
+}
+
+PolesWeightsSurface OCXHelper::ParseControlPointsSurface(
+    LDOM_Element const &controlPtListN, int const &uNumCtrlPoints,
+    int const &vNumCtrlPoints, std::string const &id,
+    std::shared_ptr<OCXContext> const &ctx) {
+  auto polesWeights = PolesWeightsSurface(uNumCtrlPoints, vNumCtrlPoints);
+
+  LDOM_Node childN = controlPtListN.getFirstChild();
+  if (childN.isNull()) {
     std::cerr << "could not find NURBSSurface/ControlPtList/ControlPoint[0] in "
                  "surface id='"
               << id << "'" << std::endl;
@@ -210,31 +275,43 @@ PolesWeights OCXHelper::ParseControlPoints(
     return polesWeights;
   }
 
-  int i = 0;
-  int u = 1;
-  int v = 1;
-  while (!controlPointN.isNull()) {
-    double weight = 1;  // default weight
-    OCXHelper::GetDoubleAttribute(controlPointN, "weight", weight);
+  for (int u = 1; u <= uNumCtrlPoints; u++) {
+    for (int v = 1; v <= vNumCtrlPoints; v++) {
+      // Check for valid node type
+      const LDOM_Node::NodeType nodeType = childN.getNodeType();
+      if (nodeType == LDOM_Node::ATTRIBUTE_NODE) {
+        std::cerr
+            << "expected ControlPoint node of type LDOM_Node::ELEMENT_NODE, "
+               "but got LDOM_Node::ATTRIBUTE_NODE in surface id='"
+            << id << "'" << std::endl;
+        polesWeights.IsNull = true;
+        return polesWeights;
+      }
 
-    LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
-    if (pointN.isNull()) {
-      std::cerr << "could not find NURBSSurface/ControlPtList/ControlPoint["
-                << i << "]/Point3D in surface id='" << id << "'" << std::endl;
-      polesWeights.IsNull = true;
-      return polesWeights;
+      // Parse the control point
+      if (nodeType == LDOM_Node::ELEMENT_NODE) {
+        LDOM_Element controlPointN = (LDOM_Element &)childN;
+        LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
+        if (pointN.isNull()) {
+          std::cerr << "could not find NURBSSurface/ControlPtList/ControlPoint["
+                    << u << "," << v << "] in surface id='" << id << "'"
+                    << std::endl;
+          polesWeights.IsNull = true;
+          return polesWeights;
+        }
+
+        // Read the point
+        polesWeights.poles.SetValue(u, v, OCXHelper::ReadPoint(pointN, ctx));
+
+        // Read the weight
+        double weight = 1.0;  // default weight
+        OCXHelper::GetDoubleAttribute(pointN, "weight", weight);
+        polesWeights.weights.SetValue(u, v, weight);
+
+        childN = controlPointN.getNextSibling();
+      }
     }
-    gp_Pnt point = ReadPoint(pointN, ctx);
-
-    // cpArray.SetValue(u, v, point);
-    polesWeights.poles.SetValue(i + 1, point);
-    polesWeights.weights.SetValue(i + 1, weight);
-
-    controlPointN = controlPointN.GetSiblingByTagName();
-    i++;
   }
-
-  // polesWeights.poles = cpArray;
 
   return polesWeights;
 }
