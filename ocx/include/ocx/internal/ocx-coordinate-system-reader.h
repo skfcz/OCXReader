@@ -11,6 +11,7 @@
 #define OCX_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_
 
 #include <LDOM_Element.hxx>
+#include <Quantity_Color.hxx>
 #include <TopoDS_Shape.hxx>
 #include <memory>
 
@@ -19,12 +20,14 @@
 class OCXCoordinateSystemReader {
  public:
   explicit OCXCoordinateSystemReader(std::shared_ptr<OCXContext> ctx);
-  
-  TopoDS_Shape ReadCoordinateSystem(LDOM_Element &vesselN);
+
+  TopoDS_Shape ReadCoordinateSystem(LDOM_Element const &vesselN);
 
  private:
   std::shared_ptr<OCXContext> ctx;
-  TopoDS_Shape ReadRefPlanes(LDOM_Element &refPlanesN);
+
+  TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
+                            Quantity_Color const &color);
 };
 
 #endif  // OCX_INCLUDE_OCX_OCX_COORDINATE_SYSTEM_READER_H_

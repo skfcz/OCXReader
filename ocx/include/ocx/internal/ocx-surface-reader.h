@@ -47,9 +47,9 @@ class OCXSurfaceReader {
    * @param surfaceColN the surface collection element
    * @param guid the guid of the surface collection
    * @param id the id of the surface collection
-   * @return the created TopoDS_Shell
+   * @return the created TopoDS_Shape or TopoDS_Shell
    */
-  [[nodiscard]] TopoDS_Shell ReadSurfaceCollection(
+  [[nodiscard]] TopoDS_Shape ReadSurfaceCollection(
       LDOM_Element const &surfaceColN, std::string const &guid,
       std::string const &id) const;
 

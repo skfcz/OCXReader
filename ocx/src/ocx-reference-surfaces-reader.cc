@@ -31,7 +31,7 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
   BRep_Builder compoundBuilder;
   compoundBuilder.MakeCompound(referenceSurfacesAssy);
 
-  std::string tag = std::string(vesselN.getTagName().GetString());
+  auto tag = std::string(vesselN.getTagName().GetString());
   std::size_t index = tag.find("Vessel");
   if (index == std::string::npos) {
     std::cout << "expected a Vessel element, got " << tag << std::endl;
@@ -47,27 +47,27 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
 
   std::list<TopoDS_Shape> shapes;
   // material design teal 50 400
-  Quantity_Color color =
+  auto color =
       Quantity_Color(38 / 255.0, 16 / 255.0, 154 / 255.0, Quantity_TOC_RGB);
 
-  OCXSurfaceReader *surfaceReader = new OCXSurfaceReader(ctx);
+  auto *surfaceReader = new OCXSurfaceReader(ctx);
 
   LDOM_Node childN = refSrfsN.getFirstChild();
 
-  while (childN != NULL) {
+  while (childN != nullptr) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element surfaceN = (LDOM_Element &)childN;
 
-      std::string guid =
+      auto guid =
           std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
-      std::string name = std::string(surfaceN.getAttribute("name").GetString());
+      auto name = std::string(surfaceN.getAttribute("name").GetString());
 
       std::cout << "read reference surface " << name << " guid=" << guid
                 << ", type " << surfaceN.getTagName().GetString() << std::endl;
 
-      TopoDS_Shape referenceSurface = TopoDS_Shape();
+      auto referenceSurface = TopoDS_Shape();
 
       if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
         referenceSurface = surfaceReader->ReadSurface(surfaceN);
@@ -110,7 +110,7 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
     childN = childN.getNextSibling();
   }
 
-  for (TopoDS_Shape shape : shapes) {
+  for (TopoDS_Shape const &shape : shapes) {
     compoundBuilder.Add(referenceSurfacesAssy, shape);
   }
 
@@ -119,7 +119,7 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
   TDataStd_Name::Set(refSrfLabel, "Reference Surfaces");
 
   std::cout << "    registered #" << shapes.size()
-            << " references surfaces  found in "
+            << " references surfaces found in "
             << refSrfsN.getTagName().GetString() << std::endl;
 
   return referenceSurfacesAssy;

@@ -36,7 +36,7 @@
 /Testing/
 *.ninja
 *.stp
-
+vessel.xml
 
 /cmake_install.cmake
 build

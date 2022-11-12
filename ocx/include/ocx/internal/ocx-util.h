@@ -27,6 +27,16 @@ struct Version {
            &build);
   }
 
+  /**
+   * Construct a new Version object of the form: major.minor.revision.build
+   *
+   * @param versionStr the pointer to the version string to parse, e.g "1.0.2.1"
+   */
+  explicit Version(char const *versionStr) {
+    sscanf(versionStr, "%d.%d.%d.%d", &major, &minor, &revision,
+           &build);
+  }
+
   bool operator<(const Version &otherVersion) const {
     if (major < otherVersion.major) return true;
     if (minor < otherVersion.minor) return true;

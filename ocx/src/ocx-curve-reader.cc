@@ -67,7 +67,11 @@ TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element const &curveRootN) {
         continue;
       }
 
-      if (!edge.IsNull()) {
+      if (edge.IsNull()) {
+        std::cerr << "failed to read from shape "
+                  << curveN.getTagName().GetString() << " in ReadCurve "
+                  << std::endl;
+      } else {
         switch (edge.ShapeType()) {
           case TopAbs_WIRE:
             // Return immediately if the shape is a wire
@@ -114,7 +118,11 @@ TopoDS_Shape OCXCurveReader::ReadCompositeCurve3D(LDOM_Element const &cCurveN) {
         continue;
       }
 
-      if (!edge.IsNull()) {
+      if (edge.IsNull()) {
+        std::cerr << "failed to read from shape "
+                  << curveN.getTagName().GetString()
+                  << " in ReadCurve/ReadCompositeCurve3D" << std::endl;
+      } else {
         switch (edge.ShapeType()) {
           case TopAbs_WIRE:
             // Return immediately if the shape is a wire

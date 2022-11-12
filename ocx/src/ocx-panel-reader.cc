@@ -178,7 +178,7 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN,
     LDOM_Element gridRefN =
         OCXHelper::GetFirstChild(unboundedGeometryN, "GridRef");
     LDOM_Element surfaceRefN =
-        OCXHelper::GetFirstChild(unboundedGeometryN, "GridRef");
+        OCXHelper::GetFirstChild(unboundedGeometryN, "SurfaceRef");
 
     if (!gridRefN.isNull()) {
       std::string guid =
@@ -221,7 +221,6 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN,
           std::cerr << "failed to read shell definition from "
                        "Panel/UnboundedGeometry contained in panel "
                     << id << std::endl;
-
         }
         return shell;  // we expect only one child element
       }

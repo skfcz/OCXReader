@@ -31,71 +31,57 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element const &surfaceN) const {
   auto guid = std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
   auto id = std::string(surfaceN.getAttribute("id").GetString());
 
-  try {
-    if ("SurfaceCollection" == OCXHelper::GetLocalTagName(surfaceN)) {
-      return ReadSurfaceCollection(surfaceN, guid, id);
-    } else {
-      if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        return ReadCone3D(surfaceN, guid, id);
-      } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        return ReadCylinder3D(surfaceN, guid, id);
-      } else if ("ReadExtrudedSurface" ==
-                 OCXHelper::GetLocalTagName(surfaceN)) {
-        return ReadExtrudedSurface(surfaceN, guid, id);
-      } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
-        return ReadNURBSurface(surfaceN, guid, id);
-      } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        return ReadSphere3D(surfaceN, guid, id);
-      } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
-        return ReadPlane3D(surfaceN, guid, id);
-      }
-      std::cerr << "found unknown surface type "
-                << surfaceN.getTagName().GetString() << ", guid (" << guid
-                << "), id " << id << std::endl;
-      return TopoDS_Shell();
-    }
-  } catch (Standard_Failure const &exp) {
-    std::cerr << "an error occurred reading surface "
-              << surfaceN.getAttribute("id").GetString() << ":" << exp
-              << std::endl;
-    return TopoDS_Shell();
+  std::string surfaceType = OCXHelper::GetLocalTagName(surfaceN);
+  if (surfaceType == "SurfaceCollection") {
+    return ReadSurfaceCollection(surfaceN, guid, id);
+  } else if (surfaceType == "Cone3D") {
+    return ReadCone3D(surfaceN, guid, id);
+  } else if (surfaceType == "Cylinder3D") {
+    return ReadCylinder3D(surfaceN, guid, id);
+  } else if (surfaceType == "ReadExtrudedSurface") {
+    return ReadExtrudedSurface(surfaceN, guid, id);
+  } else if (surfaceType == "NURBSSurface") {
+    return ReadNURBSurface(surfaceN, guid, id);
+  } else if (surfaceType == "Sphere3D") {
+    return ReadSphere3D(surfaceN, guid, id);
+  } else if (surfaceType == "Plane3D") {
+    return ReadPlane3D(surfaceN, guid, id);
   }
+  std::cerr << "found unknown surface type "
+            << surfaceN.getTagName().GetString() << ", guid (" << guid
+            << "), id " << id << std::endl;
+  return TopoDS_Shell();
 }
 
-TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(
+TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
     LDOM_Element const &surfaceColN, std::string const &guid,
     std::string const &id) const {
   std::string colGuid =
       std::string(surfaceColN.getAttribute(ctx->OCXGUIDRef()).GetString());
 
-  auto shell = TopoDS_Shell();
-  // see https://dev.opencascade.org/content/brepbuilderapimakeshell
-  BRepOffsetAPI_Sewing sewedObj;
+  // https://github.com/DLR-SC/tigl/wiki/OpenCASCADE-Cheats#create-a-topods_shell-from-a-collection-of-topods_faces
+  BRepBuilderAPI_Sewing shellMaker;
 
   LDOM_Node childN = surfaceColN.getFirstChild();
   while (childN != nullptr) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
-      LDOM_Element surfaceN = (LDOM_Element &)childN;
-
-      std::cout << "    SurfaceCollection/"
-                << OCXHelper::GetLocalTagName(surfaceN) << " guid=" << guid
-                << ", id=" << id << std::endl;
-
       auto face = TopoDS_Face();
-      if ("Cone3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+
+      LDOM_Element surfaceN = (LDOM_Element &)childN;
+      std::string surfaceType = OCXHelper::GetLocalTagName(surfaceN);
+      if (surfaceType == "Cone3D") {
         face = ReadCone3D(surfaceN, guid, id);
-      } else if ("Cylinder3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+      } else if (surfaceType == "Cylinder3D") {
         face = ReadCylinder3D(surfaceN, guid, id);
-      } else if ("ReadExtrudedSurface" ==
-                 OCXHelper::GetLocalTagName(surfaceN)) {
+      } else if (surfaceType == "ReadExtrudedSurface") {
         face = ReadExtrudedSurface(surfaceN, guid, id);
-      } else if ("NURBSSurface" == OCXHelper::GetLocalTagName(surfaceN)) {
+      } else if (surfaceType == "NURBSSurface") {
         face = ReadNURBSurface(surfaceN, guid, id);
-      } else if ("Sphere3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+      } else if (surfaceType == "Sphere3D") {
         face = ReadSphere3D(surfaceN, guid, id);
-      } else if ("Plane3D" == OCXHelper::GetLocalTagName(surfaceN)) {
+      } else if (surfaceType == "Plane3D") {
         face = ReadPlane3D(surfaceN, guid, id);
       } else {
         std::cerr << "found unknown face type "
@@ -111,30 +97,52 @@ TopoDS_Shell OCXSurfaceReader::ReadSurfaceCollection(
                   << ") in SurfaceCollection with guid '" << colGuid << "'"
                   << std::endl;
       } else {
-        sewedObj.Add(face);
+        shellMaker.Add(face);
       }
     }
     childN = childN.getNextSibling();
   }
 
-  sewedObj.Perform();
-  TopoDS_Shape rawSewer = sewedObj.SewedShape();
-  TopExp_Explorer explorer(rawSewer, TopAbs_SHELL);
+  // https://dev.opencascade.org/content/brepbuilderapimakeshell
+  shellMaker.Perform();
+
+  TopoDS_Shape rawSewer = shellMaker.SewedShape();
 
   int numShells = 0;
-  if (explorer.More()) {
-    TopoDS_Shape aTmpShape = explorer.Current();
-    shell = TopoDS::Shell(aTmpShape);
+  auto shape = TopoDS_Shape();
+  TopExp_Explorer shellExplorer(rawSewer, TopAbs_SHELL);
+  while (shellExplorer.More()) {
+    // get current shape and convert to TopoDS_Shape
+    shape = TopoDS::Shell(shellExplorer.Current());
     numShells++;
-  }
-  if (numShells != 1) {
-    std::cerr
-        << "expected one shell from failed to read from SurfaceCollection "
-        << " (" << colGuid << "), got #" << numShells << ", use only last"
-        << std::endl;
+
+    shellExplorer.Next();
   }
 
-  return shell;
+  // Fallback to look for TopAbs_COMPOUND if no TopAbs_SHELL was found
+  if (numShells == 0) {
+    std::cout << "No TopAbs_SHELL found in shellMaker, try looking for "
+                 "TopAbs_COMPOUND"
+              << std::endl;
+    TopExp_Explorer compExplorer(rawSewer, TopAbs_COMPOUND);
+    while (compExplorer.More()) {
+      // TODO: get current TopAbs_COMPOUND and convert to TopoDS_Shell
+
+
+      // shape = TopoDS::Compound(compExplorer.Current());
+      // numShells++;
+
+      compExplorer.Next();
+    }
+  }
+
+  if (numShells != 1) {
+    std::cerr << "Expected one shell to be composed from SurfaceCollection "
+              << " (" << colGuid << "), but got " << numShells
+              << " shells, use only last" << std::endl;
+  }
+
+  return shape;
 }
 
 TopoDS_Face OCXSurfaceReader::ReadCone3D(LDOM_Element const &surfaceN,

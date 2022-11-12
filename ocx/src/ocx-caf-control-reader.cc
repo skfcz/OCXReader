@@ -31,10 +31,6 @@
 #include "ocx/internal/ocx-reference-surfaces-reader.h"
 #include "ocx/internal/ocx-util.h"
 
-OCXCAFControl_Reader::OCXCAFControl_Reader() = default;
-
-OCXCAFControl_Reader::~OCXCAFControl_Reader() = default;
-
 Standard_Boolean OCXCAFControl_Reader::ReadFile(Standard_CString filename) {
   // Load the OCX Document as DOM
   const Handle(OSD_FileSystem) &aFileSystem =
@@ -58,8 +54,8 @@ Standard_Boolean OCXCAFControl_Reader::ReadFile(Standard_CString filename) {
   // Get the DOM document
   ocxDocEL = aParser.getDocument().getDocumentElement();
 
-  // Check that we got the right root element
-  std::string rtn(ocxDocEL.getTagName().GetString());
+  // Check root element
+  std::string_view rtn = ocxDocEL.getTagName().GetString();
   std::size_t pos = rtn.find(':');
   if (pos == std::string::npos) {
     std::cerr << "no : found in root element name <" << rtn << ">" << std::endl;
@@ -74,9 +70,9 @@ Standard_Boolean OCXCAFControl_Reader::ReadFile(Standard_CString filename) {
     return Standard_False;
   }
 
-  // Check the version compatibility
-  std::string schemaVersion(ocxDocEL.getAttribute("schemaVersion").GetString());
-  if (schemaVersion.empty()) {
+  // Check version compatibility
+  char const *schemaVersion(ocxDocEL.getAttribute("schemaVersion").GetString());
+  if (schemaVersion == nullptr) {
     std::cerr << "no schemaVersion attribute found in root element"
               << std::endl;
     return Standard_False;
@@ -94,81 +90,56 @@ Standard_Boolean OCXCAFControl_Reader::ReadFile(Standard_CString filename) {
   return Standard_True;
 }
 
-Standard_Boolean OCXCAFControl_Reader::Perform(
-    Standard_CString filename, Handle(TDocStd_Document) & doc,
-    const Message_ProgressRange &theProgress) {
-  if (ReadFile(filename) == Standard_False) {
-    return Standard_False;
-  }
-  return Transfer(doc, theProgress);
-}
-
 Standard_Boolean OCXCAFControl_Reader::Transfer(
     Handle(TDocStd_Document) & doc, const Message_ProgressRange &theProgress) {
   if (ocxDocEL == nullptr) {
-    std::cerr << "run ReadFile before Transfer" << std::endl;
+    std::cerr
+        << "No ocx document loaded. Either call ReadFile or provide a valid "
+           "ocx document to the constructor."
+        << std::endl;
     return Standard_False;
   }
 
-  //
-  // OCAF
-  //
-  Handle(TDocStd_Application) app = new TDocStd_Application;
-  app->NewDocument("XmlOcaf", doc);
-  if (doc.IsNull()) {
-    std::cerr << "Can not create OCAF document" << std::endl;
+  // Check root element
+  std::string_view rtn = ocxDocEL.getTagName().GetString();
+  std::size_t pos = rtn.find(':');
+  if (pos == std::string::npos) {
+    std::cerr << "no : found in root element name <" << rtn << ">" << std::endl;
     return Standard_False;
   }
+  nsPrefix = rtn.substr(0, pos);
+  std::cout << "ocx prefix '" << nsPrefix << "'" << std::endl;
+
+  if (rtn != nsPrefix + ":ocxXML") {
+    std::cerr << "expected root element <" << nsPrefix << ":ocxXML>, but got <"
+              << rtn << ">" << std::endl;
+    return Standard_False;
+  }
+
+  // Add the OCX document to the context
   ctx->OCAFDoc(doc);
 
-  TDF_Label vesselL = doc->Main();
-  // TODO: use ship name from OCX
-  TDataStd_Name::Set(vesselL, "Vessel");
-
-  //
-  // XML
-  //
-  std::string fullTagName = ocxDocEL.getTagName().GetString();
-  std::size_t index = fullTagName.find(':');
-  if (index == std::string::npos) {
-    std::cerr << "root element tag does not contain a colon (:) '"
-              << fullTagName << "'" << std::endl;
-    return Standard_False;
-  }
-  nsPrefix = fullTagName.substr(0, index);
-
-  if (std::string expectedTagName = nsPrefix + ":ocxXML";
-      expectedTagName != fullTagName) {
-    std::cerr << "expect document to start with " << expectedTagName
-              << ", but found " << fullTagName << "'" << std::endl;
-    return Standard_False;
-  }
-
+  // Parse and prepare units set in the OCX document
   ctx->PrepareUnits();
 
+  // Set the OCAF root label (0:1)
+  LDOM_Element header = OCXHelper::GetFirstChild(ocxDocEL, "Header");
+  TDataStd_Name::Set(doc->Main(), header.getAttribute("name").GetString());
+
+  // Start parsing the OCX document
   LDOM_Element vesselN = OCXHelper::GetFirstChild(ocxDocEL, "Vessel");
   if (vesselN.isNull()) {
     std::cerr << "could not find ocxXML/Vessel element" << std::endl;
     return Standard_False;
   }
 
-  TopoDS_Compound rootS;
-  BRep_Builder rootBuilder;
-  rootBuilder.MakeCompound(rootS);
-  TDF_Label rootL = ctx->OCAFShapeTool()->AddShape(rootS, true);
-  TDataStd_Name::Set(rootL, "Vessel");
-
   // Read coordinate system
-  OCXCoordinateSystemReader cosysReader(ctx);
-  TopoDS_Shape cosysS = cosysReader.ReadCoordinateSystem(vesselN);
-  TDF_Label cosysL = ctx->OCAFShapeTool()->AddShape(cosysS, true);
-  TDataStd_Name::Set(cosysL, "Coordinate System");
+  OCXCoordinateSystemReader coSysReader(ctx);
+  coSysReader.ReadCoordinateSystem(vesselN);
 
   // Read reference surfaces
   OCXReferenceSurfacesReader refSrfReader(ctx);
-  TopoDS_Shape referenceSurfaces = refSrfReader.ReadReferenceSurfaces(vesselN);
-  TDF_Label refSrfL = ctx->OCAFShapeTool()->AddShape(referenceSurfaces, true);
-  TDataStd_Name::Set(refSrfL, "Reference Surfaces");
+  refSrfReader.ReadReferenceSurfaces(vesselN);
 
   // Read panels
   OCXPanelReader panelReader(ctx);
@@ -176,22 +147,31 @@ Standard_Boolean OCXCAFControl_Reader::Transfer(
   TDF_Label panelsL = ctx->OCAFShapeTool()->AddShape(panels, true);
   TDataStd_Name::Set(panelsL, "Panels");
 
-  std::string fileName = "vessel.stp";
+  char const fileName[] = "vessel.stp";
 
   STEPCAFControl_Writer writer;
   try {
     if (!writer.Transfer(doc, STEPControl_AsIs)) {
       std::cerr << "failed to transfer root shape to STEP" << std::endl;
-      return false;
+      return Standard_False;
     }
-    const IFSelect_ReturnStatus ret = writer.Write(fileName.c_str());
-    if (ret == IFSelect_RetDone) {
+    const IFSelect_ReturnStatus ret = writer.Write(fileName);
+    if (ret != IFSelect_RetDone) {
       std::cerr << "failed to write to STEP, got " << ret << std::endl;
-      return false;
+      return Standard_False;
     }
   } catch (Standard_Failure const &exp) {
     std::cerr << "an error occurred transferring geometry:" << exp << std::endl;
   }
 
   return Standard_True;
+}
+
+Standard_Boolean OCXCAFControl_Reader::Perform(
+    Standard_CString filename, Handle(TDocStd_Document) & doc,
+    const Message_ProgressRange &theProgress) {
+  if (ReadFile(filename) == Standard_False) {
+    return Standard_False;
+  }
+  return Transfer(doc, theProgress);
 }

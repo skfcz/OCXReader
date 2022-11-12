@@ -44,16 +44,6 @@ class TDF_Label;
 class OCXCAFControl_Reader {
  public:
   /**
-   * Creates a reader with an empty model
-   */
-  Standard_EXPORT OCXCAFControl_Reader();
-
-  /**
-   * Destructor.
-   */
-  Standard_EXPORT ~OCXCAFControl_Reader();
-
-  /**
    * Translate OCX file given by filename into the document
    * Return True if succeeded, and False in case of fail
    * @param filename the file to read
@@ -80,13 +70,9 @@ class OCXCAFControl_Reader {
 
  private:
   std::shared_ptr<OCXContext> ctx;
-  
+
   LDOM_Element ocxDocEL;
   std::string nsPrefix;
-
-  void ParseCoordinateSystem(LDOM_Element &coosysN);
-
-  TopoDS_Shape ParseUnboundGeometry(LDOM_Element &unboundedGeometryN);
 };
 
 #endif  // OCX_INCLUDE_OCX_OCX_CAF_CONTROL_READER_H_
