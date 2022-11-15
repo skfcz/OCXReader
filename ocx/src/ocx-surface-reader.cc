@@ -11,6 +11,8 @@
 
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakeShell.hxx>
+#include <BRepOffsetAPI_MakeOffsetShape.hxx>
 #include <BRepOffsetAPI_Sewing.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom_BSplineSurface.hxx>
@@ -38,10 +40,10 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element const &surfaceN) const {
     return ReadCone3D(surfaceN, guid, id);
   } else if (surfaceType == "Cylinder3D") {
     return ReadCylinder3D(surfaceN, guid, id);
-  } else if (surfaceType == "ReadExtrudedSurface") {
+  } else if (surfaceType == "ExtrudedSurface") {
     return ReadExtrudedSurface(surfaceN, guid, id);
   } else if (surfaceType == "NURBSSurface") {
-    return ReadNURBSurface(surfaceN, guid, id);
+    return ReadNURBSSurface(surfaceN, guid, id);
   } else if (surfaceType == "Sphere3D") {
     return ReadSphere3D(surfaceN, guid, id);
   } else if (surfaceType == "Plane3D") {
@@ -50,7 +52,7 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element const &surfaceN) const {
   std::cerr << "found unknown surface type "
             << surfaceN.getTagName().GetString() << ", guid (" << guid
             << "), id " << id << std::endl;
-  return TopoDS_Shell();
+  return {};
 }
 
 TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
@@ -61,6 +63,10 @@ TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
 
   // https://github.com/DLR-SC/tigl/wiki/OpenCASCADE-Cheats#create-a-topods_shell-from-a-collection-of-topods_faces
   BRepBuilderAPI_Sewing shellMaker;
+
+  // TopoDS_Shell aShell;
+  // BRep_Builder aBuilder;
+  // aBuilder.MakeShell(aShell);
 
   LDOM_Node childN = surfaceColN.getFirstChild();
   while (childN != nullptr) {
@@ -75,10 +81,10 @@ TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
         face = ReadCone3D(surfaceN, guid, id);
       } else if (surfaceType == "Cylinder3D") {
         face = ReadCylinder3D(surfaceN, guid, id);
-      } else if (surfaceType == "ReadExtrudedSurface") {
+      } else if (surfaceType == "ExtrudedSurface") {
         face = ReadExtrudedSurface(surfaceN, guid, id);
       } else if (surfaceType == "NURBSSurface") {
-        face = ReadNURBSurface(surfaceN, guid, id);
+        face = ReadNURBSSurface(surfaceN, guid, id);
       } else if (surfaceType == "Sphere3D") {
         face = ReadSphere3D(surfaceN, guid, id);
       } else if (surfaceType == "Plane3D") {
@@ -91,50 +97,48 @@ TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
         continue;
       }
 
-      if (face.IsNull()) {
+      if (!face.IsNull()) {
+        shellMaker.Add(face);
+        // aBuilder.Add(aShell, face);
+      } else {
         std::cerr << "failed to read from face "
                   << surfaceN.getTagName().GetString() << " (" << guid
                   << ") in SurfaceCollection with guid '" << colGuid << "'"
                   << std::endl;
-      } else {
-        shellMaker.Add(face);
       }
     }
     childN = childN.getNextSibling();
   }
 
-  // https://dev.opencascade.org/content/brepbuilderapimakeshell
-  shellMaker.Perform();
+  // BRepBuilderAPI_Sewing sewOp;
+  // sewOp.Load(aShell);
+  // sewOp.Perform();
+  //
+  // BRepOffsetAPI_MakeOffsetShape faceOffset3(sewOp.SewedShape(), 0);
 
-  TopoDS_Shape rawSewer = shellMaker.SewedShape();
+  // // https://dev.opencascade.org/content/brepbuilderapimakeshell
+  shellMaker.Perform();
+  TopoDS_Shape sewedShape = shellMaker.SewedShape();
 
   int numShells = 0;
-  auto shape = TopoDS_Shape();
-  TopExp_Explorer shellExplorer(rawSewer, TopAbs_SHELL);
-  while (shellExplorer.More()) {
-    // get current shape and convert to TopoDS_Shape
+  auto shape = TopoDS_Shell();
+  TopExp_Explorer shellExplorer(sewedShape, TopAbs_SHELL);
+  for (; shellExplorer.More(); shellExplorer.Next()) {
     shape = TopoDS::Shell(shellExplorer.Current());
     numShells++;
-
-    shellExplorer.Next();
   }
 
   // Fallback to look for TopAbs_COMPOUND if no TopAbs_SHELL was found
-  if (numShells == 0) {
-    std::cout << "No TopAbs_SHELL found in shellMaker, try looking for "
-                 "TopAbs_COMPOUND"
-              << std::endl;
-    TopExp_Explorer compExplorer(rawSewer, TopAbs_COMPOUND);
-    while (compExplorer.More()) {
-      // TODO: get current TopAbs_COMPOUND and convert to TopoDS_Shell
-
-
-      // shape = TopoDS::Compound(compExplorer.Current());
-      // numShells++;
-
-      compExplorer.Next();
-    }
-  }
+  // if (numShells == 0) {
+  //   std::cout << "No TopAbs_SHELL found in shellMaker, try looking for "
+  //                "TopAbs_COMPOUND"
+  //             << std::endl;
+  //   TopExp_Explorer compExplorer(sewedShape, TopAbs_COMPOUND);
+  //   for (; compExplorer.More(); compExplorer.Next()) {
+  //     shape = TopoDS::Compound(compExplorer.Current());
+  //     numShells++;
+  //   }
+  // }
 
   if (numShells != 1) {
     std::cerr << "Expected one shell to be composed from SurfaceCollection "
@@ -163,15 +167,16 @@ TopoDS_Face OCXSurfaceReader::ReadExtrudedSurface(LDOM_Element const &surfaceN,
   return {};
 }
 
-TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element const &nurbsSrfN,
-                                              std::string const &guid,
-                                              std::string const &id) const {
+TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
+                                               std::string const &guid,
+                                               std::string const &id) const {
   // Read FaceBoundaryCurve
   LDOM_Element faceBoundaryCurveN =
       OCXHelper::GetFirstChild(nurbsSrfN, "FaceBoundaryCurve");
   if (faceBoundaryCurveN.isNull()) {
-    std::cout << "could not find  Plane3D/FaceBoundaryCurve in element with ("
-              << guid << ")" << std::endl;
+    std::cout << "could not find Plane3D/FaceBoundaryCurve in ReadNURBSurface "
+                 "with surface with id "
+              << id << ", GUID" << guid << std::endl;
     return {};
   }
   auto *curveReader = new OCXCurveReader(ctx);
@@ -181,7 +186,7 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element const &nurbsSrfN,
   LDOM_Element uPropsN =
       OCXHelper::GetFirstChild(nurbsSrfN, "U_NURBSproperties");
   if (uPropsN.isNull()) {
-    std::cerr << "could nit find failed NURBSSurface/U_NURBSproperties in "
+    std::cerr << "could not find failed NURBSSurface/U_NURBSproperties in "
                  "surface with id "
               << id << ", GUID" << guid << std::endl;
     return {};
@@ -257,14 +262,24 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSurface(LDOM_Element const &nurbsSrfN,
   PolesWeightsSurface pw = OCXHelper::ParseControlPointsSurface(
       controlPtListN, uNumCtrlPoints, vNumCtrlPoints, id, ctx);
   if (pw.IsNull) {
+    std::cout << "could not parse control points in "
+                 "NURBSSurface/ParseControlPointsSurface with surface id='"
+              << id << "'" << std::endl;
     return {};
   }
 
   // Create the surface
-  Handle(Geom_BSplineSurface) srf =
+  Handle(Geom_BSplineSurface) surface =
       new Geom_BSplineSurface(pw.poles, pw.weights, uKN.knots, vKN.knots,
                               uKN.mults, vKN.mults, uDegree, vDegree);
-  auto faceBuilder = BRepBuilderAPI_MakeFace(srf, outerContour);
+  if (surface.IsNull()) {
+    std::cout << "could not create surface in "
+                 "NURBSSurface/ParseControlPointsSurface with surface id='"
+              << id << "'" << std::endl;
+    return {};
+  }
+
+  auto faceBuilder = BRepBuilderAPI_MakeFace(surface, outerContour);
   faceBuilder.Build();
   TopoDS_Face restricted = faceBuilder.Face();
   if (restricted.IsNull()) {
@@ -290,32 +305,32 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
                                           std::string const &id) const {
   LDOM_Element originN = OCXHelper::GetFirstChild(surfaceN, "Origin");
   if (originN.isNull()) {
-    std::cout
+    std::cerr
         << "could not read surface due to missing Plane3D/Origin element, id '"
         << guid << "'" << std::endl;
-    return TopoDS_Face();
+    return {};
   }
   gp_Pnt origin = OCXHelper::ReadPoint(originN, ctx);
 
   LDOM_Element normalN = OCXHelper::GetFirstChild(surfaceN, "Normal");
   if (normalN.isNull()) {
-    std::cout << "could not read surface due to missing Plane3D/Normal "
+    std::cerr << "could not read surface due to missing Plane3D/Normal "
                  "element,  GUID is '"
               << guid << "'" << std::endl;
-    return TopoDS_Face();
+    return {};
   }
   gp_Dir normal = OCXHelper::ReadDirection(normalN);
 
   // UDirection, FaceBoundaryCurve and LimitedBy are not mandatory in schema
   // TODO: read none mandatory elements from Plane3D
 
-  gp_Pln plane = gp_Pln(origin, normal);
+  auto plane = gp_Pln(origin, normal);
   TopoDS_Face planeFace = BRepBuilderAPI_MakeFace(plane);
 
   LDOM_Element faceBoundaryCurveN =
       OCXHelper::GetFirstChild(surfaceN, "FaceBoundaryCurve");
   if (faceBoundaryCurveN.isNull()) {
-    std::cout << "could not find  Plane3D/FaceBoundaryCurve in element with ("
+    std::cout << "could not find Plane3D/FaceBoundaryCurve in element with ("
               << guid << ")" << std::endl;
     return planeFace;
   }

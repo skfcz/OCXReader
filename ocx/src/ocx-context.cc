@@ -106,9 +106,12 @@ void OCXContext::RegisterSurface(const std::string &guid,
   }
 }
 
-TopoDS_Shape OCXContext::LookupSurface(const std::string &guid) {
-  // TODO: check if exist
-  return guid2refplane[guid];
+TopoDS_Shape OCXContext::LookupSurface(const std::string &guid) const {
+  if (auto res = guid2refplane.find(guid); res != guid2refplane.end()) {
+    return res->second;
+  }
+  std::cerr << "could not find surface for guid '" << guid << "'" << std::endl;
+  return {};
 }
 
 void OCXContext::OCAFDoc(const opencascade::handle<TDocStd_Document> &handle) {

@@ -57,9 +57,10 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
         << "could not find CoordinateSystem/FrameTables/XRefPlanes child node"
         << std::endl;
   } else {
-    TopoDS_Shape comp = ReadRefPlane(
-        xRefPlanesN, Quantity_Color(102 / 256.0, 187 / 256.0, 106 / 256.0,
-                                    Quantity_TOC_RGB));
+    // Material Green 400
+    auto color =
+        Quantity_Color(102 / 256.0, 187 / 256.0, 106 / 256.0, Quantity_TOC_RGB);
+    TopoDS_Shape comp = ReadRefPlane(xRefPlanesN, color);
     shapes.push_back(comp);
   }
 
@@ -69,9 +70,10 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
         << "could not find CoordinateSystem/FrameTables/YRefPlanes child node"
         << std::endl;
   } else {
-    TopoDS_Shape comp = ReadRefPlane(
-        yRefPlanesN,
-        Quantity_Color(212 / 256.0, 225 / 256.0, 87 / 256.0, Quantity_TOC_RGB));
+    // Material Lime 400
+    auto color =
+        Quantity_Color(212 / 256.0, 225 / 256.0, 87 / 256.0, Quantity_TOC_RGB);
+    TopoDS_Shape comp = ReadRefPlane(yRefPlanesN, color);
     shapes.push_back(comp);
   }
 
@@ -81,9 +83,10 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
         << "could not find CoordinateSystem/FrameTables/ZRefPlanes child node"
         << std::endl;
   } else {
-    TopoDS_Shape comp = ReadRefPlane(
-        zRefPlanesN,
-        Quantity_Color(255 / 256.0, 202 / 256.0, 40 / 256.0, Quantity_TOC_RGB));
+    // Material Amber 400
+    auto color =
+        Quantity_Color(255 / 256.0, 202 / 256.0, 40 / 256.0, Quantity_TOC_RGB);
+    TopoDS_Shape comp = ReadRefPlane(zRefPlanesN, color);
     shapes.push_back(comp);
   }
 

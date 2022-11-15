@@ -22,7 +22,7 @@ int main() {
 
   OCXCAFControl_Reader reader;
   // NAPA-D-BULKER-MID_V286.3docx, Aveva-OHCM-MidShip_V285.3docx, ERHULLV2.3docx
-  if (!reader.ReadFile("NAPA-D-BULKER-MID_V286.3docx")) {
+  if (!reader.ReadFile("test2.3docx")) {
     std::cerr << "failed to load" << std::endl;
     app->Close(doc);
     return 1;
@@ -37,8 +37,7 @@ int main() {
 
   // Save the document
   XmlDrivers::DefineFormat(app);
-  PCDM_StoreStatus sstatus = app->SaveAs(doc, "vessel.xml");
-  if (sstatus != PCDM_SS_OK) {
+  if (app->SaveAs(doc, "vessel.xml") != PCDM_SS_OK) {
     app->Close(doc);
 
     std::cout << "Cannot write OCAF document." << std::endl;

@@ -24,11 +24,11 @@ class OCXContext {
  public:
   OCXContext(const LDOM_Element &ocxDocN, const std::string &nsPrefix);
 
-  static inline bool CreatePanelContours = true;
-  static inline bool CreatePanelSurfaces = true;
+  static inline bool CreatePanelContours = false;
+  static inline bool CreatePanelSurfaces = false;
   static inline bool CreateReferenceSurfaces = true;
-  static inline bool CreatePlateSurfaces = true;
-  static inline bool CreateStiffenerTraces = true;
+  static inline bool CreatePlateSurfaces = false;
+  static inline bool CreateStiffenerTraces = false;
 
   [[nodiscard]] std::string Prefix() const;
   [[nodiscard]] LDOMString OCXGUIDRef() const;
@@ -38,7 +38,8 @@ class OCXContext {
   double LoopupFactor(const std::string &unit);
 
   void RegisterSurface(const std::string &guid, const TopoDS_Shape &shell);
-  TopoDS_Shape LookupSurface(const std::string &guid);
+
+  [[nodiscard]] TopoDS_Shape LookupSurface(const std::string &guid) const;
 
   void OCAFDoc(const opencascade::handle<TDocStd_Document> &handle);
   opencascade::handle<TDocStd_Document> OCAFDoc();

@@ -97,9 +97,9 @@ class OCXSurfaceReader {
    * @param id the id of the surface
    * @return the created TopoDS_Face
    */
-  [[nodiscard]] TopoDS_Face ReadNURBSurface(LDOM_Element const &nurbsSrfN,
-                                            std::string const &guid,
-                                            std::string const &id) const;
+  [[nodiscard]] TopoDS_Face ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
+                                             std::string const &guid,
+                                             std::string const &id) const;
 
   /**
    * Read a Sphere3D from given surface element

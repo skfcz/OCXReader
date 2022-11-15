@@ -99,7 +99,6 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element &panelN) {
     if (panelSurface.IsNull()) {
       std::cerr << "failed to read panelsurface in Panel " << id << ", name='"
                 << name << "'," << std::endl;
-
     } else {
       TopoDS_Shape plates = ReadPlates(panelN, panelSurface);
       if (!plates.IsNull()) {
@@ -194,6 +193,7 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN,
       // TODO: shell from GridRef
       return shell;
     }
+    
     if (!surfaceRefN.isNull()) {
       std::string guid =
           std::string(surfaceRefN.getAttribute(ctx->OCXGUIDRef()).GetString());
@@ -217,12 +217,12 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element &panelN,
         LDOM_Element surfaceN = (LDOM_Element &)aChildNode;
         auto *surfaceReader = new OCXSurfaceReader(ctx);
         shell = surfaceReader->ReadSurface(surfaceN);
-        if (shell.IsNull()) {
-          std::cerr << "failed to read shell definition from "
-                       "Panel/UnboundedGeometry contained in panel "
-                    << id << std::endl;
+        if (!shell.IsNull()) {
+          return shell;  // we expect only one child element
         }
-        return shell;  // we expect only one child element
+        std::cerr << "failed to read shell definition from "
+                     "Panel/UnboundedGeometry contained in panel "
+                  << id << std::endl;
       }
       aChildNode = aChildNode.getNextSibling();
     }
@@ -242,7 +242,7 @@ TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element &panelN,
                                         TopoDS_Shape &referenceSurface) {
   const char *id = panelN.getAttribute("id").GetString();
 
-  TopoDS_Shape plates = TopoDS_Shape();
+  auto plates = TopoDS_Shape();
 
   LDOM_Element composedOfN = OCXHelper::GetFirstChild(panelN, "ComposedOf");
   if (composedOfN.isNull()) {

@@ -64,27 +64,27 @@ TopoDS_Wire OCXCurveReader::ReadCurve(LDOM_Element const &curveRootN) {
       } else {
         std::cerr << "found unknown curve type "
                   << curveN.getTagName().GetString() << std::endl;
-        continue;
       }
 
       if (edge.IsNull()) {
-        std::cerr << "failed to read from shape "
-                  << curveN.getTagName().GetString() << " in ReadCurve "
-                  << std::endl;
-      } else {
-        switch (edge.ShapeType()) {
-          case TopAbs_WIRE:
-            // Return immediately if the shape is a wire
-            return TopoDS::Wire(edge);
-          case TopAbs_EDGE:
-            // Add the edge to the wireBuilder
-            wireBuilder.Add(TopoDS::Edge(edge));
-            break;
-          default:
-            std::cerr << "found unknown shape type " << edge.ShapeType()
-                      << std::endl;
-            break;
-        }
+        std::cerr << "failed to read from shape type " << curveType
+                  << " in ReadCurve " << std::endl;
+        childN = childN.getNextSibling();
+        continue;
+      }
+
+      switch (edge.ShapeType()) {
+        case TopAbs_WIRE:
+          // Return immediately if the shape is a wire
+          return TopoDS::Wire(edge);
+        case TopAbs_EDGE:
+          // Add the edge to the wireBuilder
+          wireBuilder.Add(TopoDS::Edge(edge));
+          break;
+        default:
+          std::cerr << "found unknown shape type " << edge.ShapeType()
+                    << std::endl;
+          break;
       }
     }
     childN = childN.getNextSibling();
@@ -115,27 +115,28 @@ TopoDS_Shape OCXCurveReader::ReadCompositeCurve3D(LDOM_Element const &cCurveN) {
       } else {
         std::cerr << "found unknown curve type in CompositeCurve3D "
                   << curveType << std::endl;
-        continue;
       }
 
       if (edge.IsNull()) {
         std::cerr << "failed to read from shape "
                   << curveN.getTagName().GetString()
                   << " in ReadCurve/ReadCompositeCurve3D" << std::endl;
-      } else {
-        switch (edge.ShapeType()) {
-          case TopAbs_WIRE:
-            // Return immediately if the shape is a wire
-            return TopoDS::Wire(edge);
-          case TopAbs_EDGE:
-            // Add the edge to the wireBuilder
-            wireBuilder.Add(TopoDS::Edge(edge));
-            break;
-          default:
-            std::cerr << "found unknown shape type in CompositeCurve3D "
-                      << edge.ShapeType() << std::endl;
-            break;
-        }
+        childN = childN.getNextSibling();
+        continue;
+      }
+
+      switch (edge.ShapeType()) {
+        case TopAbs_WIRE:
+          // Return immediately if the shape is a wire
+          return TopoDS::Wire(edge);
+        case TopAbs_EDGE:
+          // Add the edge to the wireBuilder
+          wireBuilder.Add(TopoDS::Edge(edge));
+          break;
+        default:
+          std::cerr << "found unknown shape type in CompositeCurve3D "
+                    << edge.ShapeType() << std::endl;
+          break;
       }
     }
     childN = childN.getNextSibling();
@@ -352,6 +353,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element const &nurbs3DN) const {
               << "'" << std::endl;
     return {};
   }
+
   int degree;
   propsN.getAttribute("degree").GetInteger(degree);
   int numCtrlPoints;
@@ -359,8 +361,7 @@ TopoDS_Shape OCXCurveReader::ReadNURBS3D(LDOM_Element const &nurbs3DN) const {
   int numKnots;
   propsN.getAttribute("numKnots").GetInteger(numKnots);
   auto form = std::string(propsN.getAttribute("form").GetString());
-  bool isRational =
-      stob(std::string(propsN.getAttribute("isRational").GetString()));
+  bool isRational = stob(propsN.getAttribute("isRational").GetString());
 
   // Parse knotVector
   LDOM_Element knotVectorN = OCXHelper::GetFirstChild(nurbs3DN, "KnotVector");

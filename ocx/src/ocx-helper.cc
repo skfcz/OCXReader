@@ -178,7 +178,7 @@ KnotMults OCXHelper::ParseKnotVector(std::string_view knotVectorS,
       continue;
     }
     // Increase multiplicity if knot value is nearly the same as the last one
-    if (abs(knotValue - lastKnot) < 1e-3) {
+    if (abs(knotValue - lastKnot) < 1e-9) {
       mult++;
       // Don't forget to push, if it's the last knot value
       if (i == out.size() - 1) {
