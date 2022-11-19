@@ -10,9 +10,10 @@
 #ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_UTIL_H_
 #define OCX_INCLUDE_OCX_INTERNAL_OCX_UTIL_H_
 
-#include <stdio.h>
-
+#include <cstdio>
 #include <string>
+
+namespace ocx {
 
 struct Version {
   int major{}, minor{}, revision{}, build{};
@@ -33,8 +34,7 @@ struct Version {
    * @param versionStr the pointer to the version string to parse, e.g "1.0.2.1"
    */
   explicit Version(char const *versionStr) {
-    sscanf(versionStr, "%d.%d.%d.%d", &major, &minor, &revision,
-           &build);
+    sscanf(versionStr, "%d.%d.%d.%d", &major, &minor, &revision, &build);
   }
 
   bool operator<(const Version &otherVersion) const {
@@ -69,5 +69,7 @@ struct Version {
  * @return boolean value
  */
 bool stob(std::string s, bool throw_on_error = true);
+
+}  // namespace ocx
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_UTIL_H_

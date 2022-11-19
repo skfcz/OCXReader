@@ -12,13 +12,14 @@
 // file alone.
 
 // The following lines pull in the real ocx*.cc files.
-#include "src/ocx-caf-control-reader.cc"
 #include "src/ocx-context.cc"
 #include "src/ocx-coordinate-system-reader.cc"
 #include "src/ocx-curve-reader.cc"
 #include "src/ocx-helper.cc"
+#include "src/ocx-log.cc"
 #include "src/ocx-panel-reader.cc"
 #include "src/ocx-panel.cc"
+#include "src/ocx-reader.cc"
 #include "src/ocx-reference-surfaces-reader.cc"
 #include "src/ocx-surface-reader.cc"
 #include "src/ocx-util.cc"

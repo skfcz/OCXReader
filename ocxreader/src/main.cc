@@ -1,12 +1,16 @@
-#include <BRepPrimAPI_MakeBox.hxx>
-#include <TDF_ChildIterator.hxx>
-#include <TDataStd_Integer.hxx>
+// This file is part of OCXReader library
+// Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation.
+
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
-#include <TopExp_Explorer.hxx>
 #include <XmlDrivers.hxx>
+#include <memory>
 
-#include "ocx/ocx-caf-control-reader.h"
+#include "ocx/ocx-reader.h"
 
 int main() {
   // Initialize the application
@@ -20,17 +24,11 @@ int main() {
     return 1;
   }
 
-  OCXCAFControl_Reader reader;
+  // Read and parse the OCX file
+  auto reader = std::make_unique<ocx::OCXReader>();
   // NAPA-D-BULKER-MID_V286.3docx, Aveva-OHCM-MidShip_V285.3docx, ERHULLV2.3docx
-  if (!reader.ReadFile("test2.3docx")) {
-    std::cerr << "failed to load" << std::endl;
-    app->Close(doc);
-    return 1;
-  }
-
-  // TODO: discuss if parsing should happen inside Reader::Transfer
-  if (!reader.Transfer(doc)) {
-    std::cerr << "failed to parse" << std::endl;
+  if (!reader->Perform("Aveva-OHCM-MidShip_V285.3docx", doc)) {
+    std::cerr << "Can't read OCX document" << std::endl;
     app->Close(doc);
     return 1;
   }

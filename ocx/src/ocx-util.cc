@@ -7,9 +7,9 @@
 // by the Free Software Foundation.
 //
 
-#include "ocx/internal/ocx-util.h"
-
 #include <string>
+
+namespace ocx {
 
 bool stob(std::string s, bool throw_on_error) {
   auto result = false;  // failure to assert is false
@@ -30,3 +30,5 @@ bool stob(std::string s, bool throw_on_error) {
 
   return result;
 }
+
+}  // namespace ocx

@@ -1,11 +1,9 @@
-//
 // This file is part of OCXReader library
 // Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License version 2.1 as published
 // by the Free Software Foundation.
-//
 
 #include "ocx/internal/ocx-context.h"
 
@@ -15,11 +13,7 @@
 
 #include "ocx/internal/ocx-helper.h"
 
-OCXContext::OCXContext(const LDOM_Element &ocxDocN, const std::string &nsPrefix)
-    : ocxDocN(ocxDocN), nsPrefix(nsPrefix) {
-  this->ocxGUIDRef = LDOMString((nsPrefix + ":GUIDRef").c_str());
-  this->ocxGUID = LDOMString((nsPrefix + ":GUID").c_str());
-}
+namespace ocx {
 
 std::string OCXContext::Prefix() const { return nsPrefix; }
 
@@ -28,6 +22,8 @@ LDOMString OCXContext::OCXGUIDRef() const { return ocxGUIDRef; }
 LDOMString OCXContext::OCXGUID() const { return ocxGUID; }
 
 void OCXContext::PrepareUnits() {
+  OCX_INFO("Setting up units...");
+
   // Set main unit
   UnitsAPI::SetLocalSystem(UnitsAPI_SI);
 
@@ -39,31 +35,30 @@ void OCXContext::PrepareUnits() {
 
   LDOM_Element unitsMLN = OCXHelper::GetFirstChild(ocxDocN, "UnitsML");
   if (unitsMLN.isNull()) {
-    std::cout << "could not find UnitsML element" << std::endl;
+    OCX_ERROR("No UnitsML node found");
     return;
   }
 
   LDOM_Node unitsSetN = OCXHelper::GetFirstChild(unitsMLN, "UnitSet");
   if (unitsSetN.isNull()) {
-    std::cout << "could not find UnitsML/UnitSet element" << std::endl;
+    OCX_ERROR("No UnitSet node found in UnitsML");
     return;
   }
+
   LDOM_Node aChildNode = unitsSetN.getFirstChild();
   while (aChildNode != nullptr) {
     const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element unitN = (LDOM_Element &)aChildNode;
-      if ("Unit" == OCXHelper::GetLocalTagName(unitN)) {
+      if (OCXHelper::GetLocalTagName(unitN) == "Unit") {
         LDOM_NodeList attributes = unitN.GetAttributesList();
 
         std::string id;
         for (int i = 0; i < attributes.getLength(); i++) {
           LDOM_Node theAtt = attributes.item(i);
 
-          std::string name = OCXHelper::GetLocalAttrName(theAtt);
-
-          if ("id" == name) {
+          if (OCXHelper::GetLocalAttrName(theAtt) == "id") {
             id = std::string(theAtt.getNodeValue().GetString());
           }
         }
@@ -85,32 +80,36 @@ void OCXContext::PrepareUnits() {
     }
     aChildNode = aChildNode.getNextSibling();
   }
+
+  OCX_INFO("Units set up successfully...");
 }
 
-double OCXContext::LoopupFactor(const std::string &unit) {
+double OCXContext::LoopupFactor(const std::string &unit) const {
   if (auto res = unit2factor.find(unit); res != unit2factor.end()) {
     return res->second;
   }
-  std::cout << "could not find factor for unit '" << unit << "', using 1.0"
-            << std::endl;
+  OCX_INFO("No factor found for unit {}, using 1.0 instead", unit);
   return 1;
 }
 
-void OCXContext::RegisterSurface(const std::string &guid,
-                                 const TopoDS_Shape &shell) {
+void OCXContext::RegisterSurface(TopoDS_Shape const &shell,
+                                 std::string const &guid) {
   if (shell.ShapeType() == TopAbs_SHELL || shell.ShapeType() == TopAbs_FACE) {
-    guid2refplane[guid] = shell;
+    guid2refPlane[guid] = shell;
   } else {
-    std::cerr << "RegisterSurfaces expects a SHELL or FACE, got type "
-              << shell.ShapeType() << " for (" << guid << ")" << std::endl;
+    OCX_ERROR(
+        "Trying to register a non-shell. Expected a TopAbs_SHELL or a "
+        "TopAbs_FACE, but got type {} for guid={}",
+        shell.ShapeType(), guid);
   }
 }
 
-TopoDS_Shape OCXContext::LookupSurface(const std::string &guid) const {
-  if (auto res = guid2refplane.find(guid); res != guid2refplane.end()) {
+TopoDS_Shape OCXContext::LookupSurface(
+    std::basic_string<char> const &guid) const {
+  if (auto res = guid2refPlane.find(guid); res != guid2refPlane.end()) {
     return res->second;
   }
-  std::cerr << "could not find surface for guid '" << guid << "'" << std::endl;
+  OCX_ERROR("No registered surface found for guid={}", guid);
   return {};
 }
 
@@ -120,12 +119,16 @@ void OCXContext::OCAFDoc(const opencascade::handle<TDocStd_Document> &handle) {
   ocafColorTool = XCAFDoc_DocumentTool::ColorTool(ocafDoc->Main());
 }
 
-opencascade::handle<TDocStd_Document> OCXContext::OCAFDoc() { return ocafDoc; }
+opencascade::handle<TDocStd_Document> OCXContext::OCAFDoc() const {
+  return ocafDoc;
+}
 
-opencascade::handle<XCAFDoc_ShapeTool> OCXContext::OCAFShapeTool() {
+opencascade::handle<XCAFDoc_ShapeTool> OCXContext::OCAFShapeTool() const {
   return ocafShapeTool;
 }
 
-opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() {
+opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() const {
   return ocafColorTool;
 }
+
+}  // namespace ocx

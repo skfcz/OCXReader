@@ -6,7 +6,7 @@ macro (copy_occt_runtime_dlls_manual TARGET_NAME)
     POST_BUILD
     COMMAND
     $<$<CONFIG:Debug,Release>:${CMAKE_COMMAND}> -E copy_directory
-    $<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>
+    $<$<CONFIG:Debug>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:Debug>>:${OpenCASCADE_BINARY_DIR}>
     $<TARGET_FILE_DIR:${TARGET_NAME}>)
 endmacro ()
 

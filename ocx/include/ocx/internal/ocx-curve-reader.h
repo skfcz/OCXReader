@@ -17,6 +17,8 @@
 
 #include "ocx/internal/ocx-context.h"
 
+namespace ocx {
+
 /**
  * This class is used to read OCX XML for curves and create OpenCascade
  * TopoDS_Wires.
@@ -28,7 +30,8 @@ class OCXCurveReader {
    *
    * @param ctx the context used to lookup scaling factor
    */
-  explicit OCXCurveReader(std::shared_ptr<OCXContext> ctx);
+  explicit OCXCurveReader(std::shared_ptr<OCXContext> ctx)
+      : ctx(std::move(ctx)){};
 
   /**
    * Base method managing the reading of various curve types, e.g.
@@ -38,19 +41,47 @@ class OCXCurveReader {
    * @param surfaceN the surface element
    * @return the created TopoDS_Wire or TopoDS_Edge
    */
-  TopoDS_Wire ReadCurve(LDOM_Element const &curveParentN);
+  [[nodiscard]] TopoDS_Wire ReadCurve(LDOM_Element const &curveParentN) const;
 
  private:
+  /**
+   * The context of the reader
+   */
   std::shared_ptr<OCXContext> ctx;
 
-  TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveN);
-  TopoDS_Wire ReadEllipse3D(LDOM_Element &curveN);
-  TopoDS_Wire ReadCircumCircle3D(LDOM_Element &circleN);
-  TopoDS_Wire ReadCircle3D(LDOM_Element &circleN);
-  TopoDS_Edge ReadCircumArc3D(LDOM_Element &curveN);
-  TopoDS_Edge ReadLine3D(LDOM_Element &lineN);
-  TopoDS_Shape ReadPolyLine3D(LDOM_Element &curveN);
-  [[nodiscard]] TopoDS_Shape ReadNURBS3D(LDOM_Element const &curveN) const;
+  [[nodiscard]] TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveN,
+                                                  std::string_view id,
+                                                  std::string_view guid) const;
+
+  [[nodiscard]] TopoDS_Wire ReadEllipse3D(LDOM_Element const &curveN,
+                                          std::string_view id,
+                                          std::string_view guid) const;
+
+  [[nodiscard]] TopoDS_Wire ReadCircumCircle3D(LDOM_Element const &circleN,
+                                               std::string_view id,
+                                               std::string_view guid) const;
+
+  [[nodiscard]] TopoDS_Wire ReadCircle3D(LDOM_Element const &circleN,
+                                         std::string_view id,
+                                         std::string_view guid) const;
+
+  [[nodiscard]] TopoDS_Edge ReadCircumArc3D(LDOM_Element const &curveN,
+                                            std::string_view id,
+                                            std::string_view guid) const;
+
+  [[nodiscard]] TopoDS_Edge ReadLine3D(LDOM_Element const &lineN,
+                                       std::string_view id,
+                                       std::string_view guid) const;
+
+  [[nodiscard]] TopoDS_Shape ReadPolyLine3D(LDOM_Element const &curveN,
+                                            std::string_view id,
+                                            std::string_view guid) const;
+
+  [[nodiscard]] TopoDS_Shape ReadNURBS3D(LDOM_Element const &curveN,
+                                         std::string_view id,
+                                         std::string_view guid) const;
 };
+
+}  // namespace ocx
 
 #endif  // OCX_INCLUDE_OCX_OCX_CURVE_READER_H_

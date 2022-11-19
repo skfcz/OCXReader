@@ -21,7 +21,8 @@ TEST(OCXHelperTest, ParseKnotVector) {
   for (auto [testId, knotVector, numKnots, numKnotsUnique, degree,
              expectedMults] : testCases) {
     std::cout << "Start test case: " << testId << std::endl;
-    KnotMults knots = OCXHelper::ParseKnotVector(knotVector, numKnots);
+    ocx::KnotMults knots =
+        ocx::OCXHelper::ParseKnotVector(knotVector, numKnots, nullptr);
 
     // Check if knot vector got parsed successfully
     EXPECT_EQ(knots.IsNull, false)
@@ -51,7 +52,8 @@ TEST(OCXHelperTest, ParseKnotVector) {
 TEST(OCXHelperTest, ParseKnotVectorIsNull) {
   std::string knotVector = "0 1";
 
-  KnotMults knots = OCXHelper::ParseKnotVector(knotVector, 1);
+  ocx::KnotMults knots =
+      ocx::OCXHelper::ParseKnotVector(knotVector, 1, nullptr);
 
   EXPECT_EQ(knots.IsNull, true)
       << "Expected knots to NOT be parsed successfully, but got knots.IsNull = "

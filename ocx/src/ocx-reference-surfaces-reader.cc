@@ -1,11 +1,9 @@
-//
 // This file is part of OCXReader library
 // Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License version 2.1 as published
 // by the Free Software Foundation.
-//
 
 #include "ocx/internal/ocx-reference-surfaces-reader.h"
 
@@ -15,37 +13,33 @@
 #include <TDataStd_Name.hxx>
 #include <TopoDS_Compound.hxx>
 #include <list>
-#include <memory>
-#include <utility>
 
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-surface-reader.h"
 
-OCXReferenceSurfacesReader::OCXReferenceSurfacesReader(
-    std::shared_ptr<OCXContext> ctx)
-    : ctx(std::move(ctx)) {}
+namespace ocx {
 
 TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
-    LDOM_Element &vesselN) {
+    LDOM_Element const &vesselN) {
   TopoDS_Compound referenceSurfacesAssy;
   BRep_Builder compoundBuilder;
   compoundBuilder.MakeCompound(referenceSurfacesAssy);
 
-  LDOM_Element refSrfsN =
+  LDOM_Element refSurfsN =
       OCXHelper::GetFirstChild(vesselN, "ReferenceSurfaces");
-  if (refSrfsN.isNull()) {
-    std::cout << "could not find ReferenceSurfaces child node" << std::endl;
+  if (refSurfsN.isNull()) {
+    OCX_WARN("No ReferenceSurfaces child node found");
     return referenceSurfacesAssy;
   }
 
   std::list<TopoDS_Shape> shapes;
-  // material design teal 50 400
+  // Material design teal 50 400
   auto color =
       Quantity_Color(38 / 255.0, 16 / 255.0, 154 / 255.0, Quantity_TOC_RGB);
 
-  auto *surfaceReader = new OCXSurfaceReader(ctx);
+  OCXSurfaceReader surfaceReader = OCXSurfaceReader(ctx);
 
-  LDOM_Node childN = refSrfsN.getFirstChild();
+  LDOM_Node childN = refSurfsN.getFirstChild();
   while (childN != nullptr) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
@@ -53,35 +47,38 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
       auto referenceSurface = TopoDS_Shape();
 
       LDOM_Element surfaceN = (LDOM_Element &)childN;
-      auto guid =
-          std::string(surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString());
-      const char *name = surfaceN.getAttribute("name").GetString();
-      std::cout << "read reference surface " << name << " guid=" << guid
-                << ", type " << surfaceN.getTagName().GetString() << std::endl;
+      char const *name = surfaceN.getAttribute("name").GetString();
+      char const *guid = surfaceN.getAttribute(ctx->OCXGUIDRef()).GetString();
 
       std::string referenceSurfaceType = OCXHelper::GetLocalTagName(surfaceN);
+
+      OCX_INFO("Reading reference surface {} guid={} of type {}", name, guid,
+               referenceSurfaceType);
+
       if (referenceSurfaceType == "SurfaceCollection") {
-        referenceSurface = surfaceReader->ReadSurface(surfaceN);
+        referenceSurface = surfaceReader.ReadSurface(surfaceN);
       } else if (referenceSurfaceType == "Cone3D") {
-        referenceSurface = surfaceReader->ReadSurface(surfaceN);
+        referenceSurface = surfaceReader.ReadSurface(surfaceN);
       } else if (referenceSurfaceType == "Cylinder3D") {
-        referenceSurface = surfaceReader->ReadSurface(surfaceN);
+        referenceSurface = surfaceReader.ReadSurface(surfaceN);
       } else if (referenceSurfaceType == "ExtrudedSurface") {
-        referenceSurface = surfaceReader->ReadSurface(surfaceN);
+        referenceSurface = surfaceReader.ReadSurface(surfaceN);
       } else if (referenceSurfaceType == "NURBSSurface") {
-        referenceSurface = surfaceReader->ReadSurface(surfaceN);
-      } else if (referenceSurfaceType == "Plane3D") {
-        referenceSurface = surfaceReader->ReadSurface(surfaceN);
+        referenceSurface = surfaceReader.ReadSurface(surfaceN);
       } else if (referenceSurfaceType == "Sphere3D") {
-        referenceSurface = surfaceReader->ReadSurface(surfaceN);
+        referenceSurface = surfaceReader.ReadSurface(surfaceN);
+      } else if (referenceSurfaceType == "Plane3D") {
+        referenceSurface = surfaceReader.ReadSurface(surfaceN);
       } else {
-        std::cerr << "found unknown referenceSurface type "
-                  << surfaceN.getTagName().GetString() << " with guid '" << guid
-                  << "'" << std::endl;
+        OCX_WARN(
+            "Found unsupported reference surface type {} in surface {} guid={}",
+            referenceSurfaceType, name, guid);
+        childN = childN.getNextSibling();
+        continue;
       }
 
       if (!referenceSurface.IsNull()) {
-        ctx->RegisterSurface(guid, referenceSurface);
+        ctx->RegisterSurface(referenceSurface, guid);
 
         if (OCXContext::CreateReferenceSurfaces) {
           TDF_Label surfL =
@@ -92,8 +89,8 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
           shapes.push_back(referenceSurface);
         }
       } else {
-        std::cerr << "could not read surface with guid '" << guid << "'"
-                  << std::endl;
+        OCX_ERROR("Failed to read reference surface {} guid={} of type {}",
+                  name, guid, referenceSurfaceType);
       }
     }
     childN = childN.getNextSibling();
@@ -103,13 +100,13 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
     compoundBuilder.Add(referenceSurfacesAssy, shape);
   }
 
-  TDF_Label refSrfLabel =
+  TDF_Label refSurfLabel =
       ctx->OCAFShapeTool()->AddShape(referenceSurfacesAssy, true);
-  TDataStd_Name::Set(refSrfLabel, "Reference Surfaces");
+  TDataStd_Name::Set(refSurfLabel, "Reference Surfaces");
 
-  std::cout << "    registered #" << shapes.size()
-            << " references surfaces found in "
-            << refSrfsN.getTagName().GetString() << std::endl;
+  OCX_INFO("Registered {} reference surfaces", shapes.size());
 
   return referenceSurfacesAssy;
 }
+
+}  // namespace ocx

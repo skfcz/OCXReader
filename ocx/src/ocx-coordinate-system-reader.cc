@@ -1,11 +1,9 @@
-//
 // This file is part of OCXReader library
 // Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License version 2.1 as published
 // by the Free Software Foundation.
-//
 
 #include "ocx/internal/ocx-coordinate-system-reader.h"
 
@@ -18,44 +16,38 @@
 #include <Quantity_Color.hxx>
 #include <TDataStd_Name.hxx>
 #include <TopExp_Explorer.hxx>
-#include <TopoDS.hxx>
 #include <TopoDS_Compound.hxx>
 #include <gp_Pln.hxx>
 #include <list>
-#include <memory>
-#include <utility>
 
 #include "ocx/internal/ocx-helper.h"
 
-OCXCoordinateSystemReader::OCXCoordinateSystemReader(
-    std::shared_ptr<OCXContext> ctx)
-    : ctx(std::move(ctx)) {}
+namespace ocx {
 
 TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
     LDOM_Element const &vesselN) {
+  OCX_INFO("Start reading coordinate system...");
+
   LDOM_Element cosysN = OCXHelper::GetFirstChild(vesselN, "CoordinateSystem");
   if (cosysN.isNull()) {
-    std::cout << "could not find CoordinateSystem child node" << std::endl;
+    OCX_ERROR("No CoordinateSystem child node found");
     return {};
   }
 
   // TODO: do we need to read the LocalCartesian ?
   // TODO: do we need to read the VesselGrid ?
 
-  std::list<TopoDS_Shape> shapes;
-
   LDOM_Element frTblsN = OCXHelper::GetFirstChild(cosysN, "FrameTables");
   if (frTblsN.isNull()) {
-    std::cout << "could not find CoordinateSystem/FrameTables child node"
-              << std::endl;
+    OCX_ERROR("No FrameTables child node found in CoordinateSystem");
     return {};
   }
 
+  std::list<TopoDS_Shape> shapes;
+
   LDOM_Element xRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "XRefPlanes");
   if (xRefPlanesN.isNull()) {
-    std::cout
-        << "could not find CoordinateSystem/FrameTables/XRefPlanes child node"
-        << std::endl;
+    OCX_ERROR("No XRefPlanes child node found in CoordinateSystem/FrameTables");
   } else {
     // Material Green 400
     auto color =
@@ -66,9 +58,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
 
   LDOM_Element yRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "YRefPlanes");
   if (yRefPlanesN.isNull()) {
-    std::cout
-        << "could not find CoordinateSystem/FrameTables/YRefPlanes child node"
-        << std::endl;
+    OCX_ERROR("No YRefPlanes child node found in CoordinateSystem/FrameTables");
   } else {
     // Material Lime 400
     auto color =
@@ -79,9 +69,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
 
   LDOM_Element zRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "ZRefPlanes");
   if (zRefPlanesN.isNull()) {
-    std::cout
-        << "could not find CoordinateSystem/FrameTables/ZRefPlanes child node"
-        << std::endl;
+    OCX_ERROR("No ZRefPlanes child node found in CoordinateSystem/FrameTables");
   } else {
     // Material Amber 400
     auto color =
@@ -100,19 +88,19 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
   TDF_Label label = ctx->OCAFShapeTool()->AddShape(refPlanesAssy, true);
   TDataStd_Name::Set(label, "Reference Planes");
 
+  OCX_INFO("Finished reading coordinate system...");
+
   return refPlanesAssy;
 }
 
 TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
     LDOM_Element const &refPlanesN, Quantity_Color const &color) {
-  std::cout << "ReadRefPlanes from " << refPlanesN.getTagName().GetString()
-            << std::endl;
-
-  std::list<TopoDS_Shape> shapes;
-
   std::string refPlaneType = OCXHelper::GetLocalTagName(refPlanesN);
 
+  OCX_INFO("Reading reference planes from {}", refPlaneType);
+
   int cntPlanes = 0;
+  std::list<TopoDS_Shape> shapes;
   LDOM_Node aChildN = refPlanesN.getFirstChild();
   while (!aChildN.isNull()) {
     const LDOM_Node::NodeType aNodeType = aChildN.getNodeType();
@@ -120,31 +108,30 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element refPlaneN = (LDOM_Element &)aChildN;
 
-      // Check if the node is a RefPlane
-      if ("RefPlane" != OCXHelper::GetLocalTagName(refPlaneN)) {
-        std::cerr << "expected RefPlane element, got  "
-                  << refPlaneN.getTagName().GetString() << std::endl;
+      char const *name = refPlaneN.getAttribute("name").GetString();
+      char const *guid = refPlaneN.getAttribute(ctx->OCXGUIDRef()).GetString();
+
+      if (std::string refPlaneName = OCXHelper::GetLocalTagName(refPlaneN);
+          refPlaneName != "RefPlane") {
+        OCX_ERROR(
+            "Unexpected node type {} found in {}, expected node type to be "
+            "RefPlane",
+            refPlaneName, refPlaneType);
         aChildN = aChildN.getNextSibling();
         continue;
       }
 
-      auto guid =
-          std::string(refPlaneN.getAttribute(ctx->OCXGUIDRef()).GetString());
-      auto name = std::string(refPlaneN.getAttribute("name").GetString());
-      // std::cout << "ref plane " << name << ", " << guid << std::endl;
-
       LDOM_Element refLocN =
           OCXHelper::GetFirstChild(refPlaneN, "ReferenceLocation");
-      // Check if the node is a ReferenceLocation
-      if (refLocN == nullptr) {
-        std::cout << "could not RefPlane/ReferenceLocation where GUIDRef is '"
-                  << guid << "', skip it" << std::endl;
+      if (refLocN.isNull()) {
+        OCX_ERROR(
+            "No ReferenceLocation child node found in RefPlane {} guid={}",
+            name, guid);
         aChildN = aChildN.getNextSibling();
         continue;
       }
 
       double location = OCXHelper::ReadDimension(refLocN, ctx);
-      // std::cout << "    location  " << location <<  std::endl;
 
       // Now create an OCC Plane
       double width = 50;
@@ -209,10 +196,10 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
 
       TopoDS_Wire wire = makeWire.Wire();
       TopoDS_Face surface = BRepBuilderAPI_MakeFace(unlimitedSurface, wire);
-      ctx->RegisterSurface(guid, surface);
+      ctx->RegisterSurface(surface, guid);
 
       TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(surface, false);
-      TDataStd_Name::Set(surfL, name.c_str());
+      TDataStd_Name::Set(surfL, name);
       ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf);
 
       shapes.push_back(surface);
@@ -233,8 +220,10 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
       ctx->OCAFShapeTool()->AddShape(refPlanesXYZAssy, true);
   TDataStd_Name::Set(refSrfLabel, refPlaneType.c_str());
 
-  std::cout << "    registered #" << cntPlanes << " planes found in "
-            << refPlanesN.getTagName().GetString() << std::endl;
+  OCX_INFO("Registered {} reference planes found in {}", cntPlanes,
+           refPlaneType);
 
   return refPlanesXYZAssy;
 }
+
+}  // namespace ocx
