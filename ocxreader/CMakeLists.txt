@@ -26,4 +26,4 @@ target_link_libraries(${PROJECT_NAME} debug ocx)
 target_link_libraries(${PROJECT_NAME} optimized ocx)
 
 # Copy runtime dlls to build directory
-# copy_occt_runtime_dlls_dynamic(${PROJECT_NAME})
+# copy_runtime_dlls_dynamic(${PROJECT_NAME})

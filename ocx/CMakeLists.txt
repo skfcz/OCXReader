@@ -17,6 +17,9 @@ set(ocx_include_dirs
     "${ocx_SOURCE_DIR}")
 include_directories(SYSTEM ${ocx_include_dirs})
 
+# Define helper functions and macros used by ocx
+include(cmake/internal_utils.cmake)
+
 # Set compile definitions
 add_compile_definitions(
   $<$<CONFIG:DEBUG>:OCX_CONFIG_DEBUG>
@@ -32,39 +35,8 @@ add_library(${PROJECT_NAME} STATIC src/ocx-all.cc)
 add_subdirectory(test)
 
 # Set target link libraries
-foreach (LIB ${OpenCASCADE_LIBRARIES})
-  if (WIN32)
-    if (EXISTS ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib)
-      if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-        set(DEBUG_SUFFIX "d")
-      endif ()
-      set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib)
-      message(STATUS "Adding ${occt_lib_dir}")
-      target_link_libraries(${PROJECT_NAME} debug ${occt_lib_dir} spdlog::spdlog)
-      target_link_libraries(${PROJECT_NAME} optimized ${occt_lib_dir} spdlog::spdlog)
-    else ()
-      message(FATAL_ERROR "Library ${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}")
-    endif ()
-  elseif (APPLE)
-    if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-      set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-      message(STATUS "Adding ${occt_lib_dir}")
-      target_link_libraries(${PROJECT_NAME} debug ${occt_lib_dir})
-      target_link_libraries(${PROJECT_NAME} optimized ${occt_lib_dir})
-    else ()
-      message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
-    endif ()
-  elseif (UNIX)
-    if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-      set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-      message(STATUS "Adding ${occt_lib_dir}")
-      target_link_libraries(${PROJECT_NAME} debug ${occt_lib_dir})
-      target_link_libraries(${PROJECT_NAME} optimized ${occt_lib_dir})
-    else ()
-      message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
-    endif ()
-  endif ()
-endforeach ()
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
+target_link_occt_libraries()
 
 # Adjust runtime environment for Visual Studio
 set_property(

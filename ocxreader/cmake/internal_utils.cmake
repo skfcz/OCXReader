@@ -1,12 +1,12 @@
 # Copy target runtime dlls to the build directory by manually specifying the dlls to copy
-macro (copy_occt_runtime_dlls_manual TARGET_NAME)
+macro (copy_runtime_dlls_manual TARGET_NAME)
   message(STATUS "OpenCASCADE_BINARY_DIR: ${OpenCASCADE_BINARY_DIR}")
   add_custom_command(
     TARGET ${TARGET_NAME}
     POST_BUILD
     COMMAND
-    $<$<CONFIG:Debug,Release>:${CMAKE_COMMAND}> -E copy_directory
-    $<$<CONFIG:Debug>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:Debug>>:${OpenCASCADE_BINARY_DIR}>
+    $<$<CONFIG:DEBUG,RELEASE>:${CMAKE_COMMAND}> -E copy_directory
+    $<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>
     $<TARGET_FILE_DIR:${TARGET_NAME}>)
 endmacro ()
 
@@ -16,7 +16,7 @@ endmacro ()
 # https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#genex:TARGET_RUNTIME_DLLS
 #
 # Not working currently: https://gitlab.kitware.com/cmake/cmake/-/issues/22845
-macro (copy_occt_runtime_dlls_dynamic TARGET_NAME)
+macro (copy_runtime_dlls_dynamic TARGET_NAME)
   # Print runtime dlls
   add_custom_command(
     TARGET ${TARGET_NAME}
