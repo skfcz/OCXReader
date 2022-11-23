@@ -7,6 +7,8 @@
 
 #include "ocx/internal/ocx-context.h"
 
+#include <occutils/occutils-shape.h>
+
 #include <TDocStd_Document.hxx>
 #include <UnitsAPI.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
@@ -92,15 +94,15 @@ double OCXContext::LoopupFactor(const std::string &unit) const {
   return 1;
 }
 
-void OCXContext::RegisterSurface(TopoDS_Shape const &shell,
+void OCXContext::RegisterSurface(TopoDS_Shape const &shape,
                                  std::string const &guid) {
-  if (shell.ShapeType() == TopAbs_SHELL || shell.ShapeType() == TopAbs_FACE) {
-    guid2refPlane[guid] = shell;
+  if (OCCUtils::Shape::IsFace(shape) || OCCUtils::Shape::IsShell(shape)) {
+    guid2refPlane[guid] = shape;
   } else {
     OCX_ERROR(
         "Trying to register a non-shell. Expected a TopAbs_SHELL or a "
         "TopAbs_FACE, but got type {} for guid={}",
-        shell.ShapeType(), guid);
+        shape.ShapeType(), guid);
   }
 }
 

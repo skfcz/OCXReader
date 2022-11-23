@@ -7,11 +7,10 @@
 
 #include "ocx/internal/ocx-coordinate-system-reader.h"
 
-#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <occutils/occutils-wire.h>
+
 #include <BRepBuilderAPI_MakeFace.hxx>
-#include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRep_Builder.hxx>
-#include <GC_MakeSegment.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <Quantity_Color.hxx>
 #include <TDataStd_Name.hxx>
@@ -130,72 +129,59 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
         aChildN = aChildN.getNextSibling();
         continue;
       }
-
       double location = OCXHelper::ReadDimension(refLocN, ctx);
 
       // Now create an OCC Plane
-      double width = 50;
-      double minX = -10;
-      double maxX = 190;
-      double minZ = -5;
-      double maxZ = 45;
+      double width = abs(OCXContext::MinY) + abs(OCXContext::MaxY);
 
       gp_Pnt org;
       gp_Dir direction;
       gp_Pnt pnt0, pnt1, pnt2, pnt3;
 
       if (refPlaneType == "XRefPlanes") {
-        // frames
+        // YZ plane (frame)
         org = gp_Pnt(location, 0, 0);
         direction = gp_Dir(1, 0, 0);
-        pnt0 = gp_Pnt(location, 1.10 * width / 2.0, minZ);
-        pnt1 = gp_Pnt(location, -1.10 * width / 2.0, minZ);
-        pnt2 = gp_Pnt(location, -1.10 * width / 2.0, maxZ);
-        pnt3 = gp_Pnt(location, 1.10 * width / 2.0, maxZ);
+
+        pnt0 = gp_Pnt(location, 1.10 * width / 2.0, OCXContext::MinZ);
+        pnt1 = gp_Pnt(location, -1.10 * width / 2.0, OCXContext::MinZ);
+        pnt2 = gp_Pnt(location, -1.10 * width / 2.0, OCXContext::MaxZ);
+        pnt3 = gp_Pnt(location, 1.10 * width / 2.0, OCXContext::MaxZ);
 
       } else if (refPlaneType == "YRefPlanes") {
-        // longitudinal
+        // XZ plane (longitudinal)
         org = gp_Pnt(0, location, 0);
         direction = gp_Dir(0, 1, 0);
 
-        pnt0 = gp_Pnt(minX, location, minZ);
-        pnt1 = gp_Pnt(maxX, location, minZ);
-        pnt2 = gp_Pnt(maxX, location, maxZ);
-        pnt3 = gp_Pnt(minX, location, maxZ);
+        pnt0 = gp_Pnt(OCXContext::MinX, location, OCXContext::MinZ);
+        pnt1 = gp_Pnt(OCXContext::MaxX, location, OCXContext::MinZ);
+        pnt2 = gp_Pnt(OCXContext::MaxX, location, OCXContext::MaxZ);
+        pnt3 = gp_Pnt(OCXContext::MinX, location, OCXContext::MaxZ);
 
       } else if (refPlaneType == "ZRefPlanes") {
-        // verticals
+        // XY plane (deck)
         org = gp_Pnt(0, 0, location);
         direction = gp_Dir(0, 0, 1);
 
-        pnt0 = gp_Pnt(minX, 1.05 * width / 2.0, location);
-        pnt1 = gp_Pnt(minX, -1.05 * width / 2.0, location);
-        pnt2 = gp_Pnt(maxX, -1.05 * width / 2.0, location);
-        pnt3 = gp_Pnt(maxX, 1.05 * width / 2.0, location);
+        pnt0 = gp_Pnt(OCXContext::MinX, 1.05 * width / 2.0, location);
+        pnt1 = gp_Pnt(OCXContext::MinX, -1.05 * width / 2.0, location);
+        pnt2 = gp_Pnt(OCXContext::MaxX, -1.05 * width / 2.0, location);
+        pnt3 = gp_Pnt(OCXContext::MaxX, 1.05 * width / 2.0, location);
       }
 
       auto unlimitedSurface = gp_Pln(org, direction);
+      TopoDS_Wire outerContour =
+          OCCUtils::Wire::FromPoints({pnt0, pnt1, pnt2, pnt3}, true);
+      if (!outerContour.Closed()) {
+        OCX_ERROR(
+            "Outer contour in ReadRefPlane is not closed. Skip building the "
+            "RefPlane {} guid={}",
+            name, guid);
+        return {};
+      }
 
-      // ... and a wire around it
-      Handle(Geom_TrimmedCurve) seg01 = GC_MakeSegment(pnt0, pnt1);
-      Handle(Geom_TrimmedCurve) seg12 = GC_MakeSegment(pnt1, pnt2);
-      Handle(Geom_TrimmedCurve) seg23 = GC_MakeSegment(pnt2, pnt3);
-      Handle(Geom_TrimmedCurve) seg30 = GC_MakeSegment(pnt3, pnt0);
-
-      TopoDS_Edge edge0 = BRepBuilderAPI_MakeEdge(seg01);
-      TopoDS_Edge edge1 = BRepBuilderAPI_MakeEdge(seg12);
-      TopoDS_Edge edge2 = BRepBuilderAPI_MakeEdge(seg23);
-      TopoDS_Edge edge3 = BRepBuilderAPI_MakeEdge(seg30);
-
-      BRepBuilderAPI_MakeWire makeWire;
-      makeWire.Add(edge0);
-      makeWire.Add(edge1);
-      makeWire.Add(edge2);
-      makeWire.Add(edge3);
-      makeWire.Build();
-
-      TopoDS_Wire wire = makeWire.Wire();
-      TopoDS_Face surface = BRepBuilderAPI_MakeFace(unlimitedSurface, wire);
+      TopoDS_Face surface =
+          BRepBuilderAPI_MakeFace(unlimitedSurface, outerContour);
       ctx->RegisterSurface(surface, guid);
 
       TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(surface, false);
@@ -212,7 +198,7 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
   TopoDS_Compound refPlanesXYZAssy;
   BRep_Builder refPlanesBuilder;
   refPlanesBuilder.MakeCompound(refPlanesXYZAssy);
-  for (const TopoDS_Shape &shape : shapes) {
+  for (TopoDS_Shape const &shape : shapes) {
     refPlanesBuilder.Add(refPlanesXYZAssy, shape);
   }
 

@@ -5,7 +5,7 @@ set(OCXREADER_VERSION 0.1.0)
 
 enable_testing()
 
-# include(GNUInstallDirs)
+include(GNUInstallDirs)
 
 # Set OCCT cmake directory on windows
 if (WIN32)

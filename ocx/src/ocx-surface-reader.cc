@@ -7,6 +7,9 @@
 
 #include "ocx/internal/ocx-surface-reader.h"
 
+#include <occutils/occutils-surface.h>
+#include <occutils/occutils-wire.h>
+
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeShell.hxx>
@@ -14,6 +17,7 @@
 #include <BRepOffsetAPI_Sewing.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom_BSplineSurface.hxx>
+#include <ShapeFix_Face.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <gp_Pln.hxx>
@@ -54,30 +58,31 @@ TopoDS_Shape OCXSurfaceReader::ReadSurface(LDOM_Element const &surfaceN) const {
 TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
     LDOM_Element const &surfaceColN, std::string_view id,
     std::string_view guid) const {
-  // https://github.com/DLR-SC/tigl/wiki/OpenCASCADE-Cheats#create-a-topods_shell-from-a-collection-of-topods_faces
   BRepBuilderAPI_Sewing shellMaker;
 
   LDOM_Node childN = surfaceColN.getFirstChild();
+  auto face = TopoDS_Face();
+  int numSurfaces = 0;
   while (childN != nullptr) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
-      auto face = TopoDS_Face();
-
       LDOM_Element surfaceN = (LDOM_Element &)childN;
+      char const *sId = surfaceN.getAttribute("id").GetString();
+
       std::string surfaceType = OCXHelper::GetLocalTagName(surfaceN);
       if (surfaceType == "Cone3D") {
-        face = ReadCone3D(surfaceN, id, guid);
+        face = ReadCone3D(surfaceN, sId, guid);
       } else if (surfaceType == "Cylinder3D") {
-        face = ReadCylinder3D(surfaceN, id, guid);
+        face = ReadCylinder3D(surfaceN, sId, guid);
       } else if (surfaceType == "ExtrudedSurface") {
-        face = ReadExtrudedSurface(surfaceN, id, guid);
+        face = ReadExtrudedSurface(surfaceN, sId, guid);
       } else if (surfaceType == "NURBSSurface") {
-        face = ReadNURBSSurface(surfaceN, id, guid);
+        face = ReadNURBSSurface(surfaceN, sId, guid);
       } else if (surfaceType == "Sphere3D") {
-        face = ReadSphere3D(surfaceN, id, guid);
+        face = ReadSphere3D(surfaceN, sId, guid);
       } else if (surfaceType == "Plane3D") {
-        face = ReadPlane3D(surfaceN, id, guid);
+        face = ReadPlane3D(surfaceN, sId, guid);
       } else {
         OCX_ERROR(
             "Found unsupported surface type {} in SurfaceCollection with "
@@ -96,11 +101,23 @@ TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
         continue;
       }
       shellMaker.Add(face);
+      numSurfaces++;
     }
     childN = childN.getNextSibling();
   }
 
-  // // https://dev.opencascade.org/content/brepbuilderapimakeshell
+  if (numSurfaces == 0) {
+    OCX_ERROR("No faces found in SurfaceCollection with surface id={} guid={}",
+              id, guid);
+    return {};
+  }
+
+  // Only one surface contained in SurfaceCollection, no need to sew
+  if (numSurfaces == 1) {
+    return face;
+  }
+
+  // https://dev.opencascade.org/content/brepbuilderapimakeshell
   shellMaker.Perform();
   TopoDS_Shape sewedShape = shellMaker.SewedShape();
 
@@ -111,19 +128,6 @@ TopoDS_Shape OCXSurfaceReader::ReadSurfaceCollection(
     shape = TopoDS::Shell(shellExplorer.Current());
     numShells++;
   }
-
-  // Fallback to look for TopAbs_COMPOUND if no TopAbs_SHELL was found
-  // if (numShells == 0) {
-  //   OCX_ERROR(
-  //       "No TopAbs_SHELL found in SurfaceCollection with surface id={} "
-  //       "guid={}, try looking for TopAbs_COMPOUND",
-  //       id, guid);
-  //   TopExp_Explorer compExplorer(sewedShape, TopAbs_COMPOUND);
-  //   for (; compExplorer.More(); compExplorer.Next()) {
-  //     shape = TopoDS::Compound(compExplorer.Current());
-  //     numShells++;
-  //   }
-  // }
 
   if (numShells != 1) {
     OCX_ERROR(
@@ -159,21 +163,16 @@ TopoDS_Face OCXSurfaceReader::ReadExtrudedSurface(LDOM_Element const &surfaceN,
 TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
                                                std::string_view id,
                                                std::string_view guid) const {
-  // TODO: Fix ReadNURBSSurface (currently throws nullptr when writing to STEP
-  OCX_ERROR(
-      "ReadNURBSSurface implemented, but not working as expected. Fix it.");
-  return {};
-
   LDOM_Element faceBoundaryCurveN =
       OCXHelper::GetFirstChild(nurbsSrfN, "FaceBoundaryCurve");
   if (faceBoundaryCurveN.isNull()) {
     OCX_ERROR(
-        "No FaceBoundaryCurve tag found in NURBSSurface with surface id={} "
+        "No FaceBoundaryCurve child node found in NURBSSurface with surface "
+        "id={} "
         "guid={}",
         id, guid);
     return {};
   }
-
   OCXCurveReader curveReader(ctx);
   TopoDS_Wire outerContour = curveReader.ReadCurve(faceBoundaryCurveN);
 
@@ -182,7 +181,8 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
       OCXHelper::GetFirstChild(nurbsSrfN, "U_NURBSproperties");
   if (uPropsN.isNull()) {
     OCX_ERROR(
-        "No U_NURBSproperties tag found in NURBSSurface with surface id={} "
+        "No U_NURBSproperties child node found in NURBSSurface with surface "
+        "id={} "
         "guid={}",
         id, guid);
     return {};
@@ -207,7 +207,8 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
       OCXHelper::GetFirstChild(nurbsSrfN, "V_NURBSproperties");
   if (vPropsN.isNull()) {
     OCX_ERROR(
-        "No V_NURBSproperties tag found in NURBSSurface with surface id={} "
+        "No V_NURBSproperties child node found in NURBSSurface with surface "
+        "id={} "
         "guid={}",
         id, guid);
     return {};
@@ -232,7 +233,8 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
       OCXHelper::GetFirstChild(nurbsSrfN, "UknotVector");
   if (uKnotVectorN.isNull()) {
     OCX_ERROR(
-        "No UknotVector tag found in NURBSSurface with surface id={} guid={}",
+        "No UknotVector child node found in NURBSSurface with surface id={} "
+        "guid={}",
         id, guid);
     return {};
   }
@@ -251,7 +253,8 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
       OCXHelper::GetFirstChild(nurbsSrfN, "VknotVector");
   if (uKnotVectorN.isNull()) {
     OCX_ERROR(
-        "No VknotVector tag found in NURBSSurface with surface id={} guid={}",
+        "No VknotVector child node found in NURBSSurface with surface id={} "
+        "guid={}",
         id, guid);
     return {};
   }
@@ -271,7 +274,8 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
       OCXHelper::GetFirstChild(nurbsSrfN, "ControlPtList");
   if (controlPtListN.isNull()) {
     OCX_ERROR(
-        "No ControlPtList tag found in NURBSSurface with surface id={} guid={}",
+        "No ControlPtList child node found in NURBSSurface with surface id={} "
+        "guid={}",
         id, guid);
     return {};
   }
@@ -307,7 +311,17 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
     return {};
   }
 
-  return faceBuilder.Face();
+  // https://dev.opencascade.org/content/trimmed-nurbs-surface-creation
+  ShapeFix_Face fix(faceBuilder.Face());
+  fix.Perform();
+  if (!fix.Status(ShapeExtend_DONE)) {
+    OCX_ERROR(
+        "Could not fix TopoDS_Face in NURBSSurface with surface id={} guid={}",
+        id, guid);
+    return {};
+  }
+
+  return fix.Face();
 }
 
 TopoDS_Face OCXSurfaceReader::ReadSphere3D(LDOM_Element const &surfaceN,
@@ -322,15 +336,16 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
                                           std::string_view guid) const {
   LDOM_Element originN = OCXHelper::GetFirstChild(surfaceN, "Origin");
   if (originN.isNull()) {
-    OCX_ERROR("No Origin tag found in Plane3D id={} guid={}", id, guid);
+    OCX_ERROR("No Origin child node found in Plane3D id={} guid={}", id, guid);
     return {};
   }
   gp_Pnt origin = OCXHelper::ReadPoint(originN, ctx);
 
   LDOM_Element normalN = OCXHelper::GetFirstChild(surfaceN, "Normal");
   if (normalN.isNull()) {
-    OCX_ERROR("No Normal tag found in Plane3D with surface id={} guid={}", id,
-              guid);
+    OCX_ERROR(
+        "No Normal child node found in Plane3D with surface id={} guid={}", id,
+        guid);
     return {};
   }
   gp_Dir normal = OCXHelper::ReadDirection(normalN);
@@ -341,17 +356,96 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
   auto plane = gp_Pln(origin, normal);
   TopoDS_Face planeFace = BRepBuilderAPI_MakeFace(plane);
 
+  TopoDS_Wire outerContour{};
   LDOM_Element faceBoundaryCurveN =
       OCXHelper::GetFirstChild(surfaceN, "FaceBoundaryCurve");
-  if (faceBoundaryCurveN.isNull()) {
-    OCX_WARN(
-        "No FaceBoundaryCurve tag found in Plane3D with surface id={} guid={}",
+  if (!faceBoundaryCurveN.isNull()) {
+    OCXCurveReader curveReader(ctx);
+    outerContour = curveReader.ReadCurve(faceBoundaryCurveN);
+  } else {
+    OCX_INFO(
+        "No FaceBoundaryCurve child node found in Plane3D with surface id={} "
+        "guid={}",
         id, guid);
-    return planeFace;
-  }
+    OCX_INFO("    origin [{}, {},{}]", origin.X(), origin.Y(), origin.Z());
+    OCX_INFO("    normal  [{}, {},{}]", normal.X(), normal.Y(), normal.Z());
 
-  OCXCurveReader curveReader(ctx);
-  TopoDS_Wire outerContour = curveReader.ReadCurve(faceBoundaryCurveN);
+    std::vector<gp_Pnt> pnts{};
+    if (normal.IsParallel({1, 0, 0}, 1e-2)) {
+      // YZ plane (frame)
+      pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MinY, OCXContext::MinZ));
+      pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MaxY, OCXContext::MinZ));
+      pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MaxY, OCXContext::MaxZ));
+      pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MinY, OCXContext::MaxZ));
+
+    } else if (normal.IsParallel({0, 1, 0}, 1e-2)) {
+      // XZ plane (longitudinal)
+      pnts.emplace_back(gp_Pnt(OCXContext::MinX, origin.Y(), OCXContext::MinZ));
+      pnts.emplace_back(gp_Pnt(OCXContext::MaxX, origin.Y(), OCXContext::MinZ));
+      pnts.emplace_back(gp_Pnt(OCXContext::MaxX, origin.Y(), OCXContext::MaxZ));
+      pnts.emplace_back(gp_Pnt(OCXContext::MinX, origin.Y(), OCXContext::MaxZ));
+
+    } else if (normal.IsParallel({0, 0, 1}, 1e-2)) {
+      // XY plane (deck)
+      pnts.emplace_back(gp_Pnt(OCXContext::MinX, OCXContext::MinY, origin.Z()));
+      pnts.emplace_back(gp_Pnt(OCXContext::MaxX, OCXContext::MinY, origin.Z()));
+      pnts.emplace_back(gp_Pnt(OCXContext::MaxX, OCXContext::MaxY, origin.Z()));
+      pnts.emplace_back(gp_Pnt(OCXContext::MinX, OCXContext::MaxY, origin.Z()));
+
+    } else {
+      // Set bounding box limit points
+      gp_Pnt p0S(OCXContext::MinX, OCXContext::MinY, OCXContext::MinZ);
+      gp_Pnt p1S(OCXContext::MinX, OCXContext::MaxY, OCXContext::MaxZ);
+      gp_Pnt p2S(OCXContext::MaxX, OCXContext::MinY, OCXContext::MaxZ);
+      gp_Pnt p3S(OCXContext::MaxX, OCXContext::MaxY, OCXContext::MinZ);
+
+      // Define box line directions
+      gp_Dir xDir(1, 0, 0);
+      gp_Dir yDir(0, 1, 0);
+      gp_Dir zDir(0, 0, 1);
+
+      // Define box lines: indices are chosen in circular order
+      //     p1S -------------------
+      //     /|                   /|
+      //   /  |                 /  |
+      //  ------------------ p2S - p3S
+      //  |  /                 |  /
+      //  |/                   |/
+      // p0s -------------------
+      std::vector<gp_Lin> boxLines;
+      boxLines.emplace_back(gp_Lin(p0S, xDir));
+      boxLines.emplace_back(gp_Lin(p2S, xDir));
+      boxLines.emplace_back(gp_Lin(p1S, xDir));
+      boxLines.emplace_back(gp_Lin(p3S, xDir));
+
+      boxLines.emplace_back(gp_Lin(p0S, yDir));
+      boxLines.emplace_back(gp_Lin(p1S, yDir));
+      boxLines.emplace_back(gp_Lin(p2S, yDir));
+      boxLines.emplace_back(gp_Lin(p3S, yDir));
+
+      boxLines.emplace_back(gp_Lin(p0S, zDir));
+      boxLines.emplace_back(gp_Lin(p1S, zDir));
+      boxLines.emplace_back(gp_Lin(p3S, zDir));
+      boxLines.emplace_back(gp_Lin(p2S, zDir));
+
+      GeomAdaptor_Surface surf = OCCUtils::Surface::FromFace(planeFace);
+
+      for (const auto &boxLine : boxLines) {
+        if (std::optional pnt = OCCUtils::Surface::Intersection(boxLine, surf);
+            pnt.has_value()) {
+          pnts.push_back(pnt.value());
+        }
+      }
+    }
+    outerContour = OCCUtils::Wire::FromPoints(pnts, true);
+    if (!outerContour.Closed()) {
+      OCX_ERROR(
+          "Outer contour in ReadPlane3D is not closed. Skip building the "
+          "Plane3D with surface id={} guid={}",
+          id, guid);
+      return {};
+    }
+  }
 
   auto faceBuilder = BRepBuilderAPI_MakeFace(planeFace, outerContour);
   faceBuilder.Build();

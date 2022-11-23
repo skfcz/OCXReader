@@ -166,8 +166,8 @@ KnotMults OCXHelper::ParseKnotVector(std::string_view knotVectorS,
   std::vector<double> knots0;
   std::vector<int> mults0;
   // Get the quantity of knots and their multiplicities values
-  double lastKnot;
-  int mult;
+  double lastKnot{};
+  int mult{};
   for (int i = 0; i < out.size(); i++) {
     double knotValue = std::stod(out[i]);
     // First knot value

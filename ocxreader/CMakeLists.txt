@@ -13,17 +13,23 @@ set(ocx_reader_include_dirs
 include_directories(SYSTEM ${ocx_reader_include_dirs})
 
 # Define helper functions and macros used by ocxreader
-# include(cmake/internal_utils.cmake)
+include(cmake/internal_utils.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
+  set(CMAKE_CXX_EXTENSIONS ON)
+endif ()
 
 # Add executable
 add_executable(${PROJECT_NAME} src/main.cc)
 
 target_link_libraries(${PROJECT_NAME} debug ocx)
 target_link_libraries(${PROJECT_NAME} optimized ocx)
+
+target_link_occt_libraries(${PROJECT_NAME})
 
 # Copy runtime dlls to build directory
 # copy_runtime_dlls_dynamic(${PROJECT_NAME})

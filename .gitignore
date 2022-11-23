@@ -32,15 +32,14 @@
 *.app
 
 /.idea/
-/cmake-build-debug/
+/build/
 /Testing/
 *.ninja
 *.stp
-vessel.xml
+
+*vessel.xml
 
 /cmake_install.cmake
-build
-
 
 # VSCode
 .vscode/

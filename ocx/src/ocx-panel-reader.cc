@@ -7,6 +7,8 @@
 
 #include "ocx/internal/ocx-panel-reader.h"
 
+#include <occutils/occutils-shape.h>
+
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeShell.hxx>
 #include <BRep_Builder.hxx>
@@ -291,7 +293,7 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element const &panelN,
     // TODO: Both GridRef and SurfaceRef allow for specifying an offset
     // parameter of the referenced Surface. This is currently ignored.
 
-    if (surface.ShapeType() == TopAbs_FACE) {
+    if (OCCUtils::Shape::IsFace(surface)) {
       auto facebuilder =
           BRepBuilderAPI_MakeFace(TopoDS::Face(surface), outerContour);
       facebuilder.Build();

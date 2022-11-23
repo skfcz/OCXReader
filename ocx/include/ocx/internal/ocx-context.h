@@ -36,6 +36,13 @@ class OCXContext {
   static inline bool CreatePlateSurfaces =
       true;  // depends on CreatePanelContours->CreatePanelSurfaces
 
+  static inline double MinX = -10;
+  static inline double MaxX = 190;
+  static inline double MinY = -50;
+  static inline double MaxY = 50;
+  static inline double MinZ = -10;
+  static inline double MaxZ = 45;
+
   static inline bool CreateStiffenerTraces = true;
 
   [[nodiscard]] std::string Prefix() const;
@@ -46,7 +53,7 @@ class OCXContext {
 
   [[nodiscard]] double LoopupFactor(const std::string &unit) const;
 
-  void RegisterSurface(TopoDS_Shape const &shell, std::string const &guid);
+  void RegisterSurface(TopoDS_Shape const &shape, std::string const &guid);
 
   [[nodiscard]] TopoDS_Shape LookupSurface(
       std::basic_string<char> const &guid) const;
