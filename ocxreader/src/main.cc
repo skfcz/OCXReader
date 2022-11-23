@@ -27,9 +27,9 @@ int main() {
   // Read and parse the OCX file
   auto reader = std::make_unique<ocx::OCXReader>();
   char const fileName[] =
-      "Aveva-OHCM-MidShip_V285.3docx";  // NAPA-D-BULKER-MID_V286.3docx,
-                                        // Aveva-OHCM-MidShip_V285.3docx,
-                                        // ERHULLV2.3docx
+      "data/Aveva-OHCM-MidShip_V285.3docx";  // NAPA-D-BULKER-MID_V286.3docx,
+                                             // Aveva-OHCM-MidShip_V285.3docx,
+                                             // ERHULLV2.3docx
   std::cout << "Read from " << fileName << std::endl;
   if (!reader->Perform(fileName, doc)) {
     std::cerr << "Can't read OCX document" << std::endl;
