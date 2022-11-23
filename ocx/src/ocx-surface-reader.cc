@@ -314,7 +314,7 @@ TopoDS_Face OCXSurfaceReader::ReadNURBSSurface(LDOM_Element const &nurbsSrfN,
   // https://dev.opencascade.org/content/trimmed-nurbs-surface-creation
   ShapeFix_Face fix(faceBuilder.Face());
   fix.Perform();
-  if (!fix.Status(ShapeExtend_DONE)) {
+  if (fix.Status(ShapeExtend_FAIL)) {
     OCX_ERROR(
         "Could not fix TopoDS_Face in NURBSSurface with surface id={} guid={}",
         id, guid);
