@@ -374,7 +374,6 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
     if (normal.IsParallel({1, 0, 0}, 1e-2)) {
       // YZ plane (frame)
       pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MinY, OCXContext::MinZ));
-      pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MinY, OCXContext::MinZ));
       pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MaxY, OCXContext::MinZ));
       pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MaxY, OCXContext::MaxZ));
       pnts.emplace_back(gp_Pnt(origin.X(), OCXContext::MinY, OCXContext::MaxZ));
@@ -405,20 +404,29 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
       gp_Dir yDir(0, 1, 0);
       gp_Dir zDir(0, 0, 1);
 
-      // Define box lines
+      // Define box lines: indices are chosen in circular order
+      //     p1S -------------------
+      //     /|                   /|
+      //   /  |                 /  |
+      //  ------------------ p2S - p3S
+      //  |  /                 |  /
+      //  |/                   |/
+      // p0s -------------------
       std::vector<gp_Lin> boxLines;
       boxLines.emplace_back(gp_Lin(p0S, xDir));
-      boxLines.emplace_back(gp_Lin(p1S, xDir));
       boxLines.emplace_back(gp_Lin(p2S, xDir));
+      boxLines.emplace_back(gp_Lin(p1S, xDir));
       boxLines.emplace_back(gp_Lin(p3S, xDir));
+
       boxLines.emplace_back(gp_Lin(p0S, yDir));
       boxLines.emplace_back(gp_Lin(p1S, yDir));
       boxLines.emplace_back(gp_Lin(p2S, yDir));
       boxLines.emplace_back(gp_Lin(p3S, yDir));
+
       boxLines.emplace_back(gp_Lin(p0S, zDir));
       boxLines.emplace_back(gp_Lin(p1S, zDir));
-      boxLines.emplace_back(gp_Lin(p2S, zDir));
       boxLines.emplace_back(gp_Lin(p3S, zDir));
+      boxLines.emplace_back(gp_Lin(p2S, zDir));
 
       GeomAdaptor_Surface surf = OCCUtils::Surface::FromFace(planeFace);
 
@@ -429,7 +437,14 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
         }
       }
     }
-    outerContour = OCCUtils::Wire::FromPoints(pnts);
+    outerContour = OCCUtils::Wire::FromPoints(pnts, true);
+    if (!outerContour.Closed()) {
+      OCX_ERROR(
+          "Outer contour in ReadPlane3D is not closed. Skip building the "
+          "Plane3D with surface id={} guid={}",
+          id, guid);
+      return {};
+    }
   }
 
   auto faceBuilder = BRepBuilderAPI_MakeFace(planeFace, outerContour);

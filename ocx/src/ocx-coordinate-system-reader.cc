@@ -170,8 +170,18 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
       }
 
       auto unlimitedSurface = gp_Pln(org, direction);
-      TopoDS_Wire wire = OCCUtils::Wire::FromPoints({pnt0, pnt1, pnt2, pnt3});
-      TopoDS_Face surface = BRepBuilderAPI_MakeFace(unlimitedSurface, wire);
+      TopoDS_Wire outerContour =
+          OCCUtils::Wire::FromPoints({pnt0, pnt1, pnt2, pnt3}, true);
+      if (!outerContour.Closed()) {
+        OCX_ERROR(
+            "Outer contour in ReadRefPlane is not closed. Skip building the "
+            "RefPlane {} guid={}",
+            name, guid);
+        return {};
+      }
+
+      TopoDS_Face surface =
+          BRepBuilderAPI_MakeFace(unlimitedSurface, outerContour);
       ctx->RegisterSurface(surface, guid);
 
       TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(surface, false);
