@@ -14,6 +14,7 @@
 #include <TColStd_Array2OfReal.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array2OfPnt.hxx>
+#include <TopoDS_Wire.hxx>
 #include <memory>
 #include <vector>
 
@@ -134,6 +135,18 @@ class OCXHelper {
       LDOM_Element const &controlPtListN, int const &uNumCtrlPoints,
       int const &vNumCtrlPoints, std::string_view id, std::string_view guid,
       std::shared_ptr<OCXContext> const &ctx);
+
+  /**
+   * Take a TopoDS_Face or TopoDS_Shell and cut it by the given TopoDS_Wire
+   *
+   * @param shape the shape to cut (TopoDS_Face or TopoDS_Shell)
+   * @param wire the wire to cut with
+   * @return the cut shape or an empty shape if the cut failed
+   */
+  static TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape,
+                                     TopoDS_Wire const &wire,
+                                     std::string_view id,
+                                     std::string_view guid);
 };
 
 }  // namespace ocx

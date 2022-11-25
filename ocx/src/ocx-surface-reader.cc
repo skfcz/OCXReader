@@ -367,8 +367,6 @@ TopoDS_Face OCXSurfaceReader::ReadPlane3D(LDOM_Element const &surfaceN,
         "No FaceBoundaryCurve child node found in Plane3D with surface id={} "
         "guid={}",
         id, guid);
-    OCX_INFO("    origin [{}, {},{}]", origin.X(), origin.Y(), origin.Z());
-    OCX_INFO("    normal  [{}, {},{}]", normal.X(), normal.Y(), normal.Z());
 
     std::vector<gp_Pnt> pnts{};
     if (normal.IsParallel({1, 0, 0}, 1e-2)) {

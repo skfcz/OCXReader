@@ -7,11 +7,18 @@
 
 #include "ocx/internal/ocx-helper.h"
 
+#include <BRepBuilderAPI_Sewing.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <ShapeFix_Face.hxx>
+#include <ShapeFix_Shell.hxx>
 #include <TColStd_Array2OfReal.hxx>
 #include <TColgp_Array2OfPnt.hxx>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "occutils/occutils-shape-components.h"
+#include "occutils/occutils-surface.h"
 
 namespace ocx {
 
@@ -305,6 +312,92 @@ PolesWeightsSurface OCXHelper::ParseControlPointsSurface(
   }
 
   return polesWeights;
+}
+
+TopoDS_Shape OCXHelper::CutShapeByWire(TopoDS_Shape const &shape,
+                                       TopoDS_Wire const &wire,
+                                       std::string_view id,
+                                       std::string_view guid) {
+  // Check if given TopoDS_Shape is one of TopoDS_Face or TopoDS_Shell
+  if (!OCCUtils::Shape::IsFace(shape) && !OCCUtils::Shape::IsShell(shape)) {
+    OCX_ERROR(
+        "Given TopoDS_Shape is neither a TopoDS_Face or a TopoDS_Shell in "
+        "Shape id={} guid={}",
+        id, guid);
+    return {};
+  }
+
+  // Handle TopoDS_Shape is a TopoDS_Face
+  if (OCCUtils::Shape::IsFace(shape)) {
+    GeomAdaptor_Surface surfaceAdapter =
+        OCCUtils::Surface::FromFace(TopoDS::Face(shape));
+    auto faceBuilder =
+        BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(), wire, Standard_True);
+    faceBuilder.Build();
+    if (!faceBuilder.IsDone()) {
+      OCX_ERROR(
+          "Failed to create restricted Shape from given Surface and "
+          "OuterContour in id={} guid={}",
+          id, guid);
+      return {};
+    }
+    return faceBuilder.Face();
+  }
+
+  // Else handle TopoDS_Shell
+  std::vector<TopoDS_Face> faces =
+      OCCUtils::ShapeComponents::AllFacesWithin(shape);
+
+  BRepBuilderAPI_Sewing shellMaker;
+  for (TopoDS_Face const &face : faces) {
+    GeomAdaptor_Surface surfaceAdapter =
+        OCCUtils::Surface::FromFace(TopoDS::Face(face));
+    // TODO: Currently cutting curved surfaces with a wire is not supported
+    // BRepBuilderAPI_MakeFace: Make a face from a Surface and a wire. If the
+    // surface S is not plane, it must contain pcurves for all edges in W,
+    // otherwise the wrong shape will be created.
+    auto faceBuilder =
+        BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(), wire, Standard_True);
+    faceBuilder.Build();
+    if (!faceBuilder.IsDone()) {
+      OCX_ERROR(
+          "Failed to create restricted Shape from given Surface and "
+          "OuterContour in id={} guid={}",
+          id, guid);
+      return {};
+    }
+
+    ShapeFix_Face fix(faceBuilder.Face());
+    fix.Perform();
+    if (fix.Status(ShapeExtend_FAIL)) {
+      OCX_ERROR("Could not fix TopoDS_Face from read face in id={} guid={}", id,
+                guid);
+      return {};
+    }
+    shellMaker.Add(fix.Face());
+  }
+
+  shellMaker.Perform();
+  TopoDS_Shape sewedShape = shellMaker.SewedShape();
+
+  int numShells = 0;
+  auto shell = TopoDS_Shell();
+  TopExp_Explorer shellExplorer(sewedShape, TopAbs_SHELL);
+  for (; shellExplorer.More(); shellExplorer.Next()) {
+    shell = TopoDS::Shell(shellExplorer.Current());
+    numShells++;
+  }
+
+  if (numShells != 1) {
+    OCX_ERROR(
+        "Expected exactly one shell to be composed from CutShapeByWire in "
+        "id={} guid={}, but got {} shells, skip it. This is must likely due to "
+        "missing implementation building a TopoDS_Face from non-planar surface "
+        "and wire",
+        id, guid, numShells);
+    return {};
+  }
+  return shell;
 }
 
 }  // namespace ocx

@@ -135,11 +135,10 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element const &panelN,
   if (CreatePanelSurfaces) {
     panelSurface = ReadPanelSurface(panelN, outerContour, id, guid);
     if (!panelSurface.IsNull()) {
-      // Material Design Light Green 50 300
-      auto surfaceColor = Quantity_Color(174 / 256.0, 213 / 256.0, 129.0 / 256,
-                                         Quantity_TOC_RGB);
-
       // Add PanelSurface node in OCAF
+      auto surfaceColor = Quantity_Color(
+          174 / 256.0, 213 / 256.0, 129.0 / 256,
+          Quantity_TOC_RGB);  // Material Design Light Green 50 300
       TDF_Label panelSurfaceLabel =
           ctx->OCAFShapeTool()->AddShape(panelSurface, false);
       TDataStd_Name::Set(panelSurfaceLabel,
@@ -203,7 +202,8 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element const &panelN,
 
   TDF_Label panelLabel = ctx->OCAFShapeTool()->AddShape(panelAssy, true);
   TDataStd_Name::Set(
-      panelLabel, (std::string(name) + " (" + std::string(id) + ")").c_str());
+      panelLabel,
+      ("Panel " + std::string(name) + " (" + std::string(id) + ")").c_str());
 
   return panelAssy;
 }
@@ -211,35 +211,26 @@ TopoDS_Shape OCXPanelReader::ReadPanel(LDOM_Element const &panelN,
 TopoDS_Wire OCXPanelReader::ReadPanelOuterContour(LDOM_Element const &panelN,
                                                   std::string_view id,
                                                   std::string_view guid) const {
-  auto outerContour = TopoDS_Wire();
-
   LDOM_Element outerContourN = OCXHelper::GetFirstChild(panelN, "OuterContour");
   if (outerContourN.isNull()) {
     OCX_ERROR(
         "No OuterContour child node found in ReadPanelOuterContour with panel "
         "id={} guid={}",
         id, guid);
-    return outerContour;
+    return {};
   }
 
-  try {
-    OCXCurveReader curveReader(ctx);
-    TopoDS_Shape curveShape = curveReader.ReadCurve(outerContourN);
-    if (!OCCUtils::Shape::IsWire(curveShape)) {
-      OCX_ERROR(
-          "OuterContour child node in ReadPanelOuterContour with panel id={} "
-          "guid={} is not a wire, expect a closed shape as OuterContour, but "
-          "got {}",
-          id, guid, curveShape.ShapeType());
-    }
-    return TopoDS::Wire(curveShape);
-  } catch (Standard_Failure const &exp) {
+  OCXCurveReader curveReader(ctx);
+  TopoDS_Shape curveShape = curveReader.ReadCurve(outerContourN);
+  if (!OCCUtils::Shape::IsWire(curveShape)) {
     OCX_ERROR(
-        "Failed to read OuterContour child node in ReadPanelOuterContour with "
-        "panel id={} guid={}, exiting with exception: {}",
-        id, guid, exp.GetMessageString());
-    return outerContour;
+        "OuterContour child node in ReadPanelOuterContour with panel id={} "
+        "guid={} is not a wire, expect a closed shape as OuterContour, but "
+        "got {}",
+        id, guid, curveShape.ShapeType());
+    return {};
   }
+  return TopoDS::Wire(curveShape);
 }
 
 TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element const &panelN,
@@ -298,98 +289,7 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element const &panelN,
 
     // TODO: Both GridRef and SurfaceRef allow for specifying an offset
     // parameter of the referenced Surface. This is currently ignored.
-
-    if (OCCUtils::Shape::IsFace(surface)) {
-      GeomAdaptor_Surface surfaceAdapter =
-          OCCUtils::Surface::FromFace(TopoDS::Face(surface));
-      auto faceBuilder = BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(),
-                                                 outerContour, Standard_True);
-      faceBuilder.Build();
-      if (!faceBuilder.IsDone()) {
-        OCX_ERROR(
-            "Failed to create restricted PanelSurface from ReferenceSurface "
-            "guid={} and given OuterContour in ReadPanelSurface with panel "
-            "id={} guid={}",
-            refGuid, id, guid);
-        return {};
-      }
-      return faceBuilder.Face();
-    }
-
-    std::vector<TopoDS_Face> faces =
-        OCCUtils::ShapeComponents::AllFacesWithin(surface);
-
-    if (faces.empty()) {
-      OCX_ERROR(
-          "Failed to find any faces in ReferenceSurface guid={} in "
-          "ReadPanelSurface with panel id={} guid={}",
-          refGuid, id, guid);
-      return {};
-    }
-
-    if (faces.size() == 1) {
-      GeomAdaptor_Surface surfaceAdapter =
-          OCCUtils::Surface::FromFace(TopoDS::Face(faces[0]));
-      auto faceBuilder = BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(),
-                                                 outerContour, Standard_True);
-      faceBuilder.Build();
-      if (!faceBuilder.IsDone()) {
-        OCX_ERROR(
-            "Failed to create restricted PanelSurface from ReferenceSurface "
-            "guid={} and given OuterContour in ReadPanelSurface with panel "
-            "id={} guid={}",
-            refGuid, id, guid);
-        return {};
-      }
-      return faceBuilder.Face();
-    }
-    
-    BRepBuilderAPI_Sewing shellMaker;
-    for (TopoDS_Face const &face : faces) {
-      GeomAdaptor_Surface surfaceAdapter =
-          OCCUtils::Surface::FromFace(TopoDS::Face(face));
-      auto faceBuilder = BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(),
-                                                 outerContour, Standard_True);
-      faceBuilder.Build();
-      if (!faceBuilder.IsDone()) {
-        OCX_ERROR(
-            "Failed to create restricted PanelSurface from ReferenceSurface "
-            "guid={} and given OuterContour in ReadPanelSurface with panel "
-            "id={} guid={}",
-            refGuid, id, guid);
-        return {};
-      }
-
-      ShapeFix_Face fix(faceBuilder.Face());
-      fix.Perform();
-      if (fix.Status(ShapeExtend_FAIL)) {
-        OCX_ERROR(
-            "Could not fix TopoDS_Shell from ReadPanelSurface guid={} with "
-            "panel id={} guid={}",
-            refGuid, id, guid);
-        return {};
-      }
-      shellMaker.Add(fix.Face());
-    }
-
-    shellMaker.Perform();
-    TopoDS_Shape sewedShape = shellMaker.SewedShape();
-
-    int numShells = 0;
-    auto shell = TopoDS_Shell();
-    TopExp_Explorer shellExplorer(sewedShape, TopAbs_SHELL);
-    for (; shellExplorer.More(); shellExplorer.Next()) {
-      shell = TopoDS::Shell(shellExplorer.Current());
-      numShells++;
-    }
-
-    if (numShells != 1) {
-      OCX_ERROR(
-          "Expected exactly one shell to be composed from SurfaceCollection "
-          "with surface id={} guid={}, but got {} shells, using last shell",
-          id, guid, numShells);
-    }
-    return shell;
+    return OCXHelper::CutShapeByWire(surface, outerContour, id, guid);
   }
 
   // Read directly from UnboundedGeometry
@@ -399,34 +299,13 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element const &panelN,
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element surfaceN = (LDOM_Element &)aChildNode;
+      char const *sId = surfaceN.getAttribute("id").GetString();
+      char const *sGuid = surfaceN.getAttribute(ctx->OCXGUID()).GetString();
 
       OCXSurfaceReader surfaceReader(ctx);
       if (TopoDS_Shape surface = surfaceReader.ReadSurface(surfaceN);
           !surface.IsNull()) {
-        if (OCCUtils::Shape::IsFace(surface)) {
-          GeomAdaptor_Surface surfaceAdapter =
-              OCCUtils::Surface::FromFace(TopoDS::Face(surface));
-          auto faceBuilder = BRepBuilderAPI_MakeFace(
-              surfaceAdapter.Surface(), outerContour, Standard_True);
-          faceBuilder.Build();
-          if (!faceBuilder.IsDone()) {
-            OCX_ERROR(
-                "Failed to create restricted PanelSurface from Surface and "
-                "given OuterContour in ReadPanelSurface with panel id={} "
-                "guid={}",
-                id, guid);
-            return {};
-          }
-          return faceBuilder.Face();
-        }
-
-        // TODO: Handle TopoDS_Shell shape type
-        OCX_ERROR(
-            "Expected Surface to be a Face, but got a Shell in "
-            "ReadPanelSurface with panel id={} guid={}. Currently only faces "
-            "are supported as ReferenceSurface.",
-            id, guid);
-        return {};
+        return OCXHelper::CutShapeByWire(surface, outerContour, sId, sGuid);
       }
     }
     aChildNode = aChildNode.getNextSibling();
@@ -436,7 +315,6 @@ TopoDS_Shape OCXPanelReader::ReadPanelSurface(LDOM_Element const &panelN,
       "Failed to read surface from UnboundedGeometry in "
       "ReadPanelSurface with panel id={} guid={}",
       id, guid);
-
   return {};
 }
 
@@ -465,9 +343,8 @@ TopoDS_Shape OCXPanelReader::ReadPlates(LDOM_Element const &panelN,
         char const *pId = plateN.getAttribute("id").GetString();
         char const *pGuid = plateN.getAttribute(ctx->OCXGUIDRef()).GetString();
 
-        if (TopoDS_Shape plate =
-                ReadPlate(plateN, referenceSurface, pId, pGuid);
-            !plate.IsNull()) {
+        TopoDS_Shape plate = ReadPlate(plateN, referenceSurface, pId, pGuid);
+        if (!plate.IsNull()) {
           shapes.push_back(plate);
         }
       }
@@ -503,52 +380,36 @@ TopoDS_Shape OCXPanelReader::ReadPlate(LDOM_Element const &plateN,
     return {};
   }
 
-  // Material Design green 50
-  auto plateColor =
-      Quantity_Color(76 / 255.0, 175 / 255.0, 80 / 255.0, Quantity_TOC_RGB);
-
   OCXCurveReader curveReader(ctx);
-  TopoDS_Shape curveShape = curveReader.ReadCurve(outerContourN);
-  if (curveShape.ShapeType() != TopAbs_WIRE) {
+  TopoDS_Shape outerContour = curveReader.ReadCurve(outerContourN);
+  if (!OCCUtils::Shape::IsWire(outerContour)) {
     OCX_ERROR(
         "OuterContour child node in ReadPlate with plate id={} guid={} is "
         "not a wire, expect a closed shape as OuterContour, but got {}",
-        id, guid, curveShape.ShapeType());
+        id, guid, outerContour.ShapeType());
     return {};
   }
-  TopoDS_Wire outerContour = TopoDS::Wire(curveShape);
 
-  if (referenceSurface.ShapeType() == TopAbs_FACE) {
-    TopoDS_Face face = TopoDS::Face(referenceSurface);
-    auto faceBuilder = BRepBuilderAPI_MakeFace(face, outerContour);
-    faceBuilder.Build();
-    if (!faceBuilder.IsDone()) {
-      OCX_ERROR(
-          "Failed to create restricted PlateSurface from ReferenceSurface "
-          "and given OuterContour in ReadPlate with plate id={} guid={}",
-          id, guid);
-      return {};
-    }
-
-    TDF_Label label = ctx->OCAFShapeTool()->AddShape(faceBuilder.Face(), true);
-    TDataStd_Name::Set(
-        label,
-        ("Plate " + std::string(id) + " (" + std::string(guid) + ")").c_str());
-    ctx->OCAFColorTool()->SetColor(label, plateColor, XCAFDoc_ColorSurf);
-
-    return faceBuilder.Face();
+  TopoDS_Shape plate = OCXHelper::CutShapeByWire(
+      referenceSurface, TopoDS::Wire(outerContour), id, guid);
+  if (plate.IsNull()) {
+    OCX_ERROR(
+        "Failed to cut plate from reference surface in ReadPlate with plate "
+        "id={} guid={}",
+        id, guid);
+    return {};
   }
 
-  // TODO: Implement TopAbs_SHELL surface type
-  OCX_ERROR(
-      "ReferenceSurface is not a face, but a {} in "
-      "ReadPlate with plate id={} guid={}. Currently only faces are "
-      "supported as ReferenceSurface.",
-      referenceSurface.ShapeType(), id, guid);
+  auto plateColor =
+      Quantity_Color(76 / 255.0, 175 / 255.0, 80 / 255.0,
+                     Quantity_TOC_RGB);  // Material Design green 50
+  TDF_Label label = ctx->OCAFShapeTool()->AddShape(plate, false);
+  TDataStd_Name::Set(
+      label,
+      ("Plate " + std::string(id) + " (" + std::string(guid) + ")").c_str());
+  ctx->OCAFColorTool()->SetColor(label, plateColor, XCAFDoc_ColorSurf);
 
-  // TODO: limit the faces in the shell by the outer contour
-
-  return {};
+  return plate;
 }
 
 TopoDS_Shape OCXPanelReader::ReadStiffeners(LDOM_Element const &panelN,
