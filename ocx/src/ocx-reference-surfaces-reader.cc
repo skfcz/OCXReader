@@ -83,7 +83,8 @@ TopoDS_Shape OCXReferenceSurfacesReader::ReadReferenceSurfaces(
         if (OCXContext::CreateReferenceSurfaces) {
           TDF_Label surfL =
               ctx->OCAFShapeTool()->AddShape(referenceSurface, false);
-          TDataStd_Name::Set(surfL, name);
+          TDataStd_Name::Set(
+              surfL, (std::string(name) + " " + std::string(guid)).c_str());
           ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf);
 
           shapes.push_back(referenceSurface);
