@@ -1,14 +1,12 @@
-//
 // This file is part of OCXReader library
 // Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License version 2.1 as published
 // by the Free Software Foundation.
-//
 
-#ifndef OCX_INCLUDE_OCX_OCX_PANEL_H_
-#define OCX_INCLUDE_OCX_OCX_PANEL_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_H_
 
 #include <TDF_Label.hxx>
 #include <TopoDS_Shape.hxx>
@@ -27,4 +25,4 @@ class OCXBaseType {
 
 class OCXPanel : OCXBaseType {};
 
-#endif  // OCX_INCLUDE_OCX_OCX_PANEL_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_H_

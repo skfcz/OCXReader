@@ -5,8 +5,8 @@
 // the terms of the GNU Lesser General Public License version 2.1 as published
 // by the Free Software Foundation.
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_LOG_H_
-#define OCX_INCLUDE_OCX_INTERNAL_LOG_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 
@@ -63,4 +63,4 @@ constexpr char OCX_DEFAULT_LOGGER_NAME[] = "OCX";
 #define OCX_FATAL(...) (void)0
 #endif
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_LOG_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_

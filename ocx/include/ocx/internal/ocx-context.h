@@ -5,8 +5,8 @@
 // the terms of the GNU Lesser General Public License version 2.1 as published
 // by the Free Software Foundation.
 
-#ifndef OCX_INCLUDE_OCX_OCX_CONTEXT_H_
-#define OCX_INCLUDE_OCX_OCX_CONTEXT_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_CONTEXT_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_CONTEXT_H_
 
 #include <LDOM_Element.hxx>
 #include <TDocStd_Application.hxx>
@@ -80,4 +80,4 @@ class OCXContext {
 
 }  // namespace ocx
 
-#endif  // OCX_INCLUDE_OCX_OCX_CONTEXT_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_CONTEXT_H_
