@@ -15,7 +15,7 @@ include_directories(SYSTEM ${ocx_reader_include_dirs})
 
 # Boost
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost COMPONENTS system filesystem unit_test_framework)
+find_package(Boost COMPONENTS system filesystem unit_test_framework program_options)
 if (NOT Boost_FOUND)
   message(STATUS "No local Boost installation found. Try loading Boost modules via FetchContent.")
   include(FetchContent)

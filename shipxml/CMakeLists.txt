@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
-project(ocx VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
+project(shipXML VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
 # External dependencies
 include(FetchContent)
@@ -18,12 +18,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(OCCUtils)
 
 # Where ocx's .h files can be found
-message(STATUS "occutils_INCLUDE_DIR: ${occutils_INCLUDE_DIR}")
-set(ocx_include_dirs
+set(shipXML_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
-    "${ocx_SOURCE_DIR}/include"
-    "${ocx_SOURCE_DIR}")
-include_directories(SYSTEM ${ocx_include_dirs})
+    "${shipXML_SOURCE_DIR}/include"
+    "${shipXML_SOURCE_DIR}")
+include_directories(SYSTEM ${shipXML_include_dirs})
 
 # Define helper functions and macros used by ocx
 include(cmake/internal_utils.cmake)
@@ -41,7 +40,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
-cxx_library(${PROJECT_NAME} src/ocx-all.cc)
+cxx_library(${PROJECT_NAME} src/shipxml-all.cc)
 
 # add_subdirectory(test)
 

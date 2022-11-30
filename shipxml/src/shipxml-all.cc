@@ -10,5 +10,4 @@
 // file alone.
 
 // The following lines pull in the real ocx*.cc files.
-#include "shipxml.cc"
-
+#include "src/shipxml.cc"
