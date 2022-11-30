@@ -113,25 +113,7 @@ Standard_Boolean OCXReader::Transfer(Handle(TDocStd_Document) & doc,
   OCXPanelReader panelReader(ctx);
   panelReader.ReadPanels(vesselN);
 
-  // Write to STEP
-  char const fileName[] = "vessel.stp";
 
-  STEPCAFControl_Writer writer;
-  try {
-    if (!writer.Transfer(doc, STEPControl_AsIs, nullptr, theProgress)) {
-      OCX_ERROR("Failed to transfer document to STEP model");
-      return Standard_False;
-    }
-    const IFSelect_ReturnStatus ret = writer.Write(fileName);
-    if (ret != IFSelect_RetDone) {
-      OCX_ERROR("Failed to write STEP file, exited with status {}", ret);
-      return Standard_False;
-    }
-  } catch (Standard_Failure const &exp) {
-    OCX_ERROR("Failed to write STEP file, exception: {}",
-              exp.GetMessageString());
-    return Standard_False;
-  }
 
   return Standard_True;
 }

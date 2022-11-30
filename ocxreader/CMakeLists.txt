@@ -12,6 +12,25 @@ set(ocx_reader_include_dirs
     "${ocx_SOURCE_DIR}")
 include_directories(SYSTEM ${ocx_reader_include_dirs})
 
+
+# Boost
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost COMPONENTS system filesystem unit_test_framework)
+if (NOT Boost_FOUND)
+  message(STATUS "No local Boost installation found. Try loading Boost modules via FetchContent.")
+  include(FetchContent)
+  FetchContent_Declare(
+          Boost
+          GIT_REPOSITORY https://github.com/boostorg/boost.git
+          GIT_TAG boost-1.80.0
+          GIT_SHALLOW TRUE
+          GIT_PROGRESS TRUE
+  )
+  FetchContent_MakeAvailable(Boost)
+endif ()
+
+
+
 # Define helper functions and macros used by ocxreader
 include(cmake/internal_utils.cmake)
 
@@ -26,8 +45,12 @@ endif ()
 # Add executable
 add_executable(${PROJECT_NAME} src/main.cc)
 
-target_link_libraries(${PROJECT_NAME} debug ocx)
-target_link_libraries(${PROJECT_NAME} optimized ocx)
+set(boost_libs
+        Boost::program_options)
+
+
+target_link_libraries(${PROJECT_NAME} debug ocx ${boost_libs})
+target_link_libraries(${PROJECT_NAME} optimized ocx ${boost_libs})
 
 target_link_occt_libraries(${PROJECT_NAME})
 

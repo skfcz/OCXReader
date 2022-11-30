@@ -43,7 +43,7 @@ endif ()
 
 cxx_library(${PROJECT_NAME} src/ocx-all.cc)
 
-add_subdirectory(test)
+# add_subdirectory(test)
 
 # Set target link libraries
 target_link_libraries(${PROJECT_NAME} occutils spdlog::spdlog)
