@@ -10,4 +10,18 @@
 // file alone.
 
 // The following lines pull in the real ocx*.cc files.
-#include "src/shipxml.cc"
+#include "src/AMCurve.cpp"
+#include "src/ArcSegment.cpp"
+#include "src/Bracket.cpp"
+#include "src/CartesianPoint.cpp"
+#include "src/EntityWithProperties.cpp"
+#include "src/Extrusion.cpp"
+#include "src/Limit.cpp"
+#include "src/NamedEntity.cpp"
+#include "src/Panel.cpp"
+#include "src/Properties.cpp"
+#include "src/ShipSteelTransfer.cpp"
+#include "src/Structure.cpp"
+#include "src/Support.cpp"
+#include "src/ShipXMLDriver.cpp"
+

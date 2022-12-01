@@ -43,3 +43,6 @@
 
 # VSCode
 .vscode/
+/_deps/
+/cmake-build-*
+/lib/*
