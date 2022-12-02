@@ -40,6 +40,9 @@
 *vessel.xml
 
 /cmake_install.cmake
+/**/*.cmake
+/**/Makefile
+/**/*.ninja
 
 # VSCode
 .vscode/
