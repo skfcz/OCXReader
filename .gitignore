@@ -43,6 +43,7 @@
 /**/*.cmake
 /**/Makefile
 /**/*.ninja
+/**/CMakeFiles
 
 # VSCode
 .vscode/
