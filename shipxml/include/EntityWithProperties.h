@@ -12,7 +12,7 @@
 using namespace std;
 
 namespace shipxml {
-    class EntityWithProperties : NamedEntity {
+    class EntityWithProperties : public NamedEntity {
 
     public:
         EntityWithProperties(string n);

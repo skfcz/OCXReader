@@ -19,6 +19,7 @@ namespace shipxml {
       CartesianPoint pM;
       CartesianPoint pC;
       bool witherShins;
+      bool isLine;
     };
 
 } // shipxml

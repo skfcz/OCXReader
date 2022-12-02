@@ -22,7 +22,8 @@ message(STATUS "occutils_INCLUDE_DIR: ${occutils_INCLUDE_DIR}")
 set(ocx_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
-    "${ocx_SOURCE_DIR}")
+    "${ocx_SOURCE_DIR}"
+)
 include_directories(SYSTEM ${ocx_include_dirs})
 
 # Define helper functions and macros used by ocx

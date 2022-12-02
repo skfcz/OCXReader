@@ -16,6 +16,7 @@
 #include <TDataStd_Name.hxx>
 #include <memory>
 #include <string>
+#include <map>
 
 #include "ocx/internal/ocx-coordinate-system-reader.h"
 #include "ocx/internal/ocx-helper.h"
@@ -137,5 +138,6 @@ Standard_Boolean OCXReader::Perform(Standard_CString filename,
 
   return Standard_True;
 }
+LDOM_Element OCXReader::OCXRoot() { return ocxDocEL;}
 
 }  // namespace ocx

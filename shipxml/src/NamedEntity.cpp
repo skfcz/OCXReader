@@ -2,7 +2,7 @@
 // Created by Zerbst on 01.12.2022.
 //
 
-#include "NamedEntity.h"
+#include "../include/NamedEntity.h"
 
 
 
@@ -16,5 +16,4 @@ void shipxml::NamedEntity::Name(string n) {
 
 shipxml::NamedEntity::NamedEntity(string n) {
     name=n;
-
 }

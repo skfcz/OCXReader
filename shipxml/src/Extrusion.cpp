@@ -2,7 +2,7 @@
 // Created by Zerbst on 01.12.2022.
 //
 
-#include "Extrusion.h"
+#include "../include/Extrusion.h"
 
 shipxml::Extrusion::Extrusion() : EntityWithProperties(""){
 

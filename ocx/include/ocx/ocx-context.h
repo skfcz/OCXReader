@@ -63,9 +63,13 @@ class OCXContext {
   [[nodiscard]] opencascade::handle<XCAFDoc_ShapeTool> OCAFShapeTool() const;
   [[nodiscard]] opencascade::handle<XCAFDoc_ColorTool> OCAFColorTool() const;
 
- private:
+  std::map<std::string, TopoDS_Shape, std::less<>> OCX2Geometry();
+
+
+      private:
   std::map<std::string, TopoDS_Shape, std::less<>> guid2refPlane;
   std::map<std::string, double, std::less<>> unit2factor;
+  std::map<std::string, TopoDS_Shape, std::less<>> elem2geom;
 
   LDOM_Element ocxDocN;
 

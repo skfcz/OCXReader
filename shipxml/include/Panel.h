@@ -17,7 +17,7 @@ using namespace std;
 namespace shipxml {
 
 
-    class Panel : EntityWithProperties {
+    class Panel : public  EntityWithProperties {
 
     public:
         /**
@@ -40,6 +40,7 @@ namespace shipxml {
          * Get the list of Limits
          */
         list<shipxml::Limit> Limits();
+        void Limits(list<shipxml::Limit> list);
 
 
         /**

@@ -17,7 +17,7 @@
 #include <memory>
 #include <vector>
 
-#include "ocx/internal/ocx-context.h"
+#include "ocx/ocx-context.h"
 #include "ocx/internal/ocx-log.h"
 
 namespace ocx {

@@ -34,6 +34,11 @@ endif ()
 # Define helper functions and macros used by ocxreader
 include(cmake/internal_utils.cmake)
 
+# Set compile definitions
+add_compile_definitions(
+  $<$<CONFIG:DEBUG>:OCX_CONFIG_DEBUG>
+  $<$<CONFIG:RELEASE>:OCX_CONFIG_RELEASE>)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -43,14 +48,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
 endif ()
 
 # Add executable
-add_executable(${PROJECT_NAME} src/main.cc)
+add_executable(${PROJECT_NAME} src/main.cc )
 
 set(boost_libs
         Boost::program_options)
 
 
-target_link_libraries(${PROJECT_NAME} debug ocx ${boost_libs})
-target_link_libraries(${PROJECT_NAME} optimized ocx ${boost_libs})
+target_link_libraries(${PROJECT_NAME} debug ocx  shipxml ${boost_libs})
+target_link_libraries(${PROJECT_NAME} optimized  ocx shipxml ${boost_libs})
 
 target_link_occt_libraries(${PROJECT_NAME})
 

@@ -15,7 +15,7 @@
 #include <TopoDS_Wire.hxx>
 #include <memory>
 
-#include "ocx/internal/ocx-context.h"
+#include "ocx/ocx-context.h"
 
 namespace ocx {
 

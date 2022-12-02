@@ -2,7 +2,8 @@
 // Created by Zerbst on 01.12.2022.
 //
 
-#include "AMCurve.h"
+#include "../include/AMCurve.h"
+#include "../include/enums.h"
 
 shipxml::AMCurve::AMCurve(shipxml::AMSystem s) {
     system=s;

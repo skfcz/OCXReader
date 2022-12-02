@@ -2,7 +2,8 @@
 // Created by Zerbst on 01.12.2022.
 //
 
-#include "CartesianPoint.h"
+
+#include "../include/CartesianPoint.h"
 
 namespace shipxml {
     CartesianPoint::CartesianPoint() {

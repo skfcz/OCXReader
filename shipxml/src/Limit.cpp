@@ -2,7 +2,7 @@
 // Created by Zerbst on 01.12.2022.
 //
 
-#include "Limit.h"
+#include "../include/Limit.h"
 
 shipxml::Limit::Limit(string n) : shipxml::NamedEntity(n){
 

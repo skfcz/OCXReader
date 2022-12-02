@@ -7,6 +7,7 @@
 
 #include <ocx/internal/ocx-log.h>
 
+
 #include <STEPCAFControl_Writer.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
@@ -19,6 +20,7 @@ using std::cout;
 using std::endl;
 using std::exception;
 
+#include "../../shipxml/include/ShipXMLDriver.h"
 #include "ocx/ocx-reader.h"
 
 namespace po = boost::program_options;
@@ -29,7 +31,8 @@ int main(int ac, char** av) {
     desc.add_options()("help", "produce help message")(
         "in", po::value<std::string>(), "the OCX file to read")(
         "step", po::value<std::string>(), "the step file to write")(
-        "ocaf", po::value<std::string>(), "the OCAF file to write");
+        "ocaf", po::value<std::string>(), "the OCAF file to write")(
+        "xml", po::value<std::string>(), "the ShipXML file to write");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -59,6 +62,11 @@ int main(int ac, char** av) {
     std::string ocafFileName = "";
     if (vm.count("ocaf")) {
       ocafFileName = vm["ocaf"].as<std::string>();
+    }
+
+    std::string shipXMLFileName = "";
+    if (vm.count("xml")) {
+      shipXMLFileName = vm["xml"].as<std::string>();
     }
 
     // Initialize the application
@@ -109,6 +117,29 @@ int main(int ac, char** av) {
         app->Close(doc);
 
         std::cerr << "Cannot write OCAF document." << std::endl;
+        return 66;
+      }
+    }
+
+
+    // Write to ShipXML
+    if (!shipXMLFileName.empty()) {
+
+      cout << "write ShipXML to " << shipXMLFileName <<  endl;
+      shipxml::ShipXMLDriver xmlDriver;
+      try {
+        if (! (xmlDriver.Transfer( reader->OCXRoot() ))) {
+          cerr << "Failed to transfer document to ShipXML model" << endl;
+          return 66;
+        }
+////        const bool ret = xmlDriver.Write(shipXMLFileName);
+////        if (ret != IFSelect_RetDone) {
+////          OCX_ERROR("Failed to write STEP file, exited with status {}", ret);
+////          return 66;
+////        }
+      } catch (Standard_Failure const& exp) {
+        OCX_ERROR("Failed to write STEP file, exception: {}",
+                  exp.GetMessageString());
         return 66;
       }
     }

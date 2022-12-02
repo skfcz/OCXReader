@@ -6,7 +6,7 @@
 #define SHIPXML_EXTRUSION_H
 
 #include "EntityWithProperties.h"
-
+#include "enums.h"
 
 namespace shipxml {
     class   Extrusion : EntityWithProperties {

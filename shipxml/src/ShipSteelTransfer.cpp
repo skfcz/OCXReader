@@ -2,7 +2,7 @@
 // Created by Zerbst on 01.12.2022.
 //
 
-#include "ShipSteelTransfer.h"
+#include "../include/ShipSteelTransfer.h"
 
 namespace shipxml {
     ShipSteelTransfer::ShipSteelTransfer() {

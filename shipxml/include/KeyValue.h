@@ -11,7 +11,8 @@ namespace shipxml {
 
 class KeyValue {
  public:
-  KeyValue(string key, string value);
+  KeyValue(string const & key, string const & value);
+
   string Key();
   string Value();
 

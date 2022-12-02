@@ -107,8 +107,8 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element refPlaneN = (LDOM_Element &)aChildN;
 
-      char const *name = refPlaneN.getAttribute("name").GetString();
-      char const *guid = refPlaneN.getAttribute(ctx->OCXGUIDRef()).GetString();
+      auto name = std::string(refPlaneN.getAttribute("name").GetString());
+      auto guid = std::string(refPlaneN.getAttribute(ctx->OCXGUIDRef()).GetString());
 
       if (std::string refPlaneName = OCXHelper::GetLocalTagName(refPlaneN);
           refPlaneName != "RefPlane") {
@@ -185,10 +185,18 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
       ctx->RegisterSurface(surface, guid);
 
       TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(surface, false);
-      TDataStd_Name::Set(surfL, name);
+      TDataStd_Name::Set(surfL, name.c_str());
       ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf);
 
       shapes.push_back(surface);
+
+      if ( ctx->OCX2Geometry().find( guid) == ctx->OCX2Geometry().end()) {
+        ctx->OCX2Geometry()[guid] = surface;
+      } else {
+        OCX_ERROR(
+            "found multiple objects with guid '{}', second time at {} with name '{}'",
+              guid, refPlaneType, name);
+      }
 
       cntPlanes++;
     }

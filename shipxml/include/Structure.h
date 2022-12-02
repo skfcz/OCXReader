@@ -6,8 +6,6 @@
 #define SHIPXML_STRUCTURE_H
 
 #include "Panel.h"
-#include "Bracket.h"
-#include <list>
 #include <list>
 using namespace std;
 
@@ -17,11 +15,9 @@ namespace shipxml {
 
     public:
         list<Panel> Panels();
-        list<Bracket> Brackets();
 
     private:
         list<Panel> panels;
-        list<Bracket> brackets;
 
     };
 
