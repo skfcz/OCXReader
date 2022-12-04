@@ -15,10 +15,10 @@ namespace shipxml {
 
     public:
         list<Panel> Panels();
+        void Panels( list<shipxml::Panel> l);
 
     private:
-        list<Panel> panels;
-
+        list<shipxml::Panel> panels;
     };
 
 } // shipxml

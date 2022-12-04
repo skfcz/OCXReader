@@ -14,19 +14,10 @@ namespace shipxml {
 
 ShipXMLDriver::ShipXMLDriver() {}
 
-bool ShipXMLDriver::Write( const std::string path) {
-  auto writer = LDOM_XmlWriter();
-  ofstream myfile;
-  myfile.open (path);
-
-  writer.SetIndentation(4);
-  writer.Write(myfile, doc);
-  return true;
-}
-
-bool ShipXMLDriver::Transfer(LDOM_Element  ode) {
+bool ShipXMLDriver::Transfer(LDOM_Element ode) {
 
   ocxDocEL=ode;
+  ocxVesselEL = ShipXMLHelper::GetFirstChild(ocxDocEL, "Vessel");
 
   // Create ShipSteelTransfer
   sst = ShipSteelTransfer();
@@ -34,15 +25,73 @@ bool ShipXMLDriver::Transfer(LDOM_Element  ode) {
   LDOM_Element vesselN = ShipXMLHelper::GetFirstChild(ocxDocEL, "Vessel");
   // and recursively walk down the OCX structure
   PanelReader( ).ReadPanels(vesselN, sst);
+  // TODO: Read Coordinate System, GeneralData and Catalogue
 
 
-  // Create DOM
-  doc = LDOM_Document::createDocument("abc");
+
+
 
   return true;
 }
 ShipSteelTransfer ShipXMLDriver::GetShipSteelTransfer() {
   return sst;
 }
+
+
+bool ShipXMLDriver::Write( const std::string path) {
+
+  // Create DOM
+  sxDoc = LDOM_Document::createDocument("ShipSteelTransfer");
+  sxRootEL = sxDoc.getDocumentElement();
+  sxRootEL.appendChild(sxDoc.createComment("created by ShipXMLDriver") );
+
+  // Set the transfer timestamp
+  auto tsSX = sxDoc.createElement("timestamp");
+  sxRootEL.appendChild(tsSX);
+  char time_buf[21];
+  time_t now;
+  time(&now);
+  strftime(time_buf, 21, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+  tsSX.appendChild(sxDoc.createTextNode(time_buf));
+
+  sxStructureEL = sxDoc.createElement("Structure");
+  sxRootEL.appendChild( sxStructureEL);
+  WritePanels();
+
+  auto writer = LDOM_XmlWriter();
+  ofstream myfile;
+  myfile.open (path);
+
+  writer.SetIndentation(4);
+  writer.Write(myfile, sxDoc);
+  return true;
+}
+
+
+void ShipXMLDriver::WritePanels() {
+
+  auto sxPanelsEL = sxDoc.createElement("Panels");
+  sxStructureEL.appendChild(sxPanelsEL);
+
+  std::list<Panel>::iterator it;
+  for (it = sst.Structure().Panels().begin(); it != sst.Structure().Panels().end(); ++it){
+
+    auto sxPanelEL = sxDoc.createElement("Panel");
+    sxPanelsEL.appendChild(sxPanelEL);
+
+    sxPanelsEL.setAttribute( "name", it->Name().c_str());
+    sxPanelsEL.setAttribute( "blockName", it->BlockName().c_str());
+    sxPanelsEL.setAttribute( "category", it->Category().c_str());
+    sxPanelsEL.setAttribute( "categoryDes", it->CategoryDescription().c_str());
+    sxPanelsEL.setAttribute( "planar", it->Planar() ? "true" : "false");
+    sxPanelsEL.setAttribute( "pillar", it->Pillar()? "true":"false");
+    sxPanelsEL.setAttribute( "owner", it->Owner().c_str());
+    sxPanelsEL.setAttribute( "defaultMaterial", it->DefaultMaterial().c_str());
+    sxPanelsEL.setAttribute( "tightness", it->Tightness().c_str());
+
+  }
+
+}
+
 
 }  // namespace shipxml

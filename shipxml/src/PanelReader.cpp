@@ -10,6 +10,9 @@ void shipxml::PanelReader::ReadPanels(const LDOM_Element& vesselN,
                                       shipxml::ShipSteelTransfer& sst) const {
 
   LDOM_Node aChildNode = vesselN.getFirstChild();
+
+  std::list<Panel> list;
+
   while (aChildNode != nullptr) {
     const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
@@ -21,11 +24,17 @@ void shipxml::PanelReader::ReadPanels(const LDOM_Element& vesselN,
         char const *guid = ShipXMLHelper::ReadGUID( aElement);
 
         Panel panel = ReadPanel(aElement, id, guid);
-        sst.Structure().Panels().push_back(panel);
+        list.push_back(panel);
+        cout << "Read Read, added # " <<list.size() << " : " << panel.Name() << "\n";
       }
     }
     aChildNode = aChildNode.getNextSibling();
   }
+  cout << "Finished ReadPanels, added # " <<list.size() << " panels\n";
+
+  sst.Structure().Panels(list);
+
+  cout << "Finished ReadPanels, added # " <<sst.Structure().Panels().size() << " panels\n";
 
 }
 shipxml::Panel shipxml::PanelReader::ReadPanel(LDOM_Element panelO,
@@ -130,6 +139,8 @@ void shipxml::PanelReader::ReadLimits(LDOM_Element limitedByO, Panel  panelX) co
     aChildNode = aChildNode.getNextSibling();
   }
   panelX.Limits(list);
+  cout  << "read #" << panelX.Limits().size()<< "limits\n";
+
 
 
 }

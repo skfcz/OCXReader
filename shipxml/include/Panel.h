@@ -5,61 +5,90 @@
 #ifndef SHIPXML_PANEL_H
 #define SHIPXML_PANEL_H
 
+#include <list>
+
+#include "AMCurve.h"
 #include "EntityWithProperties.h"
 #include "Extrusion.h"
-#include "Support.h"
 #include "Limit.h"
-#include "AMCurve.h"
+#include "Support.h"
 #include "enums.h"
-#include <list>
 using namespace std;
 
 namespace shipxml {
 
+class Panel : public EntityWithProperties {
+ public:
+  /**
+   * Create new Panel Objects
+   * @param n the name
+   */
+  Panel(string n);
 
-    class Panel : public  EntityWithProperties {
+  void BlockName(std::string s);
+  std::string BlockName();
 
-    public:
-        /**
-         * Create new Panel Objects
-         * @param n the name
-         */
-        Panel(string n);
+  void Category(std::string s);
+  std::string Category();
 
-        /**
-         * Get the Extrusion
-         */
-        shipxml::Extrusion Extrusion();
+  void CategoryDescription(std::string s);
+  std::string CategoryDescription();
 
-        /**
-         * Get the Support
-         */
-        shipxml::Support Support();
+  void Planar(bool p);
+  bool Planar();
 
-        /**
-         * Get the list of Limits
-         */
-        list<shipxml::Limit> Limits();
-        void Limits(list<shipxml::Limit> list);
+  void Pillar(bool p);
+  bool Pillar();
 
+  void Owner(std::string s);
+  std::string Owner();
 
-        /**
-         * Get the boundary curve (may be null)
-         */
-        shipxml::AMCurve Geometry();
-        /**
-         * Set the boundary curve
-         */
-        void Geometry(shipxml::AMCurve);
+  void DefaultMaterial(std::string s);
+  std::string DefaultMaterial();
 
-    private:
-        shipxml::Extrusion extrusion= shipxml::Extrusion();
-        shipxml::Support support = shipxml::Support();
-        list<shipxml::Limit> limits;
-        shipxml::AMCurve geometry = shipxml::AMCurve( AMSystem::XY);
+  void Tightness(std::string s);
+  std::string Tightness();
 
-    };
+  /**
+   * Get the Extrusion
+   */
+  shipxml::Extrusion Extrusion();
 
-} // shipxml
+  /**
+   * Get the Support
+   */
+  shipxml::Support Support();
 
-#endif //SHIPXML_PANEL_H
+  /**
+   * Get the list of Limits
+   */
+  list<shipxml::Limit> Limits();
+  void Limits(list<shipxml::Limit> list);
+
+  /**
+   * Get the boundary curve (may be null)
+   */
+  shipxml::AMCurve Geometry();
+  /**
+   * Set the boundary curve
+   */
+  void Geometry(shipxml::AMCurve);
+
+ private:
+  std::string blockName="";
+  std::string category="";
+  std::string categoryDescription="";
+  bool planar;
+  bool pillar;
+  std::string owner = "";
+  std::string defaultMaterial="";
+  std::string tightness="";
+  shipxml::Extrusion extrusion = shipxml::Extrusion();
+  shipxml::Support support = shipxml::Support();
+  list<shipxml::Limit> limits;
+  shipxml::AMCurve geometry = shipxml::AMCurve(AMSystem::XY);
+};
+
+}  // namespace shipxml
+
+#endif  // SHIPXML_PANEL_H
