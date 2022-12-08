@@ -44,13 +44,6 @@ bool LDOMCompare::operator()(LDOM_Element const &lhs,
 
 //-----------------------------------------------------------------------------
 
-ExtendedShape::ExtendedShape() = default;
-
-ExtendedShape::ExtendedShape(TopoDS_Shape shape, std::string type)
-    : m_shape(std::move(shape)), m_type(std::move(type)) {}
-
-//-----------------------------------------------------------------------------
-
 OCXContext::OCXContext(LDOM_Element const &root, std::string nsPrefix)
     : m_root(root), m_nsPrefix(std::move(nsPrefix)) {}
 
@@ -169,16 +162,16 @@ double OCXContext::LoopupFactor(const std::string &unit) const {
 //-----------------------------------------------------------------------------
 
 void OCXContext::RegisterShape(LDOM_Element const &element,
-                               ExtendedShape const &shape) {
-  LDOM2ExtendedShape[element] = shape;
+                               TopoDS_Shape const &shape) {
+  LDOM2TopoDS_Shape[element] = shape;
 }
 
-ExtendedShape OCXContext::LookupShape(LDOM_Element const &element) const {
-  if (auto res = LDOM2ExtendedShape.find(element);
-      res != LDOM2ExtendedShape.end()) {
+TopoDS_Shape OCXContext::LookupShape(LDOM_Element const &element) {
+  if (auto res = LDOM2TopoDS_Shape.find(element);
+      res != LDOM2TopoDS_Shape.end()) {
     return res->second;
   }
-  OCX_ERROR("No Shape found for given LDOM_Element");
+  OCX_WARN("No TopoDS_Shape found for given LDOM_Element");
   return {};
 }
 

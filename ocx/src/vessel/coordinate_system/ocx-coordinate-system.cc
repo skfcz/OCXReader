@@ -192,13 +192,12 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
 
       TopoDS_Face surface =
           BRepBuilderAPI_MakeFace(unlimitedSurface, outerContour);
-      OCXContext::GetInstance()->RegisterShape(
-          refPlaneN, ExtendedShape(surface, "RefPlane"));
+      OCXContext::GetInstance()->RegisterShape(refPlaneN, surface);
 
-      TDF_Label surfL =
+      TDF_Label surfaceL =
           OCXContext::GetInstance()->OCAFShapeTool()->AddShape(surface, false);
-      TDataStd_Name::Set(surfL, meta->name);
-      OCXContext::GetInstance()->OCAFColorTool()->SetColor(surfL, color,
+      TDataStd_Name::Set(surfaceL, meta->name);
+      OCXContext::GetInstance()->OCAFColorTool()->SetColor(surfaceL, color,
                                                            XCAFDoc_ColorSurf);
 
       shapes.push_back(surface);

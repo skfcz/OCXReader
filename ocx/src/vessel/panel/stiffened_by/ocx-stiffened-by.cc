@@ -112,8 +112,7 @@ TopoDS_Shape ReadStiffener(LDOM_Element const &stiffenerN, bool addShape) {
   }
 
   // Register trace line in the OCXContext
-  OCXContext::GetInstance()->RegisterShape(stiffenerN,
-                                           ExtendedShape(trace, "TraceLine"));
+  OCXContext::GetInstance()->RegisterShape(stiffenerN, trace);
 
   // TODO: Add simplified geometry representation of stiffener
 

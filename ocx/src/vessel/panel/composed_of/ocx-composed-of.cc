@@ -93,16 +93,15 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
 
   // Read the UnboundedGeometry, only do so if no reference surface for given
   // element can be found.
-  ExtendedShape unboundedGeometryShape =
+  TopoDS_Shape unboundedGeometryShape =
       OCXContext::GetInstance()->LookupShape(plateN);
-  if (unboundedGeometryShape.m_shape.IsNull()) {
+  if (unboundedGeometryShape.IsNull()) {
     if (!ocx::helper::GetFirstChild(plateN, "UnboundedGeometry").isNull()) {
       TopoDS_Shape unboundedGeometry =
           ocx::shared::unbounded_geometry::ReadUnboundedGeometry(plateN);
       if (!unboundedGeometry.IsNull()) {
         // Register the UnboundedGeometry in the context
-        unboundedGeometryShape =
-            ExtendedShape(unboundedGeometry, "UnboundedGeometry");
+        unboundedGeometryShape = unboundedGeometry;
         OCXContext::GetInstance()->RegisterShape(plateN,
                                                  unboundedGeometryShape);
       } else {
@@ -117,7 +116,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
           plateMeta->id, plateMeta->guid);
       // Load it from the cache, as it should be parsed already
       unboundedGeometryShape = OCXContext::GetInstance()->LookupShape(panelN);
-      if (!unboundedGeometryShape.m_shape.IsNull()) {
+      if (!unboundedGeometryShape.IsNull()) {
         // Register the UnboundedGeometry in the context
         OCXContext::GetInstance()->RegisterShape(plateN,
                                                  unboundedGeometryShape);
@@ -152,8 +151,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
   // Read the PlateSurface
   if (CreatePlateSurfaces && OCXContext::CreateLimitedBy == withLimitedBy) {
     TopoDS_Shape plateSurface = ocx::helper::CutShapeByWire(
-        unboundedGeometryShape.m_shape, outerContour, plateMeta->id,
-        plateMeta->guid);
+        unboundedGeometryShape, outerContour, plateMeta->id, plateMeta->guid);
     if (!plateSurface.IsNull()) {
       // Material Design ...
       auto color =

@@ -22,7 +22,6 @@
 
 #include "occutils/occutils-curve.h"
 #include "ocx/internal/ocx-helper.h"
-#include "ocx/internal/ocx-util.h"
 
 namespace ocx::shared::limited_by {
 
@@ -96,32 +95,32 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
   std::unique_ptr<ocx::helper::OCXMeta> ocxItemPtrMeta =
       ocx::helper::GetOCXMeta(ocxItemPtrN);
 
-  ExtendedShape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
-  if (panelShape.m_shape.IsNull()) {
+  TopoDS_Shape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
+  if (panelShape.IsNull()) {
     OCX_ERROR("No Shape for given Panel found with id={} guid={}",
               panelMeta->id, panelMeta->guid);
     return {};
   }
-  ExtendedShape ocxItemPtrShape =
+  TopoDS_Shape ocxItemPtrShape =
       OCXContext::GetInstance()->LookupShape(ocxItemPtrN);
-  if (ocxItemPtrShape.m_shape.IsNull()) {
+  if (ocxItemPtrShape.IsNull()) {
     OCX_ERROR("No Shape for given OcxItemPtr found with guid={}",
               ocxItemPtrMeta->guid);
     return {};
   }
 
   // TODO: Only faces are supported for now
-  if (!OCCUtils::Shape::IsFace(panelShape.m_shape) ||
-      !OCCUtils::Shape::IsFace(ocxItemPtrShape.m_shape)) {
+  if (!OCCUtils::Shape::IsFace(panelShape) ||
+      !OCCUtils::Shape::IsFace(ocxItemPtrShape)) {
     OCX_ERROR("Only faces are supported for now");
     return {};
   }
 
   // Get intersection between Panel and referenced OcxItemPtr shape
   GeomAdaptor_Surface panelShapeAdapter =
-      OCCUtils::Surface::FromFace(TopoDS::Face(panelShape.m_shape));
+      OCCUtils::Surface::FromFace(TopoDS::Face(panelShape));
   GeomAdaptor_Surface ocxItemPtrShapeAdapter =
-      OCCUtils::Surface::FromFace(TopoDS::Face(ocxItemPtrShape.m_shape));
+      OCCUtils::Surface::FromFace(TopoDS::Face(ocxItemPtrShape));
 
   std::optional<TopoDS_Edge> limitedByShape =
       ocx::helper::Intersection(panelShapeAdapter, ocxItemPtrShapeAdapter);
@@ -174,7 +173,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
       *limitedCurve, false);
   TDataStd_Name::Set(
       limitedByL,
-      (ocxItemPtrShape.m_type + " " + ocxItemPtrMeta->guid).c_str());
+      (ocxItemPtrMeta->refType + " " + ocxItemPtrMeta->guid).c_str());
   OCXContext::GetInstance()->OCAFColorTool()->SetColor(
       limitedByL,
       Quantity_Color(20 / 256.0, 20 / 256.0, 20.0 / 256, Quantity_TOC_RGB),
@@ -217,22 +216,22 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
   std::unique_ptr<ocx::helper::OCXMeta> gridRefMeta =
       ocx::helper::GetOCXMeta(gridRefN);
 
-  ExtendedShape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
-  if (panelShape.m_shape.IsNull()) {
+  TopoDS_Shape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
+  if (panelShape.IsNull()) {
     OCX_ERROR("No Shape for given Panel found with id={} guid={}",
               panelMeta->id, panelMeta->guid);
     return {};
   }
-  ExtendedShape gridRefShape = OCXContext::GetInstance()->LookupShape(gridRefN);
-  if (gridRefShape.m_shape.IsNull()) {
+  TopoDS_Shape gridRefShape = OCXContext::GetInstance()->LookupShape(gridRefN);
+  if (gridRefShape.IsNull()) {
     OCX_ERROR("No Shape for given GridRef found with guid={}",
               gridRefMeta->guid);
     return {};
   }
 
   // TODO: Only faces are supported for now
-  if (!OCCUtils::Shape::IsFace(panelShape.m_shape) ||
-      !OCCUtils::Shape::IsFace(gridRefShape.m_shape)) {
+  if (!OCCUtils::Shape::IsFace(panelShape) ||
+      !OCCUtils::Shape::IsFace(gridRefShape)) {
     OCX_ERROR("Only faces are supported for now");
     return {};
   }
@@ -249,7 +248,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
 
   // Offset along the positive normal
   BRepOffsetAPI_MakeOffsetShape makeOffsetShape;
-  makeOffsetShape.PerformBySimple(gridRefShape.m_shape, offset);
+  makeOffsetShape.PerformBySimple(gridRefShape, offset);
   if (!makeOffsetShape.IsDone()) {
     OCX_ERROR("Failed to offset GridRef with guid={}", gridRefMeta->guid);
     return {};
@@ -261,7 +260,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
 
   // Get intersection between Panel and referenced OcxItemPtr shape
   GeomAdaptor_Surface panelShapeAdapter =
-      OCCUtils::Surface::FromFace(TopoDS::Face(panelShape.m_shape));
+      OCCUtils::Surface::FromFace(TopoDS::Face(panelShape));
   GeomAdaptor_Surface gridRefShapeAdapter =
       OCCUtils::Surface::FromFace(TopoDS::Face(gridRefOffsetShape));
 
@@ -315,7 +314,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
   TDF_Label limitedByL = OCXContext::GetInstance()->OCAFShapeTool()->AddShape(
       *limitedCurve, false);
   TDataStd_Name::Set(limitedByL,
-                     (gridRefShape.m_type + " " + gridRefMeta->guid).c_str());
+                     (gridRefMeta->refType + " " + gridRefMeta->guid).c_str());
   OCXContext::GetInstance()->OCAFColorTool()->SetColor(
       limitedByL,
       Quantity_Color(20 / 256.0, 20 / 256.0, 20.0 / 256, Quantity_TOC_RGB),

@@ -71,8 +71,7 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
       }
 
       if (!referenceSurface.IsNull()) {
-        OCXContext::GetInstance()->RegisterShape(
-            surfaceN, ExtendedShape(referenceSurface, "ReferenceSurface"));
+        OCXContext::GetInstance()->RegisterShape(surfaceN, referenceSurface);
 
         if (OCXContext::CreateReferenceSurfaces) {
           // Material design teal 50 400

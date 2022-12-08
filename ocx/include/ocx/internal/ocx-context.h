@@ -39,24 +39,6 @@ struct LDOMCompare {
   bool operator()(LDOM_Element const &lhs, LDOM_Element const &rhs) const;
 };
 
-/**
- * Object holding additional information about the TopoDS_Shape
- */
-struct ExtendedShape {
-  ExtendedShape();
-  ExtendedShape(TopoDS_Shape shape, std::string type);
-
-  /**
-   * The shape TopoDS_Shape itself
-   */
-  TopoDS_Shape m_shape;
-
-  /**
-   * The type of the shape
-   */
-  std::string m_type;
-};
-
 class OCXContext {
  public:
   OCXContext(OCXContext const &) = delete;
@@ -122,7 +104,7 @@ class OCXContext {
    * @param element the LDOM_Element
    * @param shape the TopoDS_Shape
    */
-  void RegisterShape(LDOM_Element const &element, ExtendedShape const &shape);
+  void RegisterShape(LDOM_Element const &element, TopoDS_Shape const &shape);
 
   /**
    * @brief Get a previously registered Shape by its LDOM_Element (matched by
@@ -131,7 +113,7 @@ class OCXContext {
    * @param element the LDOM_Element to lookup
    * @return the shape if found, otherwise an empty shape
    */
-  [[nodiscard]] ExtendedShape LookupShape(LDOM_Element const &element) const;
+  [[nodiscard]] TopoDS_Shape LookupShape(LDOM_Element const &element);
 
   /**
    * Register a BarSection by its LDOM_Element (matched by given GUID or ID)
@@ -178,7 +160,7 @@ class OCXContext {
 
   std::map<std::string, double, std::less<>> unit2factor;
 
-  std::map<LDOM_Element, ExtendedShape, LDOMCompare> LDOM2ExtendedShape;
+  std::map<LDOM_Element, TopoDS_Shape, LDOMCompare> LDOM2TopoDS_Shape;
   std::map<LDOM_Element, BarSection, LDOMCompare> LDOM2BarSection;
 
   opencascade::handle<TDocStd_Document> ocafDoc;

@@ -58,8 +58,8 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
     std::unique_ptr<ocx::helper::OCXMeta> refNMeta =
         ocx::helper::GetOCXMeta(refN);
 
-    ExtendedShape surface = OCXContext::GetInstance()->LookupShape(refN);
-    if (surface.m_shape.IsNull()) {
+    TopoDS_Shape surface = OCXContext::GetInstance()->LookupShape(refN);
+    if (surface.IsNull()) {
       OCX_ERROR("Failed to lookup ReferenceSurface guid={}", refNMeta->guid);
       return {};
     }
@@ -68,7 +68,7 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
     // TODO: parameter of the referenced Surface. This is currently ignored.
     // TODO: Maybe refactor into separate GridRef SurfaceRef functions as its
     // TODO: also used in vessel/panel/limited_by/ocx-limited-by.cc
-    return surface.m_shape;
+    return surface;
   }
 
   // Read directly from UnboundedGeometry

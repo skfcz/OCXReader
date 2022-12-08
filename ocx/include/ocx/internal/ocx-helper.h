@@ -28,6 +28,7 @@
 #include <TopoDS_Wire.hxx>
 #include <memory>
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "ocx/internal/ocx-context.h"
@@ -61,8 +62,11 @@ struct PolesWeightsSurface {
 struct OCXMeta {
   char const *name, *id, *guid;
 
-  OCXMeta(const char *name, const char *id, const char *guid)
-      : name(name), id(id), guid(guid){};
+  std::string refType;
+
+  OCXMeta(char const *name, char const *id, char const *guid,
+          std::string refType)
+      : name(name), id(id), guid(guid), refType(std::move(refType)){};
 };
 
 /**

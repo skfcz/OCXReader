@@ -41,10 +41,20 @@ namespace ocx::helper {
 std::unique_ptr<OCXMeta> GetOCXMeta(LDOM_Element const &element) {
   if (element.isNull()) return nullptr;
 
-  return std::make_unique<OCXMeta>(
-      element.getAttribute("name").GetString(),
-      element.getAttribute("id").GetString(),
-      element.getAttribute("ocx:GUIDRef").GetString());
+  char const *name = element.getAttribute("name").GetString();
+
+  char const *id = element.getAttribute("id").GetString();
+
+  char const *guid = element.getAttribute("ocx:GUIDRef").GetString();
+
+  std::string refType = element.getAttribute("ocx:refType").GetString();
+  if (!refType.empty()) {
+    if (size_t idx = refType.find(':'); idx != std::string::npos) {
+      refType = refType.substr(idx + 1);
+    }
+  }
+
+  return std::make_unique<OCXMeta>(name, id, guid, refType);
 }
 
 //-----------------------------------------------------------------------------

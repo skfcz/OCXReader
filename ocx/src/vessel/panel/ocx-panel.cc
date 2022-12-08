@@ -109,15 +109,14 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
 
   // Read the UnboundedGeometry, only do so if no reference surface for given
   // element can be found.
-  ExtendedShape unboundedGeometryShape =
+  TopoDS_Shape unboundedGeometryShape =
       OCXContext::GetInstance()->LookupShape(panelN);
-  if (unboundedGeometryShape.m_shape.IsNull()) {
+  if (unboundedGeometryShape.IsNull()) {
     TopoDS_Shape unboundedGeometry =
         ocx::shared::unbounded_geometry::ReadUnboundedGeometry(panelN);
     if (!unboundedGeometry.IsNull()) {
       // Register the UnboundedGeometry in the context
-      unboundedGeometryShape =
-          ExtendedShape(unboundedGeometry, "UnboundedGeometry");
+      unboundedGeometryShape = unboundedGeometry;
       OCXContext::GetInstance()->RegisterShape(panelN, unboundedGeometryShape);
     } else {
       OCX_ERROR(
@@ -153,7 +152,7 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
   // OuterContour and CutBy, where OuterContour is required)
   if (CreatePanelSurfaces && OCXContext::CreateLimitedBy == withLimitedBy) {
     TopoDS_Shape panelSurface = ocx::helper::CutShapeByWire(
-        unboundedGeometryShape.m_shape, outerContour, meta->id, meta->guid);
+        unboundedGeometryShape, outerContour, meta->id, meta->guid);
     if (!panelSurface.IsNull()) {
       // Material Design Light Green 50 300
       auto color = Quantity_Color(174 / 256.0, 213 / 256.0, 129.0 / 256,
