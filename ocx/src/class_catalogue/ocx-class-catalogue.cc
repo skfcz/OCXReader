@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 03 Nov 2022                                               *
+ *   Created on: 28 Nov 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,28 +12,27 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#include "ocx/internal/ocx-class-catalogue.h"
 
-#include <LDOM_Element.hxx>
-#include <TopoDS_Shape.hxx>
-#include <TopoDS_Wire.hxx>
+#include "ocx/internal/ocx-helper.h"
+#include "ocx/internal/ocx-x-section-catalogue.h"
 
-namespace ocx::vessel::panel {
+namespace ocx::class_catalogue {
 
-void ReadPanels(LDOM_Element const &vesselN);
+void ReadClassCatalogue() {
+  LDOM_Element catalogueN = ocx::helper::GetFirstChild(
+      OCXContext::GetInstance()->OCXRoot(), "ClassCatalogue");
+  if (catalogueN.isNull()) {
+    OCX_ERROR("No ClassCatalogue child node found.");
+    return;
+  }
 
-namespace {  // anonymous namespace
+  // TODO: Read MaterialCatalogue
 
-[[nodiscard]] TopoDS_Shape ReadPanel(LDOM_Element const &panelN,
-                                     bool withLimitedBy = false);
+  // Read XSectionCatalogue
+  ocx::x_section_catalogue::ReadXSectionCatalogue(catalogueN);
 
-[[nodiscard]] TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
+  // TODO: Read HoleShapeCatalogue
+}
 
-}  // namespace
-
-}  // namespace ocx::vessel::panel
-
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+}  // namespace ocx::class_catalogue

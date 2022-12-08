@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 03 Nov 2022                                               *
+ *   Created on: 02 Dec 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,28 +12,33 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#include "ocx/internal/ocx-vessel.h"
 
 #include <LDOM_Element.hxx>
-#include <TopoDS_Shape.hxx>
-#include <TopoDS_Wire.hxx>
 
-namespace ocx::vessel::panel {
+#include "ocx/internal/ocx-context.h"
+#include "ocx/internal/ocx-coordinate-system.h"
+#include "ocx/internal/ocx-panel.h"
+#include "ocx/internal/ocx-reference-surfaces.h"
 
-void ReadPanels(LDOM_Element const &vesselN);
+namespace ocx::vessel {
 
-namespace {  // anonymous namespace
+void ReadVessel() {
+  LDOM_Element vesselN = ocx::helper::GetFirstChild(
+      OCXContext::GetInstance()->OCXRoot(), "Vessel");
+  if (vesselN.isNull()) {
+    OCX_ERROR("No Vessel child node found.");
+    return;
+  }
 
-[[nodiscard]] TopoDS_Shape ReadPanel(LDOM_Element const &panelN,
-                                     bool withLimitedBy = false);
+  // Read coordinate system
+  ocx::vessel::coordinate_system::ReadCoordinateSystem(vesselN);
 
-[[nodiscard]] TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
+  // Read reference surfaces
+  ocx::vessel::reference_surfaces::ReadReferenceSurfaces(vesselN);
 
-}  // namespace
+  // Read panels
+  ocx::vessel::panel::ReadPanels(vesselN);
+}
 
-}  // namespace ocx::vessel::panel
-
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+}  // namespace ocx::vessel

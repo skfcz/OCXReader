@@ -12,28 +12,28 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_READER_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_READER_H_
 
 #include <LDOM_Element.hxx>
+#include <Quantity_Color.hxx>
 #include <TopoDS_Shape.hxx>
-#include <TopoDS_Wire.hxx>
+#include <memory>
+#include <utility>
 
-namespace ocx::vessel::panel {
+#include "ocx/internal/ocx-context.h"
 
-void ReadPanels(LDOM_Element const &vesselN);
+namespace ocx::vessel::coordinate_system {
+
+void ReadCoordinateSystem(LDOM_Element const &vesselN);
 
 namespace {  // anonymous namespace
 
-[[nodiscard]] TopoDS_Shape ReadPanel(LDOM_Element const &panelN,
-                                     bool withLimitedBy = false);
-
-[[nodiscard]] TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
+TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
+                          Quantity_Color const &color);
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel
+}  // namespace ocx::vessel::coordinate_system
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_READER_H_

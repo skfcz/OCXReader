@@ -1,11 +1,18 @@
-// This file is part of OCXReader library
-// Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
+/***************************************************************************
+ *   Created on: 03 Nov 2022                                               *
+ ***************************************************************************
+ *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
+ *   Copyright (c) 2022, Paul Buechner                                     *
+ *                                                                         *
+ *   This file is part of the OCXReader library.                           *
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public License    *
+ *   version 2.1 as published by the Free Software Foundation.             *
+ *                                                                         *
+ ***************************************************************************/
 
-#include "ocx/internal/ocx-coordinate-system-reader.h"
+#include "ocx/internal/ocx-coordinate-system.h"
 
 #include <occutils/occutils-wire.h>
 
@@ -19,32 +26,33 @@
 #include <gp_Pln.hxx>
 #include <list>
 
+#include "ocx/internal/ocx-context.h"
 #include "ocx/internal/ocx-helper.h"
 
-namespace ocx {
+namespace ocx::vessel::coordinate_system {
 
-TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
-    LDOM_Element const &vesselN) {
+void ReadCoordinateSystem(LDOM_Element const &vesselN) {
   OCX_INFO("Start reading coordinate system...");
 
-  LDOM_Element cosysN = OCXHelper::GetFirstChild(vesselN, "CoordinateSystem");
+  LDOM_Element cosysN = ocx::helper::GetFirstChild(vesselN, "CoordinateSystem");
   if (cosysN.isNull()) {
-    OCX_ERROR("No CoordinateSystem child node found");
-    return {};
+    OCX_ERROR("No CoordinateSystem child node found.");
+    return;
   }
 
   // TODO: do we need to read the LocalCartesian ?
   // TODO: do we need to read the VesselGrid ?
 
-  LDOM_Element frTblsN = OCXHelper::GetFirstChild(cosysN, "FrameTables");
-  if (frTblsN.isNull()) {
+  LDOM_Element frameTblsN = ocx::helper::GetFirstChild(cosysN, "FrameTables");
+  if (frameTblsN.isNull()) {
     OCX_ERROR("No FrameTables child node found in CoordinateSystem");
-    return {};
+    return;
   }
 
   std::list<TopoDS_Shape> shapes;
 
-  LDOM_Element xRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "XRefPlanes");
+  LDOM_Element xRefPlanesN =
+      ocx::helper::GetFirstChild(frameTblsN, "XRefPlanes");
   if (xRefPlanesN.isNull()) {
     OCX_ERROR("No XRefPlanes child node found in CoordinateSystem/FrameTables");
   } else {
@@ -55,7 +63,8 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
     shapes.push_back(comp);
   }
 
-  LDOM_Element yRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "YRefPlanes");
+  LDOM_Element yRefPlanesN =
+      ocx::helper::GetFirstChild(frameTblsN, "YRefPlanes");
   if (yRefPlanesN.isNull()) {
     OCX_ERROR("No YRefPlanes child node found in CoordinateSystem/FrameTables");
   } else {
@@ -66,7 +75,8 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
     shapes.push_back(comp);
   }
 
-  LDOM_Element zRefPlanesN = OCXHelper::GetFirstChild(frTblsN, "ZRefPlanes");
+  LDOM_Element zRefPlanesN =
+      ocx::helper::GetFirstChild(frameTblsN, "ZRefPlanes");
   if (zRefPlanesN.isNull()) {
     OCX_ERROR("No ZRefPlanes child node found in CoordinateSystem/FrameTables");
   } else {
@@ -84,17 +94,18 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadCoordinateSystem(
     builder.Add(refPlanesAssy, shape);
   }
 
-  TDF_Label label = ctx->OCAFShapeTool()->AddShape(refPlanesAssy, true);
+  TDF_Label label =
+      OCXContext::GetInstance()->OCAFShapeTool()->AddShape(refPlanesAssy, true);
   TDataStd_Name::Set(label, "Reference Planes");
 
   OCX_INFO("Finished reading coordinate system...");
-
-  return refPlanesAssy;
 }
 
-TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
-    LDOM_Element const &refPlanesN, Quantity_Color const &color) {
-  std::string refPlaneType = OCXHelper::GetLocalTagName(refPlanesN);
+namespace {
+
+TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
+                          Quantity_Color const &color) {
+  std::string refPlaneType = ocx::helper::GetLocalTagName(refPlanesN);
 
   OCX_INFO("Reading reference planes from {}", refPlaneType);
 
@@ -106,11 +117,10 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element refPlaneN = (LDOM_Element &)aChildN;
+      std::unique_ptr<ocx::helper::OCXMeta> meta =
+          ocx::helper::GetOCXMeta(refPlaneN);
 
-      char const *name = refPlaneN.getAttribute("name").GetString();
-      char const *guid = refPlaneN.getAttribute(ctx->OCXGUIDRef()).GetString();
-
-      if (std::string refPlaneName = OCXHelper::GetLocalTagName(refPlaneN);
+      if (std::string refPlaneName = ocx::helper::GetLocalTagName(refPlaneN);
           refPlaneName != "RefPlane") {
         OCX_ERROR(
             "Unexpected node type {} found in {}, expected node type to be "
@@ -121,15 +131,15 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
       }
 
       LDOM_Element refLocN =
-          OCXHelper::GetFirstChild(refPlaneN, "ReferenceLocation");
+          ocx::helper::GetFirstChild(refPlaneN, "ReferenceLocation");
       if (refLocN.isNull()) {
         OCX_ERROR(
             "No ReferenceLocation child node found in RefPlane {} guid={}",
-            name, guid);
+            meta->name, meta->guid);
         aChildN = aChildN.getNextSibling();
         continue;
       }
-      double location = OCXHelper::ReadDimension(refLocN, ctx);
+      double location = ocx::helper::ReadDimension(refLocN);
 
       // Now create an OCC Plane
       double width = abs(OCXContext::MinY) + abs(OCXContext::MaxY);
@@ -176,17 +186,20 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
         OCX_ERROR(
             "Outer contour in ReadRefPlane is not closed. Skip building the "
             "RefPlane {} guid={}",
-            name, guid);
+            meta->name, meta->guid);
         return {};
       }
 
       TopoDS_Face surface =
           BRepBuilderAPI_MakeFace(unlimitedSurface, outerContour);
-      ctx->RegisterSurface(surface, guid);
+      OCXContext::GetInstance()->RegisterShape(
+          refPlaneN, ExtendedShape(surface, "RefPlane"));
 
-      TDF_Label surfL = ctx->OCAFShapeTool()->AddShape(surface, false);
-      TDataStd_Name::Set(surfL, name);
-      ctx->OCAFColorTool()->SetColor(surfL, color, XCAFDoc_ColorSurf);
+      TDF_Label surfL =
+          OCXContext::GetInstance()->OCAFShapeTool()->AddShape(surface, false);
+      TDataStd_Name::Set(surfL, meta->name);
+      OCXContext::GetInstance()->OCAFColorTool()->SetColor(surfL, color,
+                                                           XCAFDoc_ColorSurf);
 
       shapes.push_back(surface);
 
@@ -202,8 +215,8 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
     refPlanesBuilder.Add(refPlanesXYZAssy, shape);
   }
 
-  TDF_Label refSrfLabel =
-      ctx->OCAFShapeTool()->AddShape(refPlanesXYZAssy, true);
+  TDF_Label refSrfLabel = OCXContext::GetInstance()->OCAFShapeTool()->AddShape(
+      refPlanesXYZAssy, true);
   TDataStd_Name::Set(refSrfLabel, refPlaneType.c_str());
 
   OCX_INFO("Registered {} reference planes found in {}", cntPlanes,
@@ -212,4 +225,6 @@ TopoDS_Shape OCXCoordinateSystemReader::ReadRefPlane(
   return refPlanesXYZAssy;
 }
 
-}  // namespace ocx
+}  // namespace
+
+}  // namespace ocx::vessel::coordinate_system

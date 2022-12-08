@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 03 Nov 2022                                               *
+ *   Created on: 28 Nov 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,28 +12,35 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_BAR_SECTION_READER_H_
+#define OCX_INCLUDE_OCX_INTERNAL_BAR_SECTION_READER_H_
 
 #include <LDOM_Element.hxx>
-#include <TopoDS_Shape.hxx>
-#include <TopoDS_Wire.hxx>
+#include <memory>
 
-namespace ocx::vessel::panel {
+#include "ocx/internal/ocx-context.h"
+#include "ocx/internal/ocx-util.h"
 
-void ReadPanels(LDOM_Element const &vesselN);
+namespace ocx::x_section_catalogue {
+
+/**
+ * Read the XSectionCatalogue
+ */
+void ReadXSectionCatalogue(LDOM_Element const &catalogueN);
 
 namespace {  // anonymous namespace
+/**
+ * Read BarSections from the XSectionCatalogue
+ */
+void ReadBarSections(LDOM_Element const &xSectionCatalogueN);
 
-[[nodiscard]] TopoDS_Shape ReadPanel(LDOM_Element const &panelN,
-                                     bool withLimitedBy = false);
-
-[[nodiscard]] TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
+/**
+ * Read FlatBar and register it in the context
+ */
+void ReadFlatBar(LDOM_Element const &barSectionN);
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel
+}  // namespace ocx::x_section_catalogue
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_BAR_SECTION_READER_H_

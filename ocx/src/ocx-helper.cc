@@ -1,29 +1,55 @@
-// This file is part of OCXReader library
-// Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
+/***************************************************************************
+ *   Created on: 31 May 2022                                               *
+ ***************************************************************************
+ *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
+ *   Copyright (c) 2022, Paul Buechner                                     *
+ *                                                                         *
+ *   This file is part of the OCXReader library.                           *
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public License    *
+ *   version 2.1 as published by the Free Software Foundation.             *
+ *                                                                         *
+ ***************************************************************************/
 
 #include "ocx/internal/ocx-helper.h"
 
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_Sewing.hxx>
+#include <GeomAPI_IntSS.hxx>
 #include <GeomAdaptor_Surface.hxx>
+#include <Geom_TrimmedCurve.hxx>
 #include <ShapeFix_Face.hxx>
 #include <ShapeFix_Shell.hxx>
 #include <TColStd_Array2OfReal.hxx>
 #include <TColgp_Array2OfPnt.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "occutils/occutils-face.h"
 #include "occutils/occutils-shape-components.h"
+#include "occutils/occutils-step-export.h"
 #include "occutils/occutils-surface.h"
+#include "ocx/internal/ocx-context.h"
 
-namespace ocx {
+namespace ocx::helper {
 
-std::string OCXHelper::GetLocalTagName(LDOM_Element const &elem,
-                                       bool keepPrefix) {
+std::unique_ptr<OCXMeta> GetOCXMeta(LDOM_Element const &element) {
+  if (element.isNull()) return nullptr;
+
+  return std::make_unique<OCXMeta>(
+      element.getAttribute("name").GetString(),
+      element.getAttribute("id").GetString(),
+      element.getAttribute("ocx:GUIDRef").GetString());
+}
+
+//-----------------------------------------------------------------------------
+
+std::string GetLocalTagName(LDOM_Element const &elem, bool keepPrefix) {
   auto tagName = std::string(elem.getTagName().GetString());
   if (size_t idx = tagName.find(':'); idx != std::string::npos && !keepPrefix) {
     return tagName.substr(idx + 1);
@@ -31,7 +57,9 @@ std::string OCXHelper::GetLocalTagName(LDOM_Element const &elem,
   return tagName;
 }
 
-std::string OCXHelper::GetLocalAttrName(LDOM_Node const &elem) {
+//-----------------------------------------------------------------------------
+
+std::string GetLocalAttrName(LDOM_Node const &elem) {
   auto tagName = std::string(elem.getNodeName().GetString());
   if (size_t idx = tagName.find(':'); idx != std::string::npos) {
     return tagName.substr(idx + 1);
@@ -39,21 +67,21 @@ std::string OCXHelper::GetLocalAttrName(LDOM_Node const &elem) {
   return tagName;
 }
 
-std::string OCXHelper::GetChildTagName(LDOM_Element const &parent,
-                                       bool keepPrefix) {
+//-----------------------------------------------------------------------------
+
+std::string GetChildTagName(LDOM_Element const &parent, bool keepPrefix) {
   auto aChildNode = parent.getFirstChild();
-  while (!aChildNode.isNull()) {
-    if (const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
-        aNodeType == LDOM_Node::ELEMENT_NODE) {
-      return GetLocalTagName((LDOM_Element &)aChildNode, keepPrefix);
-    }
-    aChildNode = aChildNode.getNextSibling();
+  if (const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
+      aNodeType == LDOM_Node::ELEMENT_NODE) {
+    return GetLocalTagName((LDOM_Element &)aChildNode, keepPrefix);
   }
   return {};
 }
 
-LDOM_Element OCXHelper::GetFirstChild(LDOM_Element const &parent,
-                                      std::string_view localName) {
+//-----------------------------------------------------------------------------
+
+LDOM_Element GetFirstChild(LDOM_Element const &parent,
+                           std::string_view localName) {
   // Verify preconditions
   if (parent == nullptr || localName.length() == 0) {
     return {};
@@ -75,32 +103,10 @@ LDOM_Element OCXHelper::GetFirstChild(LDOM_Element const &parent,
   return {};
 }
 
-template <class ContainerT>
-void OCXHelper::Tokenize(std::string_view str, ContainerT &tokens,
-                         std::string const &delimiters, bool trimEmpty) {
-  std::string::size_type pos;
-  std::string::size_type lastPos = 0;
-  std::string::size_type length = str.length();
+//-----------------------------------------------------------------------------
 
-  using value_type = typename ContainerT::value_type;
-  using size_type = typename ContainerT::size_type;
-
-  while (lastPos < length + 1) {
-    pos = str.find_first_of(delimiters, lastPos);
-    if (pos == std::string::npos) {
-      pos = length;
-    }
-
-    if (pos != lastPos || !trimEmpty)
-      tokens.push_back(
-          value_type(str.data() + lastPos, (size_type)pos - lastPos));
-    lastPos = pos + 1;
-  }
-}
-
-void OCXHelper::GetDoubleAttribute(LDOM_Element const &elem,
-                                   std::string const &attrName,
-                                   Standard_Real &value) {
+void GetDoubleAttribute(LDOM_Element const &elem, std::string const &attrName,
+                        Standard_Real &value) {
   LDOMString stringValue = elem.getAttribute(attrName.c_str());
   if (stringValue.Type() == LDOMBasicString::StringType::LDOM_NULL) {
     return;
@@ -116,49 +122,54 @@ void OCXHelper::GetDoubleAttribute(LDOM_Element const &elem,
   value = Standard_Real((double)i);
 }
 
-double OCXHelper::ReadDimension(LDOM_Element const &valueN,
-                                std::shared_ptr<OCXContext> const &ctx) {
+//-----------------------------------------------------------------------------
+
+double ReadDimension(LDOM_Element const &valueN) {
   double value = 0;
-  OCXHelper::GetDoubleAttribute(valueN, "numericvalue", value);
+  GetDoubleAttribute(valueN, "numericvalue", value);
   auto xUnit = std::string(valueN.getAttribute("unit").GetString());
-  value *= ctx->LoopupFactor(xUnit);
+  value *= OCXContext::GetInstance()->LoopupFactor(xUnit);
   return value;
 }
 
-gp_Pnt OCXHelper::ReadPoint(LDOM_Element const &pointN,
-                            std::shared_ptr<OCXContext> const &ctx) {
-  auto xT = LDOMString((ctx->Prefix() + ":X").c_str());
-  auto yT = LDOMString((ctx->Prefix() + ":Y").c_str());
-  auto zT = LDOMString((ctx->Prefix() + ":Z").c_str());
+//-----------------------------------------------------------------------------
+
+gp_Pnt ReadPoint(LDOM_Element const &pointN) {
+  auto xT = LDOMString("ocx:X");
+  auto yT = LDOMString("ocx:Y");
+  auto zT = LDOMString("ocx:Z");
 
   LDOM_Element xN = pointN.GetChildByTagName(xT);
   LDOM_Element yN = pointN.GetChildByTagName(yT);
   LDOM_Element zN = pointN.GetChildByTagName(zT);
 
-  double x = OCXHelper::ReadDimension(xN, ctx);
-  double y = OCXHelper::ReadDimension(yN, ctx);
-  double z = OCXHelper::ReadDimension(zN, ctx);
+  double x = ReadDimension(xN);
+  double y = ReadDimension(yN);
+  double z = ReadDimension(zN);
 
   return {x, y, z};
 }
 
-gp_Dir OCXHelper::ReadDirection(const LDOM_Element &dirN) {
+//-----------------------------------------------------------------------------
+
+gp_Dir ReadDirection(const LDOM_Element &dirN) {
   double x = 0;
-  OCXHelper::GetDoubleAttribute(dirN, "x", x);
+  GetDoubleAttribute(dirN, "x", x);
   double y = 0;
-  OCXHelper::GetDoubleAttribute(dirN, "y", y);
+  GetDoubleAttribute(dirN, "y", y);
   double z = 0;
-  OCXHelper::GetDoubleAttribute(dirN, "z", z);
+  GetDoubleAttribute(dirN, "z", z);
 
   return {x, y, z};
 }
 
-KnotMults OCXHelper::ParseKnotVector(std::string_view knotVectorS,
-                                     int const &numKnots) {
+//-----------------------------------------------------------------------------
+
+KnotMults ParseKnotVector(std::string_view knotVectorS, int const &numKnots) {
   auto kn = KnotMults();
 
   std::vector<std::string> out;
-  OCXHelper::Tokenize(knotVectorS, out);
+  utils::Tokenize(knotVectorS, out);
 
   if (numKnots != out.size()) {
     OCX_ERROR(
@@ -212,17 +223,15 @@ KnotMults OCXHelper::ParseKnotVector(std::string_view knotVectorS,
   return kn;
 }
 
-PolesWeightsCurve OCXHelper::ParseControlPointsCurve(
-    LDOM_Element const &controlPtListN, int const &numCtrlPoints,
-    std::string_view id, std::string_view guid,
-    std::shared_ptr<OCXContext> const &ctx) {
+//-----------------------------------------------------------------------------
+
+PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
+                                          int const &numCtrlPoints) {
   auto polesWeights = PolesWeightsCurve(numCtrlPoints);
 
   LDOM_Node childN = controlPtListN.getFirstChild();
   if (childN.isNull()) {
-    OCX_ERROR(
-        "No ControlPoint tag found in NURBS3D/ControlPtList id={} guid={}", id,
-        guid);
+    OCX_ERROR("No ControlPoint tag found in NURBS3D/ControlPtList");
     polesWeights.IsNull = true;
     return polesWeights;
   }
@@ -240,20 +249,17 @@ PolesWeightsCurve OCXHelper::ParseControlPointsCurve(
     LDOM_Element controlPointN = (LDOM_Element &)childN;
     LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
     if (pointN.isNull()) {
-      OCX_ERROR(
-          "No Point3D tag found in NURBS3D/ControlPtList/ControlPoint id={} "
-          "guid={}",
-          id, guid);
+      OCX_ERROR("No Point3D tag found in NURBS3D/ControlPtList/ControlPoint");
       polesWeights.IsNull = true;
       return polesWeights;
     }
 
     // Read the point
-    polesWeights.poles.SetValue(i, OCXHelper::ReadPoint(pointN, ctx));
+    polesWeights.poles.SetValue(i, ReadPoint(pointN));
 
     // Read the weight
     double weight = 1.0;  // default weight
-    OCXHelper::GetDoubleAttribute(pointN, "weight", weight);
+    GetDoubleAttribute(pointN, "weight", weight);
     polesWeights.weights.SetValue(i, weight);
 
     childN = controlPointN.getNextSibling();
@@ -263,17 +269,16 @@ PolesWeightsCurve OCXHelper::ParseControlPointsCurve(
   return polesWeights;
 }
 
-PolesWeightsSurface OCXHelper::ParseControlPointsSurface(
+//-----------------------------------------------------------------------------
+
+PolesWeightsSurface ParseControlPointsSurface(
     LDOM_Element const &controlPtListN, int const &uNumCtrlPoints,
-    int const &vNumCtrlPoints, std::string_view id, std::string_view guid,
-    std::shared_ptr<OCXContext> const &ctx) {
+    int const &vNumCtrlPoints) {
   auto polesWeights = PolesWeightsSurface(uNumCtrlPoints, vNumCtrlPoints);
 
   LDOM_Node childN = controlPtListN.getFirstChild();
   if (childN.isNull()) {
-    OCX_ERROR(
-        "No ControlPoint tag found in NURBSSurface/ControlPtList id={} guid={}",
-        id, guid);
+    OCX_ERROR("No ControlPoint tag found in NURBSSurface/ControlPtList");
     polesWeights.IsNull = true;
     return polesWeights;
   }
@@ -292,19 +297,17 @@ PolesWeightsSurface OCXHelper::ParseControlPointsSurface(
       LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
       if (pointN.isNull()) {
         OCX_ERROR(
-            "No Point3D tag found in NURBSSurface/ControlPtList/ControlPoint "
-            "id={} guid={}",
-            id, guid);
+            "No Point3D tag found in NURBSSurface/ControlPtList/ControlPoint");
         polesWeights.IsNull = true;
         return polesWeights;
       }
 
       // Read the point
-      polesWeights.poles.SetValue(u, v, OCXHelper::ReadPoint(pointN, ctx));
+      polesWeights.poles.SetValue(u, v, ReadPoint(pointN));
 
       // Read the weight
       double weight = 1.0;  // default weight
-      OCXHelper::GetDoubleAttribute(pointN, "weight", weight);
+      GetDoubleAttribute(pointN, "weight", weight);
       polesWeights.weights.SetValue(u, v, weight);
 
       childN = controlPointN.getNextSibling();
@@ -314,10 +317,11 @@ PolesWeightsSurface OCXHelper::ParseControlPointsSurface(
   return polesWeights;
 }
 
-TopoDS_Shape OCXHelper::CutShapeByWire(TopoDS_Shape const &shape,
-                                       TopoDS_Wire const &wire,
-                                       std::string_view id,
-                                       std::string_view guid) {
+//-----------------------------------------------------------------------------
+
+// TODO: Prototype, if solution is proven to work goes to -> OCCUtils::Surface
+TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
+                            std::string_view id, std::string_view guid) {
   // Check if given TopoDS_Shape is one of TopoDS_Face or TopoDS_Shell
   if (!OCCUtils::Shape::IsFace(shape) && !OCCUtils::Shape::IsShell(shape)) {
     OCX_ERROR(
@@ -329,75 +333,164 @@ TopoDS_Shape OCXHelper::CutShapeByWire(TopoDS_Shape const &shape,
 
   // Handle TopoDS_Shape is a TopoDS_Face
   if (OCCUtils::Shape::IsFace(shape)) {
-    GeomAdaptor_Surface surfaceAdapter =
-        OCCUtils::Surface::FromFace(TopoDS::Face(shape));
-    auto faceBuilder =
-        BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(), wire, Standard_True);
-    faceBuilder.Build();
-    if (!faceBuilder.IsDone()) {
+    try {
+      GeomAdaptor_Surface surfaceAdapter =
+          OCCUtils::Surface::FromFace(TopoDS::Face(shape));
+      auto faceBuilder = BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(), wire,
+                                                 Standard_True);
+      faceBuilder.Build();
+      if (!faceBuilder.IsDone()) {
+        OCX_ERROR(
+            "Failed to create restricted Shape from given Surface and "
+            "OuterContour in id={} guid={}",
+            id, guid);
+        return {};
+      }
+      return faceBuilder.Face();
+    } catch (Standard_Failure const &e) {
       OCX_ERROR(
           "Failed to create restricted Shape from given Surface and "
           "OuterContour in id={} guid={}",
           id, guid);
       return {};
     }
-    return faceBuilder.Face();
   }
 
-  // Else handle TopoDS_Shell
-  std::vector<TopoDS_Face> faces =
-      OCCUtils::ShapeComponents::AllFacesWithin(shape);
-
-  BRepBuilderAPI_Sewing shellMaker;
-  for (TopoDS_Face const &face : faces) {
-    GeomAdaptor_Surface surfaceAdapter =
-        OCCUtils::Surface::FromFace(TopoDS::Face(face));
+  if (false) {
     // TODO: Currently cutting curved surfaces with a wire is not supported
-    // BRepBuilderAPI_MakeFace: Make a face from a Surface and a wire. If the
-    // surface S is not plane, it must contain pcurves for all edges in W,
-    // otherwise the wrong shape will be created.
-    auto faceBuilder =
-        BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(), wire, Standard_True);
-    faceBuilder.Build();
-    if (!faceBuilder.IsDone()) {
+    // TODO: BRepBuilderAPI_MakeFace: Make a face from a Surface and a wire. If
+    // TODO: the surface S is not plane, it must contain pcurves for all edges
+    // in
+    // TODO:  W, otherwise the wrong shape will be created.
+    // TODO: Check better approach of wire imprinting on the surface
+    // http://analysissitus.org/forum/index.php?threads/create-restricted-surface-from-topods_shell-and-topods_wire-plate-extraction.217/
+
+    // Else handle TopoDS_Shell
+    std::vector<TopoDS_Face> faces =
+        OCCUtils::ShapeComponents::AllFacesWithin(shape);
+
+    BRepBuilderAPI_Sewing shellMaker;
+    for (TopoDS_Face const &face : faces) {
+      GeomAdaptor_Surface surfaceAdapter =
+          OCCUtils::Surface::FromFace(TopoDS::Face(face));
+      auto faceBuilder = BRepBuilderAPI_MakeFace(surfaceAdapter.Surface(), wire,
+                                                 Standard_True);
+      faceBuilder.Build();
+      if (!faceBuilder.IsDone()) {
+        OCX_ERROR(
+            "Failed to create restricted Shape from given Surface and "
+            "OuterContour in id={} guid={}",
+            id, guid);
+        return {};
+      }
+
+      ShapeFix_Face fix(faceBuilder.Face());
+      fix.Perform();
+      if (fix.Status(ShapeExtend_FAIL)) {
+        OCX_ERROR("Could not fix TopoDS_Face from read face in id={} guid={}",
+                  id, guid);
+        return {};
+      }
+      shellMaker.Add(fix.Face());
+    }
+
+    shellMaker.Perform();
+    TopoDS_Shape sewedShape = shellMaker.SewedShape();
+
+    int numShells = 0;
+    auto shell = TopoDS_Shell();
+    TopExp_Explorer shellExplorer(sewedShape, TopAbs_SHELL);
+    for (; shellExplorer.More(); shellExplorer.Next()) {
+      shell = TopoDS::Shell(shellExplorer.Current());
+      numShells++;
+    }
+
+    if (numShells != 1) {
       OCX_ERROR(
-          "Failed to create restricted Shape from given Surface and "
-          "OuterContour in id={} guid={}",
-          id, guid);
+          "Expected exactly one shell to be composed from CutShapeByWire in "
+          "id={} guid={}, but got {} shells, skip it. This is must likely due "
+          "to "
+          "missing implementation building a TopoDS_Face from non-planar "
+          "surface "
+          "and wire",
+          id, guid, numShells);
       return {};
     }
-
-    ShapeFix_Face fix(faceBuilder.Face());
-    fix.Perform();
-    if (fix.Status(ShapeExtend_FAIL)) {
-      OCX_ERROR("Could not fix TopoDS_Face from read face in id={} guid={}", id,
-                guid);
-      return {};
-    }
-    shellMaker.Add(fix.Face());
+    return shell;
   }
 
-  shellMaker.Perform();
-  TopoDS_Shape sewedShape = shellMaker.SewedShape();
-
-  int numShells = 0;
-  auto shell = TopoDS_Shell();
-  TopExp_Explorer shellExplorer(sewedShape, TopAbs_SHELL);
-  for (; shellExplorer.More(); shellExplorer.Next()) {
-    shell = TopoDS::Shell(shellExplorer.Current());
-    numShells++;
-  }
-
-  if (numShells != 1) {
-    OCX_ERROR(
-        "Expected exactly one shell to be composed from CutShapeByWire in "
-        "id={} guid={}, but got {} shells, skip it. This is must likely due to "
-        "missing implementation building a TopoDS_Face from non-planar surface "
-        "and wire",
-        id, guid, numShells);
-    return {};
-  }
-  return shell;
+  return {};
 }
 
-}  // namespace ocx
+//-----------------------------------------------------------------------------
+
+// TODO: Prototype, if solution is proven to work goes to -> OCCUtils::Surface
+std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface &surface1,
+                                        const GeomAdaptor_Surface &surface2) {
+  auto intersector = GeomAPI_IntSS(surface1.Surface(), surface2.Surface(),
+                                   Precision::Confusion());
+  if (!intersector
+           .IsDone()) {  // Algorithm failure, returned as no intersection
+    return std::nullopt;
+  }
+  if (intersector.NbLines() == 0 || intersector.NbLines() > 1) {
+    return std::nullopt;
+  }
+  return BRepBuilderAPI_MakeEdge(intersector.Line(1)).Edge();
+}
+
+//-----------------------------------------------------------------------------
+
+// TODO: Prototype, if solution is proven to work goes to -> OCCUtils::Curve
+std::optional<TopoDS_Edge> CurveLimitByBoundingBox(
+    const GeomAdaptor_Curve &curve, const Bnd_Box &box) {
+  if (box.IsOut(curve.Line())) {
+    return std::nullopt;
+  }
+  gp_Pnt max = box.CornerMin();
+  gp_Pnt min = box.CornerMax();
+
+  // Get bounding box planes as faces
+  std::vector<TopoDS_Face> faces{};
+  faces.emplace_back(OCCUtils::Face::FromPoints(
+      {gp_Pnt(min.X(), min.Y(), min.Z()), gp_Pnt(max.X(), min.Y(), min.Z()),
+       gp_Pnt(max.X(), max.Y(), min.Z())}));  // XYBottom
+  faces.emplace_back(OCCUtils::Face::FromPoints(
+      {gp_Pnt(min.X(), min.Y(), max.Z()), gp_Pnt(max.X(), min.Y(), max.Z()),
+       gp_Pnt(max.X(), max.Y(), max.Z())}));  // XYTop
+  faces.emplace_back(OCCUtils::Face::FromPoints(
+      {gp_Pnt(min.X(), min.Y(), min.Z()), gp_Pnt(min.X(), max.Y(), min.Z()),
+       gp_Pnt(min.X(), max.Y(), max.Z())}));  // XZLeft
+  faces.emplace_back(OCCUtils::Face::FromPoints(
+      {gp_Pnt(max.X(), min.Y(), min.Z()), gp_Pnt(max.X(), max.Y(), min.Z()),
+       gp_Pnt(max.X(), max.Y(), max.Z())}));  // XZRight
+  faces.emplace_back(OCCUtils::Face::FromPoints(
+      {gp_Pnt(min.X(), min.Y(), min.Z()), gp_Pnt(min.X(), min.Y(), max.Z()),
+       gp_Pnt(max.X(), min.Y(), max.Z())}));  // YZFront
+  faces.emplace_back(OCCUtils::Face::FromPoints(
+      {gp_Pnt(min.X(), max.Y(), min.Z()), gp_Pnt(min.X(), max.Y(), max.Z()),
+       gp_Pnt(max.X(), max.Y(), max.Z())}));  // YZBack
+
+  // Intersect faces with curve
+  std::vector<gp_Pnt> intersectionPoints{};
+  for (const auto &face : faces) {
+    GeomAdaptor_Surface surfaceAdapter =
+        OCCUtils::Surface::FromFace(TopoDS::Face(face));
+
+    if (std::optional pnt = OCCUtils::Surface::Intersection(
+            curve.Line(), surfaceAdapter.Surface())) {
+      intersectionPoints.push_back(pnt.value());
+    }
+  }
+
+  if (intersectionPoints.size() != 2) {
+    return std::nullopt;
+  }
+
+  // Limit the curve to the bounding box
+  return BRepBuilderAPI_MakeEdge(curve.Line(), intersectionPoints[0],
+                                 intersectionPoints[1])
+      .Edge();
+}
+
+}  // namespace ocx::helper

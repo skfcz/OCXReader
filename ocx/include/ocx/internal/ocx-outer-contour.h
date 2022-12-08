@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 03 Nov 2022                                               *
+ *   Created on: 06 Dec 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,28 +12,18 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_OUTER_CONTOUR_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_OUTER_CONTOUR_H_
 
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 
-namespace ocx::vessel::panel {
+namespace ocx::shared::outer_contour {
 
-void ReadPanels(LDOM_Element const &vesselN);
+TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN,
+                             bool addShape = true);
 
-namespace {  // anonymous namespace
+}  // namespace ocx::shared::outer_contour
 
-[[nodiscard]] TopoDS_Shape ReadPanel(LDOM_Element const &panelN,
-                                     bool withLimitedBy = false);
-
-[[nodiscard]] TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
-
-}  // namespace
-
-}  // namespace ocx::vessel::panel
-
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_OUTER_CONTOUR_H_

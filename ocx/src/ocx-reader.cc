@@ -1,9 +1,16 @@
-// This file is part of OCXReader library
-// Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
+/***************************************************************************
+ *   Created on: 03 Nov 2022                                               *
+ ***************************************************************************
+ *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
+ *   Copyright (c) 2022, Paul Buechner                                     *
+ *                                                                         *
+ *   This file is part of the OCXReader library.                           *
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public License    *
+ *   version 2.1 as published by the Free Software Foundation.             *
+ *                                                                         *
+ ***************************************************************************/
 
 #include "ocx/ocx-reader.h"
 
@@ -17,14 +24,31 @@
 #include <memory>
 #include <string>
 
-#include "ocx/internal/ocx-coordinate-system-reader.h"
+#include "ocx/internal/ocx-coordinate-system.h"
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-log.h"
-#include "ocx/internal/ocx-panel-reader.h"
-#include "ocx/internal/ocx-reference-surfaces-reader.h"
 #include "ocx/internal/ocx-util.h"
+#include "ocx/internal/ocx-vessel.h"
 
 namespace ocx {
+
+Standard_Boolean OCXReader::Perform(Standard_CString filename,
+                                    Handle(TDocStd_Document) & doc,
+                                    const Message_ProgressRange &theProgress) {
+  Log::Initialize();
+
+  if (ReadFile(filename) == Standard_False) {
+    Log::Shutdown();
+    return Standard_False;
+  }
+
+  if (Transfer(doc, theProgress) == Standard_False) {
+    Log::Shutdown();
+    return Standard_False;
+  }
+
+  return Standard_True;
+}
 
 Standard_Boolean OCXReader::ReadFile(Standard_CString filename) {
   // Load the OCX Document as DOM
@@ -46,11 +70,11 @@ Standard_Boolean OCXReader::ReadFile(Standard_CString filename) {
     return Standard_False;
   }
 
-  // Get the DOM document
-  ocxDocEL = aParser.getDocument().getDocumentElement();
+  // Get the DOM document and assign it to OCXReader root element
+  LDOM_Element documentRoot = aParser.getDocument().getDocumentElement();
 
   // Check root element
-  std::string_view rtn = ocxDocEL.getTagName().GetString();
+  std::string_view rtn = documentRoot.getTagName().GetString();
   std::size_t pos = rtn.find(':');
   if (pos == std::string::npos) {
     OCX_ERROR("Root element <{}> contains no :", rtn);
@@ -63,55 +87,50 @@ Standard_Boolean OCXReader::ReadFile(Standard_CString filename) {
   }
 
   // Check version compatibility
-  char const *schemaVersion(ocxDocEL.getAttribute("schemaVersion").GetString());
+  char const *schemaVersion(
+      documentRoot.getAttribute("schemaVersion").GetString());
   if (schemaVersion == nullptr) {
     OCX_ERROR("No schemaVersion attribute found in root element");
     return Standard_False;
   }
-  if (Version(schemaVersion) < Version("2.8.5") &&
-      Version(schemaVersion) > Version("2.9.0")) {
+  if (utils::Version(schemaVersion) < utils::Version("2.8.5") &&
+      utils::Version(schemaVersion) > utils::Version("2.9.0")) {
     OCX_ERROR("Unsupported schemaVersion, expected ^2.8.5, but got {}",
               schemaVersion);
     return Standard_False;
   }
 
-  // Create context
-  ctx = std::make_shared<OCXContext>(ocxDocEL, nsPrefix);
-  OCX_INFO("Created context successfully");
+  // Initialize context
+  try {
+    OCXContext::Initialize(documentRoot, nsPrefix);
+  } catch (OCXInitializationFailedException const &e) {
+    OCX_ERROR(e.what());
+    return Standard_False;
+  }
+  OCX_INFO("Initialized context successfully");
 
   return Standard_True;
 }
 
+//-----------------------------------------------------------------------------
+
 Standard_Boolean OCXReader::Transfer(Handle(TDocStd_Document) & doc,
                                      const Message_ProgressRange &theProgress) {
   // Add the OCX document to the context
-  ctx->OCAFDoc(doc);
+  OCXContext::GetInstance()->OCAFDoc(doc);
 
   // Parse and prepare units set in the OCX document
-  ctx->PrepareUnits();
+  OCXContext::GetInstance()->PrepareUnits();
 
   // Set the OCAF root label (0:1)
-  LDOM_Element header = OCXHelper::GetFirstChild(ocxDocEL, "Header");
+  LDOM_Element header = ocx::helper::GetFirstChild(
+      OCXContext::GetInstance()->OCXRoot(), "Header");
   TDataStd_Name::Set(doc->Main(), header.getAttribute("name").GetString());
 
-  // Start parsing the OCX document
-  LDOM_Element vesselN = OCXHelper::GetFirstChild(ocxDocEL, "Vessel");
-  if (vesselN.isNull()) {
-    OCX_ERROR("No ocxXML/Vessel element found in provided OCX document");
-    return Standard_False;
-  }
+  // TODO: Read ClassCatalogue
 
-  // Read coordinate system
-  OCXCoordinateSystemReader coSysReader(ctx);
-  coSysReader.ReadCoordinateSystem(vesselN);
-
-  // Read reference surfaces
-  OCXReferenceSurfacesReader refSrfReader(ctx);
-  refSrfReader.ReadReferenceSurfaces(vesselN);
-
-  // Read panels
-  OCXPanelReader panelReader(ctx);
-  panelReader.ReadPanels(vesselN);
+  // Read Vessel elements
+  ocx::vessel::ReadVessel();
 
   // Write to STEP
   char const fileName[] = "vessel.stp";
@@ -127,29 +146,8 @@ Standard_Boolean OCXReader::Transfer(Handle(TDocStd_Document) & doc,
       OCX_ERROR("Failed to write STEP file, exited with status {}", ret);
       return Standard_False;
     }
-  } catch (Standard_Failure const &exp) {
-    OCX_ERROR("Failed to write STEP file, exception: {}",
-              exp.GetMessageString());
-    return Standard_False;
-  }
-
-  return Standard_True;
-}
-
-Standard_Boolean OCXReader::Perform(Standard_CString filename,
-                                    Handle(TDocStd_Document) & doc,
-                                    const Message_ProgressRange &theProgress) {
-  Log::Initialize();
-
-  if (ReadFile(filename) == Standard_False) {
-    Log::Shutdown();
-
-    return Standard_False;
-  }
-
-  if (Transfer(doc, theProgress) == Standard_False) {
-    Log::Shutdown();
-
+  } catch (Standard_Failure const &e) {
+    OCX_ERROR("Failed to write STEP file, exception: {}", e.GetMessageString());
     return Standard_False;
   }
 

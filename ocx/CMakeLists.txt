@@ -18,7 +18,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(OCCUtils)
 
 # Where ocx's .h files can be found
-message(STATUS "occutils_INCLUDE_DIR: ${occutils_INCLUDE_DIR}")
 set(ocx_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"

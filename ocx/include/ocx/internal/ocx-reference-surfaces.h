@@ -12,28 +12,25 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
 
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
-#include <TopoDS_Wire.hxx>
+#include <memory>
+#include <utility>
 
-namespace ocx::vessel::panel {
+#include "ocx/internal/ocx-context.h"
 
-void ReadPanels(LDOM_Element const &vesselN);
+namespace ocx::vessel::reference_surfaces {
 
-namespace {  // anonymous namespace
+/**
+ * Read the references surfaces from the OCX file.
+ * The references surfaces are registered in the OCXContext as TopoDS_Shell.
+ * @param vesselN the Vessel element
+ */
+void ReadReferenceSurfaces(LDOM_Element const &vesselN);
 
-[[nodiscard]] TopoDS_Shape ReadPanel(LDOM_Element const &panelN,
-                                     bool withLimitedBy = false);
+}  // namespace ocx::vessel::reference_surfaces
 
-[[nodiscard]] TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
-
-}  // namespace
-
-}  // namespace ocx::vessel::panel
-
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
