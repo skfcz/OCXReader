@@ -66,6 +66,8 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
 
     // TODO: Both GridRef and SurfaceRef allow for specifying an offset
     // TODO: parameter of the referenced Surface. This is currently ignored.
+    // TODO: Maybe refactor into separate GridRef SurfaceRef functions as its
+    // TODO: also used in vessel/panel/limited_by/ocx-limited-by.cc
     return surface.m_shape;
   }
 

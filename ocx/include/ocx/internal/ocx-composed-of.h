@@ -31,10 +31,6 @@ namespace {  // anonymous namespace
 
 [[nodiscard]] TopoDS_Shape ReadBracket(LDOM_Element const &bracketN);
 
-[[nodiscard]] TopoDS_Shape ReadPlateSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
-
 }  // namespace
 
 }  // namespace ocx::vessel::panel::composed_of

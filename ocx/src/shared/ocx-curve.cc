@@ -27,7 +27,6 @@
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
 #include <memory>
-#include <utility>
 
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-util.h"
@@ -408,10 +407,8 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
 
   LDOM_Element propsN = ocx::helper::GetFirstChild(nurbs3DN, "NURBSproperties");
   if (propsN.isNull()) {
-    OCX_ERROR(
-        "No NURBSproperties child node found in NURBS3D with curve id={} "
-        "guid={}",
-        meta->id, meta->guid);
+    OCX_ERROR("No NURBSproperties child node found in NURBS3D with curve id={}",
+              meta->id);
     return {};
   }
 
@@ -432,17 +429,16 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
   // Parse knotVector
   LDOM_Element knotVectorN = ocx::helper::GetFirstChild(nurbs3DN, "KnotVector");
   if (knotVectorN.isNull()) {
-    OCX_ERROR(
-        "No KnotVector child node found in NURBS3D with curve id={} guid={}",
-        meta->id, meta->guid);
+    OCX_ERROR("No KnotVector child node found in NURBS3D with curve id={}",
+              meta->id);
     return {};
   }
   auto knotVectorS = std::string(knotVectorN.getAttribute("value").GetString());
   ocx::helper::KnotMults kn =
       ocx::helper::ParseKnotVector(knotVectorS, numKnots);
   if (kn.IsNull) {
-    OCX_ERROR("Failed to parse KnotVector in NURBS3D with curve id={} guid={}",
-              meta->id, meta->guid);
+    OCX_ERROR("Failed to parse KnotVector in NURBS3D with curve id={}",
+              meta->id);
     return {};
   }
 
@@ -450,17 +446,15 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
   LDOM_Element controlPtListN =
       ocx::helper::GetFirstChild(nurbs3DN, "ControlPtList");
   if (controlPtListN.isNull()) {
-    OCX_ERROR(
-        "No ControlPtList child node found in NURBS3D with curve id={} guid={}",
-        meta->id, meta->guid);
+    OCX_ERROR("No ControlPtList child node found in NURBS3D with curve id={}",
+              meta->id);
     return {};
   }
   ocx::helper::PolesWeightsCurve pw =
       ocx::helper::ParseControlPointsCurve(controlPtListN, numCtrlPoints);
   if (pw.IsNull) {
-    OCX_ERROR(
-        "Failed to parse ControlPtList in NURBS3D with curve id={} guid={}",
-        meta->id, meta->guid);
+    OCX_ERROR("Failed to parse ControlPtList in NURBS3D with curve id={}",
+              meta->id);
     return {};
   }
 

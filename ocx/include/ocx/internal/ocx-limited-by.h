@@ -45,7 +45,8 @@ namespace {  // anonymous namespace
 
 [[nodiscard]] TopoDS_Shape ReadFreeEdgeCurve3D(LDOM_Element const &curveN);
 
-[[nodiscard]] TopoDS_Shape ReadGridRef(LDOM_Element const &gridRefN);
+[[nodiscard]] TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
+                                       LDOM_Element const &gridRefN);
 
 }  // namespace
 

@@ -21,8 +21,7 @@
 
 namespace ocx::shared::outer_contour {
 
-TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN,
-                             bool addShape = true);
+TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN);
 
 }  // namespace ocx::shared::outer_contour
 

@@ -28,10 +28,6 @@ namespace {  // anonymous namespace
 [[nodiscard]] TopoDS_Shape ReadPanel(LDOM_Element const &panelN,
                                      bool withLimitedBy = false);
 
-[[nodiscard]] TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                                            TopoDS_Wire const &outerContour,
-                                            bool addShape = true);
-
 }  // namespace
 
 }  // namespace ocx::vessel::panel

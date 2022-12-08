@@ -169,7 +169,7 @@ KnotMults ParseKnotVector(std::string_view knotVectorS, int const &numKnots) {
   auto kn = KnotMults();
 
   std::vector<std::string> out;
-  utils::Tokenize(knotVectorS, out);
+  ocx::utils::Tokenize(knotVectorS, out);
 
   if (numKnots != out.size()) {
     OCX_ERROR(

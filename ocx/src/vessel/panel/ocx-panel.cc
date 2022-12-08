@@ -107,29 +107,72 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
   bool CreatePanelSurfaces = OCXContext::CreatePanelSurfaces;
   bool CreateComposedOf = OCXContext::CreateComposedOf;
 
+  // Read the UnboundedGeometry, only do so if no reference surface for given
+  // element can be found.
+  ExtendedShape unboundedGeometryShape =
+      OCXContext::GetInstance()->LookupShape(panelN);
+  if (unboundedGeometryShape.m_shape.IsNull()) {
+    TopoDS_Shape unboundedGeometry =
+        ocx::shared::unbounded_geometry::ReadUnboundedGeometry(panelN);
+    if (!unboundedGeometry.IsNull()) {
+      // Register the UnboundedGeometry in the context
+      unboundedGeometryShape =
+          ExtendedShape(unboundedGeometry, "UnboundedGeometry");
+      OCXContext::GetInstance()->RegisterShape(panelN, unboundedGeometryShape);
+    } else {
+      OCX_ERROR(
+          "Failed to read UnboundedGeometry element from Plane id={} guid={}",
+          meta->id, meta->guid);
+    }
+  }
+
   // Read the Contour
   auto outerContour = TopoDS_Wire();  // retain scope for CreatePanelSurfaces
-  if (CreatePanelContours) {
-    outerContour = ocx::shared::outer_contour::ReadOuterContour(
-        panelN, OCXContext::CreateLimitedBy == withLimitedBy);
+  if (CreatePanelContours && OCXContext::CreateLimitedBy == withLimitedBy) {
+    outerContour = ocx::shared::outer_contour::ReadOuterContour(panelN);
     if (!outerContour.IsNull()) {
       shapes.push_back(outerContour);
-    }
-  } else {
-    OCX_ERROR(
-        "Failed to read OuterContour in ReadPanel with panel id={} guid={}",
-        meta->id, meta->guid);
+    } else {
+      OCX_ERROR(
+          "Failed to read OuterContour in ReadPanel with panel id={} guid={}",
+          meta->id, meta->guid);
 
-    // Disable PanelSurfaces and PlateSurfaces if they are enabled
-    if (OCXContext::CreatePanelSurfaces) {
-      OCX_WARN(
-          "PanelSurfaces creation is enabled but but PanelContours creation "
-          "failed. Disabling PanelSurfaces.");
-      CreatePanelSurfaces = false;
+      // Disable PanelSurfaces and PlateSurfaces if they are enabled
+      if (OCXContext::CreatePanelSurfaces) {
+        OCX_WARN(
+            "PanelSurfaces creation is enabled but but PanelContours creation "
+            "failed. Disabling PanelSurfaces.");
+        CreatePanelSurfaces = false;
+      }
     }
   }
 
   // TODO: Read CutBy here
+
+  // Create the resulting PanelSurface (UnboundedGeometry restricted by
+  // OuterContour and CutBy, where OuterContour is required)
+  if (CreatePanelSurfaces && OCXContext::CreateLimitedBy == withLimitedBy) {
+    TopoDS_Shape panelSurface = ocx::helper::CutShapeByWire(
+        unboundedGeometryShape.m_shape, outerContour, meta->id, meta->guid);
+    if (!panelSurface.IsNull()) {
+      // Material Design Light Green 50 300
+      auto color = Quantity_Color(174 / 256.0, 213 / 256.0, 129.0 / 256,
+                                  Quantity_TOC_RGB);
+      TDF_Label panelSurfaceLabel =
+          OCXContext::GetInstance()->OCAFShapeTool()->AddShape(panelSurface,
+                                                               false);
+      TDataStd_Name::Set(panelSurfaceLabel, "Surface");
+      OCXContext::GetInstance()->OCAFColorTool()->SetColor(
+          panelSurfaceLabel, color, XCAFDoc_ColorSurf);
+
+      shapes.push_back(panelSurface);
+    } else {
+      OCX_ERROR(
+          "Failed to create restricted surface (PlateSurface) in ReadPlate "
+          "with plate id={} guid={}",
+          meta->id, meta->guid);
+    }
+  }
 
   // Read ComposedOf
   if (CreateComposedOf) {
@@ -144,27 +187,9 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
     }
   }
 
-  // Create the resulting PanelSurface (UnboundedGeometry restricted by
-  // OuterContour and CutBy, where OuterContour is required)
-  auto panelSurface = TopoDS_Shape();  // retain scope for CreatePlateSurfaces
-  if (CreatePanelSurfaces) {
-    panelSurface = ReadPanelSurface(
-        panelN, outerContour, OCXContext::CreateLimitedBy == withLimitedBy);
-    if (!panelSurface.IsNull()) {
-      // Register the restricted surface in the context
-      OCXContext::GetInstance()->RegisterShape(
-          panelN, ExtendedShape(panelSurface, "Panel"));
-
-      shapes.push_back(panelSurface);
-    } else {
-      OCX_ERROR(
-          "Failed to read PanelSurface in ReadPanel with panel id={} guid={}",
-          meta->id, meta->guid);
-    }
-  }
-
   // Read StiffenedBy
-  if (OCXContext::CreateStiffenerTraces) {
+  if (OCXContext::CreateStiffenerTraces &&
+      OCXContext::CreateLimitedBy == withLimitedBy) {
     TopoDS_Shape stiffenedBy =
         ocx::vessel::panel::stiffened_by::ReadStiffenedBy(
             panelN, OCXContext::CreateLimitedBy == withLimitedBy);
@@ -200,46 +225,6 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
                                      .c_str());
 
   return panelAssy;
-}
-
-//-----------------------------------------------------------------------------
-
-TopoDS_Shape ReadPanelSurface(LDOM_Element const &elementN,
-                              TopoDS_Wire const &outerContour, bool addShape) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(elementN);
-
-  // Read the UnboundedGeometry
-  TopoDS_Shape unboundedGeometry =
-      ocx::shared::unbounded_geometry::ReadUnboundedGeometry(elementN);
-  if (unboundedGeometry.IsNull()) {
-    OCX_ERROR("Failed to read UnboundedGeometry element id={} guid={}",
-              meta->id, meta->guid);
-    return {};
-  }
-
-  TopoDS_Shape surface = ocx::helper::CutShapeByWire(
-      unboundedGeometry, outerContour, meta->id, meta->guid);
-  if (surface.IsNull()) {
-    OCX_ERROR("Failed to cut UnboundedGeometry element id={} guid={}", meta->id,
-              meta->guid);
-    return {};
-  }
-
-  if (!addShape) {
-    return surface;
-  }
-
-  // Material Design Light Green 50 300
-  auto color =
-      Quantity_Color(174 / 256.0, 213 / 256.0, 129.0 / 256, Quantity_TOC_RGB);
-  TDF_Label panelSurfaceLabel =
-      OCXContext::GetInstance()->OCAFShapeTool()->AddShape(surface, false);
-  TDataStd_Name::Set(panelSurfaceLabel, "Surface");
-  OCXContext::GetInstance()->OCAFColorTool()->SetColor(panelSurfaceLabel, color,
-                                                       XCAFDoc_ColorSurf);
-
-  return surface;
 }
 
 }  // namespace

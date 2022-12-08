@@ -16,7 +16,7 @@
 
 namespace ocx::shared::outer_contour {
 
-TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN, bool addShape) {
+TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN) {
   std::unique_ptr<ocx::helper::OCXMeta> meta =
       ocx::helper::GetOCXMeta(elementN);
 
@@ -29,16 +29,17 @@ TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN, bool addShape) {
   }
 
   TopoDS_Shape curveShape = ocx::shared::curve::ReadCurve(outerContourN);
+  if (curveShape.IsNull()) {
+    OCX_ERROR("Failed to read curve shape from element id={} guid={}", meta->id,
+              meta->guid);
+    return {};
+  }
   if (!OCCUtils::Shape::IsWire(curveShape)) {
     OCX_ERROR(
         "OuterContour child node in element id={} guid={} is not of type "
         "TopoDS_Wire, expected a closed edge as OuterContour, but got {}",
         meta->id, meta->guid, curveShape.ShapeType());
     return {};
-  }
-
-  if (!addShape) {
-    return TopoDS::Wire(curveShape);
   }
 
   // Material Design ...
