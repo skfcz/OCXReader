@@ -48,7 +48,9 @@ cxx_library(${PROJECT_NAME} src/shipxml-all.cc)
 # add_subdirectory(test)
 
 # Set target link libraries
-target_link_libraries(${PROJECT_NAME} occutils spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} debug ocx  ${boost_libs})
+target_link_libraries(${PROJECT_NAME} optimized  ocx  ${boost_libs})
+
 
 # Adjust runtime environment for Visual Studio
 set_property(

@@ -13,11 +13,18 @@ namespace shipxml {
 
   class PanelReader {
    public:
-    void ReadPanels(LDOM_Element const &vesselN, ShipSteelTransfer &sst) const;
-    Panel ReadPanel(LDOM_Element panelO, const char* id,
+    PanelReader( LDOM_Element const &vesselN, ShipSteelTransfer * sst, ocx::OCXContext * ctx);
+    void ReadPanels() const;
+    Panel  ReadPanel(LDOM_Element panelO, const char* id,
                     const char* guid) const;
 
     void ReadLimits(LDOM_Element limitedByO, Panel panelX) const;
+
+
+   private:
+    ShipSteelTransfer * sst;
+    ocx::OCXContext * ocxContext;
+    LDOM_Element ocxVesselEL;
   };
 
 }

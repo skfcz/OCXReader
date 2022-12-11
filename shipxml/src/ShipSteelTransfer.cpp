@@ -6,12 +6,11 @@
 
 namespace shipxml {
     ShipSteelTransfer::ShipSteelTransfer() {
-
-        this->structure = Structure();
+      structure = new shipxml::Structure();
 
     }
+const shipxml::Structure* ShipSteelTransfer::Structure() const {
+  return this->structure;
+}
 
-    Structure ShipSteelTransfer::Structure() {
-        return this->structure;
-    }
 } // shipxml

@@ -7,24 +7,32 @@
 #include <LDOM_XmlWriter.hxx>
 #include <iostream>
 
-#include "../include/ShipXMLHelper.h"
+#include "../include/CoordinateSystemReader.h"
 #include "../include/PanelReader.h"
+#include "../include/ShipXMLHelper.h"
 
 namespace shipxml {
 
-ShipXMLDriver::ShipXMLDriver() {}
+ShipXMLDriver::ShipXMLDriver() {
+  sst = new ShipSteelTransfer();
 
-bool ShipXMLDriver::Transfer(LDOM_Element ode) {
+}
+
+bool ShipXMLDriver::Transfer(LDOM_Element ode, ocx::OCXContext * ctx) {
+
+  ocxCtx = ctx;
 
   ocxDocEL=ode;
   ocxVesselEL = ShipXMLHelper::GetFirstChild(ocxDocEL, "Vessel");
 
   // Create ShipSteelTransfer
-  sst = ShipSteelTransfer();
 
   LDOM_Element vesselN = ShipXMLHelper::GetFirstChild(ocxDocEL, "Vessel");
+
+  CoordinateSystemReader(vesselN, sst, ocxCtx).ReadCoordinateSystem( );
+
   // and recursively walk down the OCX structure
-  PanelReader( ).ReadPanels(vesselN, sst);
+  PanelReader( vesselN, sst, ocxCtx).ReadPanels();
   // TODO: Read Coordinate System, GeneralData and Catalogue
 
 
@@ -33,7 +41,7 @@ bool ShipXMLDriver::Transfer(LDOM_Element ode) {
 
   return true;
 }
-ShipSteelTransfer ShipXMLDriver::GetShipSteelTransfer() {
+ShipSteelTransfer *  ShipXMLDriver::GetShipSteelTransfer() {
   return sst;
 }
 
@@ -70,26 +78,29 @@ bool ShipXMLDriver::Write( const std::string path) {
 
 void ShipXMLDriver::WritePanels() {
 
-  auto sxPanelsEL = sxDoc.createElement("Panels");
-  sxStructureEL.appendChild(sxPanelsEL);
-
-  std::list<Panel>::iterator it;
-  for (it = sst.Structure().Panels().begin(); it != sst.Structure().Panels().end(); ++it){
-
-    auto sxPanelEL = sxDoc.createElement("Panel");
-    sxPanelsEL.appendChild(sxPanelEL);
-
-    sxPanelsEL.setAttribute( "name", it->Name().c_str());
-    sxPanelsEL.setAttribute( "blockName", it->BlockName().c_str());
-    sxPanelsEL.setAttribute( "category", it->Category().c_str());
-    sxPanelsEL.setAttribute( "categoryDes", it->CategoryDescription().c_str());
-    sxPanelsEL.setAttribute( "planar", it->Planar() ? "true" : "false");
-    sxPanelsEL.setAttribute( "pillar", it->Pillar()? "true":"false");
-    sxPanelsEL.setAttribute( "owner", it->Owner().c_str());
-    sxPanelsEL.setAttribute( "defaultMaterial", it->DefaultMaterial().c_str());
-    sxPanelsEL.setAttribute( "tightness", it->Tightness().c_str());
-
-  }
+//  auto sxPanelsEL = sxDoc.createElement("Panels");
+//  sxStructureEL.appendChild(sxPanelsEL);
+//
+//  auto panels = sst->Structure()->Panels();
+//
+//
+//  std::list<Panel*>::iterator it = panels.begin();
+//  do  {
+//
+//    auto sxPanelEL = sxDoc.createElement("Panel");
+//    sxPanelsEL.appendChild(sxPanelEL);
+//
+//    sxPanelsEL.setAttribute( "name", it->Name().c_str());
+//    sxPanelsEL.setAttribute( "blockName", it->BlockName().c_str());
+//    sxPanelsEL.setAttribute( "category", it->Category().c_str());
+//    sxPanelsEL.setAttribute( "categoryDes", it->CategoryDescription().c_str());
+//    sxPanelsEL.setAttribute( "planar", it->Planar() ? "true" : "false");
+//    sxPanelsEL.setAttribute( "pillar", it->Pillar()? "true":"false");
+//    sxPanelsEL.setAttribute( "owner", it->Owner().c_str());
+//    sxPanelsEL.setAttribute( "defaultMaterial", it->DefaultMaterial().c_str());
+//    sxPanelsEL.setAttribute( "tightness", it->Tightness().c_str());
+//    it++;
+//  } while ( it != panels.end());
 
 }
 

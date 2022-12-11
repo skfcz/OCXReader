@@ -7,6 +7,7 @@
 
 #include "Panel.h"
 #include <list>
+#include <iterator>
 using namespace std;
 
 namespace shipxml {
@@ -14,11 +15,12 @@ namespace shipxml {
     class Structure {
 
     public:
-        list<Panel> Panels();
-        void Panels( list<shipxml::Panel> l);
+
+     void Add( shipxml::Panel   p) ;
+     std::list< shipxml::Panel> Panels();
 
     private:
-        list<shipxml::Panel> panels;
+       list<shipxml::Panel  > panels;
     };
 
 } // shipxml

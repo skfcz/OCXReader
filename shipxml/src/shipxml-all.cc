@@ -25,6 +25,7 @@
 #include "ShipXMLDriver.cpp"
 #include "ShipXMLHelper.cc"
 #include "GeneralData.cpp"
+#include "CoordinateSystemReader.cpp"
 #include "PanelReader.cpp"
 #include "KeyValue.cpp"
 #include "shipxml-log.cc"

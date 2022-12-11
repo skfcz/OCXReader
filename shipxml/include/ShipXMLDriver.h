@@ -5,16 +5,15 @@
 #ifndef OCXREADER_DISTRIBUTION_SHIPXMLDRIVER_H
 #define OCXREADER_DISTRIBUTION_SHIPXMLDRIVER_H
 
-
+#include "../../ocx/include/ocx/ocx-context.h"
 
 #include <LDOM_Document.hxx>
 #include <Standard_OStream.hxx>
 #include <TopoDS.hxx>
 #include <map>
 #include <string>
+
 #include "ShipSteelTransfer.h"
-
-
 
 namespace shipxml {
 
@@ -36,7 +35,7 @@ class ShipXMLDriver {
    * @param ocxDoc the root node of the OCX document
    * @return true if the transfer was successfully
    */
-  bool Transfer(LDOM_Element ocxDoc);
+  bool Transfer(LDOM_Element ocxDoc, ocx::OCXContext * ctx);
 
   /**
    * Write the ShipSteelTransfer into an XML file at the given path.
@@ -50,16 +49,17 @@ class ShipXMLDriver {
    * Access the ShipSteelTransfer created in the Transfer method
    * @return  the ShipSteelTransfer object
    */
-  ShipSteelTransfer GetShipSteelTransfer();
+  ShipSteelTransfer * GetShipSteelTransfer();
 
  private:
 
+  ocx::OCXContext *  ocxCtx;
   std::map<LDOM_Element, TopoDS_Shape> ocx2geometry;
 
   LDOM_Element ocxDocEL;
   LDOM_Element ocxVesselEL;
 
-  ShipSteelTransfer sst;
+  ShipSteelTransfer * sst;
   LDOM_Document sxDoc;
   LDOM_Element sxRootEL;
   LDOM_Element sxStructureEL;

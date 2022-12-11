@@ -13,10 +13,10 @@ namespace shipxml {
 
     public :
         ShipSteelTransfer();
-        shipxml::Structure Structure();
+        const shipxml::Structure * Structure() const;
 
     private:
-        shipxml::Structure  structure;
+        shipxml::Structure  * structure;
     };
 
 } // shipxml
