@@ -20,7 +20,7 @@
 #include <memory>
 
 #include "ocx/internal/ocx-context.h"
-#include "ocx/internal/ocx-util.h"
+#include "ocx/internal/ocx-utils.h"
 
 namespace ocx::shared::limited_by {
 

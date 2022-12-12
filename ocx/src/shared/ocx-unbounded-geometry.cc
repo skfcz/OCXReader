@@ -21,8 +21,7 @@
 namespace ocx::shared::unbounded_geometry {
 
 TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(elementN);
+  auto meta = ocx::helper::GetOCXMeta(elementN);
 
   LDOM_Element unboundedGeometryN =
       ocx::helper::GetFirstChild(elementN, "UnboundedGeometry");
@@ -55,8 +54,7 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
 
   // Read from GridRef or SurfaceRef
   if (!refN.isNull()) {
-    std::unique_ptr<ocx::helper::OCXMeta> refNMeta =
-        ocx::helper::GetOCXMeta(refN);
+    auto refNMeta = ocx::helper::GetOCXMeta(refN);
 
     TopoDS_Shape surface = OCXContext::GetInstance()->LookupShape(refN);
     if (surface.IsNull()) {
@@ -72,22 +70,25 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
   }
 
   // Read directly from UnboundedGeometry
-  LDOM_Node aChildNode = unboundedGeometryN.getFirstChild();
-  while (aChildNode != nullptr) {
-    const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
+  LDOM_Node childN = unboundedGeometryN.getFirstChild();
+  while (childN != nullptr) {
+    const LDOM_Node::NodeType aNodeType = childN.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
-      LDOM_Element surfaceN = (LDOM_Element &)aChildNode;
+      LDOM_Element surfaceN = (LDOM_Element &)childN;
 
       if (TopoDS_Shape surface = ocx::surface::ReadSurface(surfaceN);
           !surface.IsNull()) {
         return surface;
       }
     }
-    aChildNode = aChildNode.getNextSibling();
+    childN = childN.getNextSibling();
   }
 
-  OCX_ERROR("Failed to read surface from UnboundedGeometry");
+  OCX_ERROR(
+      "Failed to directly read surface from UnboundedGeometry in "
+      "element id={} guid={}",
+      meta->id, meta->guid);
   return {};
 }
 

@@ -41,35 +41,11 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
-      auto referenceSurface = TopoDS_Shape();
-
       LDOM_Element surfaceN = (LDOM_Element &)childN;
-      std::unique_ptr<ocx::helper::OCXMeta> meta =
-          ocx::helper::GetOCXMeta(surfaceN);
 
-      std::string referenceSurfaceType = ocx::helper::GetLocalTagName(surfaceN);
-      if (referenceSurfaceType == "SurfaceCollection") {
-        referenceSurface = ocx::surface::ReadSurface(surfaceN);
-      } else if (referenceSurfaceType == "Cone3D") {
-        referenceSurface = ocx::surface::ReadSurface(surfaceN);
-      } else if (referenceSurfaceType == "Cylinder3D") {
-        referenceSurface = ocx::surface::ReadSurface(surfaceN);
-      } else if (referenceSurfaceType == "ExtrudedSurface") {
-        referenceSurface = ocx::surface::ReadSurface(surfaceN);
-      } else if (referenceSurfaceType == "NURBSSurface") {
-        referenceSurface = ocx::surface::ReadSurface(surfaceN);
-      } else if (referenceSurfaceType == "Sphere3D") {
-        referenceSurface = ocx::surface::ReadSurface(surfaceN);
-      } else if (referenceSurfaceType == "Plane3D") {
-        referenceSurface = ocx::surface::ReadSurface(surfaceN);
-      } else {
-        OCX_WARN(
-            "Found unsupported reference surface type {} in surface {} guid={}",
-            referenceSurfaceType, meta->name, meta->guid);
-        childN = childN.getNextSibling();
-        continue;
-      }
+      auto meta = ocx::helper::GetOCXMeta(surfaceN);
 
+      TopoDS_Shape referenceSurface = ocx::surface::ReadSurface(surfaceN);
       if (!referenceSurface.IsNull()) {
         OCXContext::GetInstance()->RegisterShape(surfaceN, referenceSurface);
 
@@ -89,11 +65,16 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
           shapes.push_back(referenceSurface);
         }
       } else {
-        OCX_ERROR("Failed to read reference surface {} guid={} of type {}",
-                  meta->name, meta->guid, referenceSurfaceType);
+        OCX_ERROR("Failed to read reference surface {} guid={}", meta->name,
+                  meta->guid);
       }
     }
     childN = childN.getNextSibling();
+  }
+
+  if (shapes.empty()) {
+    OCX_WARN("No reference surfaces found");
+    return;
   }
 
   TopoDS_Compound referenceSurfacesAssy;
@@ -104,9 +85,9 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
     compoundBuilder.Add(referenceSurfacesAssy, shape);
   }
 
-  TDF_Label refSurfLabel = OCXContext::GetInstance()->OCAFShapeTool()->AddShape(
+  TDF_Label refSurfL = OCXContext::GetInstance()->OCAFShapeTool()->AddShape(
       referenceSurfacesAssy, true);
-  TDataStd_Name::Set(refSurfLabel, "Reference Surfaces");
+  TDataStd_Name::Set(refSurfL, "Reference Surfaces");
 
   OCX_INFO("Registered {} reference surfaces", shapes.size());
 }

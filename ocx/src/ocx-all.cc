@@ -22,7 +22,7 @@
 #include "src/ocx-helper.cc"
 #include "src/ocx-log.cc"
 #include "src/ocx-reader.cc"
-#include "src/ocx-util.cc"
+#include "src/ocx-utils.cc"
 
 // Shared
 #include "src/shared/ocx-curve.cc"

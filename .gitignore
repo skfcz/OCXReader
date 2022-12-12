@@ -37,7 +37,8 @@
 *.ninja
 *.stp
 
-*vessel.xml
+# Reader document exports
+/ocxreader/doc.*
 
 /cmake_install.cmake
 

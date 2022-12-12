@@ -155,8 +155,8 @@ TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
  * @returns nullopt if there is no intersection or the Algorithm fails, the 3D
  * curve else
  */
-std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface &surface1,
-                                        const GeomAdaptor_Surface &surface2);
+std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface &S1,
+                                        const GeomAdaptor_Surface &S2);
 
 /**
  * Compute the 3D intersection between a curve and a bounding box

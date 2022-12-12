@@ -28,13 +28,12 @@
 #include "ocx/internal/ocx-curve.h"
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-surface-reader.h"
-#include "ocx/internal/ocx-util.h"
+#include "ocx/internal/ocx-utils.h"
 
 namespace ocx::surface {
 
 TopoDS_Shape ReadSurface(LDOM_Element const &surfaceN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(surfaceN);
+  auto meta = ocx::helper::GetOCXMeta(surfaceN);
 
   std::string surfaceType = ocx::helper::GetLocalTagName(surfaceN);
   if (surfaceType == "SurfaceCollection") {
@@ -63,8 +62,7 @@ TopoDS_Shape ReadSurface(LDOM_Element const &surfaceN) {
 namespace {
 
 TopoDS_Shape ReadSurfaceCollection(LDOM_Element const &surfaceColN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(surfaceColN);
+  auto meta = ocx::helper::GetOCXMeta(surfaceColN);
 
   BRepBuilderAPI_Sewing shellMaker;
 
@@ -125,7 +123,21 @@ TopoDS_Shape ReadSurfaceCollection(LDOM_Element const &surfaceColN) {
   }
 
   shellMaker.Perform();
+
   TopoDS_Shape sewedShape = shellMaker.SewedShape();
+  if (sewedShape.IsNull()) {
+    OCX_ERROR(
+        "Failed to sew faces in SurfaceCollection with surface id={} guid={}",
+        meta->id, meta->guid);
+    return {};
+  }
+
+  if (sewedShape.ShapeType() == TopAbs_COMPOUND) {
+    OCX_ERROR(
+        "Sewed shape is of type TopAbs_COMPOUND, which is currently not "
+        "supported");
+    return {};
+  }
 
   int numShells = 0;
   auto shell = TopoDS_Shell();
@@ -180,8 +192,7 @@ TopoDS_Face ReadExtrudedSurface(LDOM_Element const &surfaceN) {
 //-----------------------------------------------------------------------------
 
 TopoDS_Face ReadNURBSSurface(LDOM_Element const &nurbsSrfN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(nurbsSrfN);
+  auto meta = ocx::helper::GetOCXMeta(nurbsSrfN);
 
   LDOM_Element faceBoundaryCurveN =
       ocx::helper::GetFirstChild(nurbsSrfN, "FaceBoundaryCurve");
@@ -363,8 +374,7 @@ TopoDS_Face ReadSphere3D(LDOM_Element const &surfaceN) {
 //-----------------------------------------------------------------------------
 
 TopoDS_Face ReadPlane3D(LDOM_Element const &surfaceN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(surfaceN);
+  auto meta = ocx::helper::GetOCXMeta(surfaceN);
 
   LDOM_Element originN = ocx::helper::GetFirstChild(surfaceN, "Origin");
   if (originN.isNull()) {
@@ -396,10 +406,10 @@ TopoDS_Face ReadPlane3D(LDOM_Element const &surfaceN) {
   if (!faceBoundaryCurveN.isNull()) {
     outerContour = ocx::shared::curve::ReadCurve(faceBoundaryCurveN);
   } else {
-    OCX_INFO(
-        "No FaceBoundaryCurve child node found in Plane3D with surface id={} "
-        "guid={}",
-        meta->id, meta->guid);
+    OCX_DEBUG(
+        "No FaceBoundaryCurve child node found in Plane3D with surface id={}. "
+        "Going to restrict surface manually by global bounding box limits.",
+        meta->id);
 
     std::vector<gp_Pnt> pnts{};
     if (normal.IsParallel({1, 0, 0}, 1e-2)) {

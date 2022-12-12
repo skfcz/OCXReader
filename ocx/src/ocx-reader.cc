@@ -27,7 +27,7 @@
 #include "ocx/internal/ocx-coordinate-system.h"
 #include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-log.h"
-#include "ocx/internal/ocx-util.h"
+#include "ocx/internal/ocx-utils.h"
 #include "ocx/internal/ocx-vessel.h"
 
 namespace ocx {

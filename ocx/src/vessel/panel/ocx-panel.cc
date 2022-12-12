@@ -98,7 +98,7 @@ void ReadPanels(LDOM_Element const &vesselN) {
 namespace {
 
 TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(panelN);
+  auto meta = ocx::helper::GetOCXMeta(panelN);
 
   std::list<TopoDS_Shape> shapes;
 
@@ -122,6 +122,14 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
       OCX_ERROR(
           "Failed to read UnboundedGeometry element from Plane id={} guid={}",
           meta->id, meta->guid);
+
+      // Disable PanelSurfaces if enabled
+      if (OCXContext::CreatePanelSurfaces) {
+        OCX_WARN(
+            "PanelSurfaces creation is enabled but belonging UnboundedGeometry "
+            "is null. Disabling PanelSurfaces.");
+        CreatePanelSurfaces = false;
+      }
     }
   }
 
@@ -139,7 +147,7 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
       // Disable PanelSurfaces and PlateSurfaces if they are enabled
       if (OCXContext::CreatePanelSurfaces) {
         OCX_WARN(
-            "PanelSurfaces creation is enabled but but PanelContours creation "
+            "PanelSurfaces creation is enabled but PanelContours creation "
             "failed. Disabling PanelSurfaces.");
         CreatePanelSurfaces = false;
       }
@@ -150,7 +158,8 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
 
   // Create the resulting PanelSurface (UnboundedGeometry restricted by
   // OuterContour and CutBy, where OuterContour is required)
-  if (CreatePanelSurfaces && OCXContext::CreateLimitedBy == withLimitedBy) {
+  if (CreatePanelSurfaces && CreatePanelContours &&
+      OCXContext::CreateLimitedBy == withLimitedBy) {
     TopoDS_Shape panelSurface = ocx::helper::CutShapeByWire(
         unboundedGeometryShape, outerContour, meta->id, meta->guid);
     if (!panelSurface.IsNull()) {

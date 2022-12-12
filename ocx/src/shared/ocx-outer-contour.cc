@@ -17,8 +17,7 @@
 namespace ocx::shared::outer_contour {
 
 TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(elementN);
+  auto meta = ocx::helper::GetOCXMeta(elementN);
 
   LDOM_Element outerContourN =
       ocx::helper::GetFirstChild(elementN, "OuterContour");

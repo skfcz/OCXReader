@@ -35,6 +35,7 @@
 #include "occutils/occutils-step-export.h"
 #include "occutils/occutils-surface.h"
 #include "ocx/internal/ocx-context.h"
+#include "ocx/internal/ocx-utils.h"
 
 namespace ocx::helper {
 
@@ -241,7 +242,7 @@ PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
 
   LDOM_Node childN = controlPtListN.getFirstChild();
   if (childN.isNull()) {
-    OCX_ERROR("No ControlPoint tag found in NURBS3D/ControlPtList");
+    OCX_ERROR("No child node found in given ControlPointList element");
     polesWeights.IsNull = true;
     return polesWeights;
   }
@@ -251,6 +252,10 @@ PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
     // Check for valid node type
     const LDOM_Node::NodeType nodeType = childN.getNodeType();
     if (nodeType != LDOM_Node::ELEMENT_NODE) {
+      OCX_ERROR(
+          "Invalid node type found in ControlPointList element. Got {}, but"
+          "expected {}",
+          nodeType, LDOM_Node::ELEMENT_NODE);
       polesWeights.IsNull = true;
       return polesWeights;
     }
@@ -259,7 +264,7 @@ PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
     LDOM_Element controlPointN = (LDOM_Element &)childN;
     LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
     if (pointN.isNull()) {
-      OCX_ERROR("No Point3D tag found in NURBS3D/ControlPtList/ControlPoint");
+      OCX_ERROR("No Point3D child node found in given ControlPoint element");
       polesWeights.IsNull = true;
       return polesWeights;
     }
@@ -288,7 +293,7 @@ PolesWeightsSurface ParseControlPointsSurface(
 
   LDOM_Node childN = controlPtListN.getFirstChild();
   if (childN.isNull()) {
-    OCX_ERROR("No ControlPoint tag found in NURBSSurface/ControlPtList");
+    OCX_ERROR("No child node found in given ControlPointList element");
     polesWeights.IsNull = true;
     return polesWeights;
   }
@@ -298,6 +303,10 @@ PolesWeightsSurface ParseControlPointsSurface(
       // Check for valid node type
       const LDOM_Node::NodeType nodeType = childN.getNodeType();
       if (nodeType != LDOM_Node::ELEMENT_NODE) {
+        OCX_ERROR(
+            "Invalid node type found in ControlPointList element. Got {}, but"
+            "expected {}",
+            nodeType, LDOM_Node::ELEMENT_NODE);
         polesWeights.IsNull = true;
         return polesWeights;
       }
@@ -306,8 +315,7 @@ PolesWeightsSurface ParseControlPointsSurface(
       LDOM_Element controlPointN = (LDOM_Element &)childN;
       LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
       if (pointN.isNull()) {
-        OCX_ERROR(
-            "No Point3D tag found in NURBSSurface/ControlPtList/ControlPoint");
+        OCX_ERROR("No Point3D child node found in given ControlPoint element");
         polesWeights.IsNull = true;
         return polesWeights;
       }
@@ -435,10 +443,10 @@ TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
 //-----------------------------------------------------------------------------
 
 // TODO: Prototype, if solution is proven to work goes to -> OCCUtils::Surface
-std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface &surface1,
-                                        const GeomAdaptor_Surface &surface2) {
-  auto intersector = GeomAPI_IntSS(surface1.Surface(), surface2.Surface(),
-                                   Precision::Confusion());
+std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface &S1,
+                                        const GeomAdaptor_Surface &S2) {
+  auto intersector =
+      GeomAPI_IntSS(S1.Surface(), S2.Surface(), Precision::Confusion());
   if (!intersector
            .IsDone()) {  // Algorithm failure, returned as no intersection
     return std::nullopt;

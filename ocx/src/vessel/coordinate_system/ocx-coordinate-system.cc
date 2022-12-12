@@ -117,8 +117,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element refPlaneN = (LDOM_Element &)aChildN;
-      std::unique_ptr<ocx::helper::OCXMeta> meta =
-          ocx::helper::GetOCXMeta(refPlaneN);
+      auto meta = ocx::helper::GetOCXMeta(refPlaneN);
 
       if (std::string refPlaneName = ocx::helper::GetLocalTagName(refPlaneN);
           refPlaneName != "RefPlane") {
@@ -207,21 +206,21 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
     aChildN = aChildN.getNextSibling();
   }
 
-  TopoDS_Compound refPlanesXYZAssy;
+  TopoDS_Compound refPlanesAssy;
   BRep_Builder refPlanesBuilder;
-  refPlanesBuilder.MakeCompound(refPlanesXYZAssy);
+  refPlanesBuilder.MakeCompound(refPlanesAssy);
   for (TopoDS_Shape const &shape : shapes) {
-    refPlanesBuilder.Add(refPlanesXYZAssy, shape);
+    refPlanesBuilder.Add(refPlanesAssy, shape);
   }
 
-  TDF_Label refSrfLabel = OCXContext::GetInstance()->OCAFShapeTool()->AddShape(
-      refPlanesXYZAssy, true);
-  TDataStd_Name::Set(refSrfLabel, refPlaneType.c_str());
+  TDF_Label refPlaneLabel =
+      OCXContext::GetInstance()->OCAFShapeTool()->AddShape(refPlanesAssy, true);
+  TDataStd_Name::Set(refPlaneLabel, refPlaneType.c_str());
 
   OCX_INFO("Registered {} reference planes found in {}", cntPlanes,
            refPlaneType);
 
-  return refPlanesXYZAssy;
+  return refPlanesAssy;
 }
 
 }  // namespace

@@ -28,7 +28,7 @@
 
 #include "ocx-bar-section.h"
 #include "ocx/internal/ocx-helper.h"
-#include "ocx/internal/ocx-util.h"
+#include "ocx/internal/ocx-utils.h"
 
 namespace ocx {
 

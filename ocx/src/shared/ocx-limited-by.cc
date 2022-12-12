@@ -18,7 +18,6 @@
 #include <BRep_Builder.hxx>
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
-#include <memory>
 
 #include "occutils/occutils-curve.h"
 #include "ocx/internal/ocx-helper.h"
@@ -26,7 +25,7 @@
 namespace ocx::shared::limited_by {
 
 TopoDS_Shape ReadLimitedBy(LDOM_Element const &panelN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(panelN);
+  auto meta = ocx::helper::GetOCXMeta(panelN);
 
   LDOM_Element limitedByN = ocx::helper::GetFirstChild(panelN, "LimitedBy");
   if (limitedByN.isNull()) {
@@ -90,10 +89,8 @@ namespace {
 
 TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
                             LDOM_Element const &ocxItemPtrN) {
-  std::unique_ptr<ocx::helper::OCXMeta> panelMeta =
-      ocx::helper::GetOCXMeta(panelN);
-  std::unique_ptr<ocx::helper::OCXMeta> ocxItemPtrMeta =
-      ocx::helper::GetOCXMeta(ocxItemPtrN);
+  auto panelMeta = ocx::helper::GetOCXMeta(panelN);
+  auto ocxItemPtrMeta = ocx::helper::GetOCXMeta(ocxItemPtrN);
 
   TopoDS_Shape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
   if (panelShape.IsNull()) {
@@ -119,8 +116,19 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
   // Get intersection between Panel and referenced OcxItemPtr shape
   GeomAdaptor_Surface panelShapeAdapter =
       OCCUtils::Surface::FromFace(TopoDS::Face(panelShape));
+  if (panelShapeAdapter.Surface().IsNull()) {
+    OCX_ERROR("Failed to get surface from Panel with id={} guid={}",
+              panelMeta->id, panelMeta->guid);
+    return {};
+  }
+
   GeomAdaptor_Surface ocxItemPtrShapeAdapter =
       OCCUtils::Surface::FromFace(TopoDS::Face(ocxItemPtrShape));
+  if (ocxItemPtrShapeAdapter.Surface().IsNull()) {
+    OCX_ERROR("Failed to get surface from OcxItemPtr with guid={}",
+              ocxItemPtrMeta->guid);
+    return {};
+  }
 
   std::optional<TopoDS_Edge> limitedByShape =
       ocx::helper::Intersection(panelShapeAdapter, ocxItemPtrShapeAdapter);
@@ -185,7 +193,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
 //-----------------------------------------------------------------------------
 
 TopoDS_Shape ReadFreeEdgeCurve3D(LDOM_Element const &curveN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(curveN);
+  auto meta = ocx::helper::GetOCXMeta(curveN);
 
   TopoDS_Shape curveShape = ocx::shared::curve::ReadCurve(curveN);
   if (curveShape.IsNull()) {
@@ -211,10 +219,8 @@ TopoDS_Shape ReadFreeEdgeCurve3D(LDOM_Element const &curveN) {
 
 TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
                          LDOM_Element const &gridRefN) {
-  std::unique_ptr<ocx::helper::OCXMeta> panelMeta =
-      ocx::helper::GetOCXMeta(panelN);
-  std::unique_ptr<ocx::helper::OCXMeta> gridRefMeta =
-      ocx::helper::GetOCXMeta(gridRefN);
+  auto panelMeta = ocx::helper::GetOCXMeta(panelN);
+  auto gridRefMeta = ocx::helper::GetOCXMeta(gridRefN);
 
   TopoDS_Shape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
   if (panelShape.IsNull()) {
@@ -261,8 +267,19 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
   // Get intersection between Panel and referenced OcxItemPtr shape
   GeomAdaptor_Surface panelShapeAdapter =
       OCCUtils::Surface::FromFace(TopoDS::Face(panelShape));
+  if (panelShapeAdapter.Surface().IsNull()) {
+    OCX_ERROR("Failed to get surface from Panel with id={} guid={}",
+              panelMeta->id, panelMeta->guid);
+    return {};
+  }
+
   GeomAdaptor_Surface gridRefShapeAdapter =
       OCCUtils::Surface::FromFace(TopoDS::Face(gridRefOffsetShape));
+  if (gridRefShapeAdapter.Surface().IsNull()) {
+    OCX_ERROR("Failed to get surface from GridRef with guid={}",
+              gridRefMeta->guid);
+    return {};
+  }
 
   std::optional<TopoDS_Edge> limitedByShape =
       ocx::helper::Intersection(panelShapeAdapter, gridRefShapeAdapter);

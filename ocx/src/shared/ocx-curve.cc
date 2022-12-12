@@ -26,16 +26,14 @@
 #include <TColgp_Array1OfPnt.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
-#include <memory>
 
 #include "ocx/internal/ocx-helper.h"
-#include "ocx/internal/ocx-util.h"
+#include "ocx/internal/ocx-utils.h"
 
 namespace ocx::shared::curve {
 
 TopoDS_Wire ReadCurve(LDOM_Element const &curveRootN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(curveRootN);
+  auto meta = ocx::helper::GetOCXMeta(curveRootN);
 
   auto wireBuilder = BRepBuilderAPI_MakeWire();
 
@@ -112,8 +110,7 @@ TopoDS_Wire ReadCurve(LDOM_Element const &curveRootN) {
 namespace {
 
 TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveColN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(curveColN);
+  auto meta = ocx::helper::GetOCXMeta(curveColN);
 
   auto wireBuilder = BRepBuilderAPI_MakeWire();
 
@@ -175,8 +172,7 @@ TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveColN) {
 }
 
 TopoDS_Wire ReadEllipse3D(LDOM_Element const &ellipseN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(ellipseN);
+  auto meta = ocx::helper::GetOCXMeta(ellipseN);
 
   LDOM_Element centerN = ocx::helper::GetFirstChild(ellipseN, "Center");
   if (centerN.isNull()) {
@@ -239,7 +235,7 @@ TopoDS_Wire ReadEllipse3D(LDOM_Element const &ellipseN) {
 }
 
 TopoDS_Wire ReadCircumCircle3D(LDOM_Element const &circleN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(circleN);
+  auto meta = ocx::helper::GetOCXMeta(circleN);
 
   LDOM_Element positionsN = ocx::helper::GetFirstChild(circleN, "Positions");
   if (positionsN.isNull()) {
@@ -297,7 +293,7 @@ TopoDS_Wire ReadCircumCircle3D(LDOM_Element const &circleN) {
 }
 
 TopoDS_Wire ReadCircle3D(LDOM_Element const &circleN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(circleN);
+  auto meta = ocx::helper::GetOCXMeta(circleN);
 
   LDOM_Element centerN = ocx::helper::GetFirstChild(circleN, "Center");
   if (centerN.isNull()) {
@@ -333,7 +329,7 @@ TopoDS_Wire ReadCircle3D(LDOM_Element const &circleN) {
 }
 
 TopoDS_Edge ReadCircumArc3D(LDOM_Element const &circleN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(circleN);
+  auto meta = ocx::helper::GetOCXMeta(circleN);
 
   LDOM_Element startN = ocx::helper::GetFirstChild(circleN, "StartPoint");
   if (startN.isNull()) {
@@ -371,7 +367,7 @@ TopoDS_Edge ReadCircumArc3D(LDOM_Element const &circleN) {
 }
 
 TopoDS_Edge ReadLine3D(LDOM_Element const &lineN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(lineN);
+  auto meta = ocx::helper::GetOCXMeta(lineN);
 
   LDOM_Element startN = ocx::helper::GetFirstChild(lineN, "StartPoint");
   if (startN.isNull()) {
@@ -402,8 +398,7 @@ TopoDS_Shape ReadPolyLine3D(LDOM_Element const &curveN) {
 }
 
 TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(nurbs3DN);
+  auto meta = ocx::helper::GetOCXMeta(nurbs3DN);
 
   LDOM_Element propsN = ocx::helper::GetFirstChild(nurbs3DN, "NURBSproperties");
   if (propsN.isNull()) {
@@ -458,17 +453,36 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
     return {};
   }
 
+  if (IsEqual(meta->id, "ID53")) {
+    for (int i = 1; i <= numCtrlPoints; i++) {
+      OCX_INFO("Control Point: [{}, {}, {}], Weight: {}", pw.poles.Value(i).X(),
+               pw.poles.Value(i).Y(), pw.poles.Value(i).Z(),
+               pw.weights.Value(i));
+    }
+
+    OCX_INFO("Knot vector: {}", knotVectorS);
+    for (int i = 1; i <= kn.knots.Length(); i++) {
+      OCX_INFO("Knot: {}", kn.knots.Value(i));
+      OCX_INFO("Mults: {}", kn.mults.Value(i));
+    }
+  }
+
   // Create the curve
   Handle(Geom_BSplineCurve) curve =
       new Geom_BSplineCurve(pw.poles, pw.weights, kn.knots, kn.mults, degree,
                             Standard_False, isRational);
 
-  TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(curve);
+  TopoDS_Shape res = BRepBuilderAPI_MakeEdge(curve);
 
   if (curve->IsClosed()) {
-    return BRepBuilderAPI_MakeWire(edge);
+    res = BRepBuilderAPI_MakeWire(TopoDS::Edge(res));
   }
-  return edge;
+
+  // if (IsEqual(meta->id, "ID53")) {
+  //   OCCUtils::STEP::ExportSTEP(res, "test.stp");
+  // }
+
+  return res;
 }
 
 }  // namespace

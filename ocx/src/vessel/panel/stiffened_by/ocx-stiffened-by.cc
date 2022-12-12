@@ -25,7 +25,7 @@
 namespace ocx::vessel::panel::stiffened_by {
 
 TopoDS_Shape ReadStiffenedBy(LDOM_Element const &panelN, bool addShape) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(panelN);
+  auto meta = ocx::helper::GetOCXMeta(panelN);
 
   LDOM_Element stiffendedByN =
       ocx::helper::GetFirstChild(panelN, "StiffenedBy");
@@ -89,8 +89,7 @@ TopoDS_Shape ReadStiffenedBy(LDOM_Element const &panelN, bool addShape) {
 namespace {
 
 TopoDS_Shape ReadStiffener(LDOM_Element const &stiffenerN, bool addShape) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
-      ocx::helper::GetOCXMeta(stiffenerN);
+  auto meta = ocx::helper::GetOCXMeta(stiffenerN);
 
   LDOM_Element traceN = ocx::helper::GetFirstChild(stiffenerN, "TraceLine");
   // Also check for <ocx:TraceLine /> node

@@ -18,7 +18,7 @@
 #include <memory>
 
 #include "ocx/internal/ocx-helper.h"
-#include "ocx/internal/ocx-util.h"
+#include "ocx/internal/ocx-utils.h"
 
 namespace ocx::x_section_catalogue {
 
@@ -52,7 +52,7 @@ void ReadBarSections(LDOM_Element const &xSectionCatalogueN) {
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element elementN = (LDOM_Element &)childN;
 
-      std::unique_ptr<ocx::helper::OCXMeta> barSectionMeta =
+      auto barSectionMeta =
           ocx::helper::GetOCXMeta(elementN);
 
       std::string barSectionType = ocx::helper::GetChildTagName(elementN);
@@ -72,7 +72,7 @@ void ReadBarSections(LDOM_Element const &xSectionCatalogueN) {
 //-----------------------------------------------------------------------------
 
 void ReadFlatBar(LDOM_Element const &barSectionN) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta =
+  auto meta =
       ocx::helper::GetOCXMeta(barSectionN);
 
   // Read height and width

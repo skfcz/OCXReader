@@ -30,8 +30,8 @@ namespace ocx {
 
 bool LDOMCompare::operator()(LDOM_Element const &lhs,
                              LDOM_Element const &rhs) const {
-  std::unique_ptr<ocx::helper::OCXMeta> metaLhs = ocx::helper::GetOCXMeta(lhs);
-  std::unique_ptr<ocx::helper::OCXMeta> metaRhs = ocx::helper::GetOCXMeta(rhs);
+  auto metaLhs = ocx::helper::GetOCXMeta(lhs);
+  auto metaRhs = ocx::helper::GetOCXMeta(rhs);
 
   if (metaLhs->guid != nullptr && metaRhs->guid != nullptr) {
     return strcmp(metaLhs->guid, metaRhs->guid) < 0;
@@ -110,40 +110,46 @@ void OCXContext::PrepareUnits() {
     return;
   }
 
-  LDOM_Node aChildNode = unitsSetN.getFirstChild();
-  while (aChildNode != nullptr) {
-    const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
+  LDOM_Node childN = unitsSetN.getFirstChild();
+  while (childN != nullptr) {
+    const LDOM_Node::NodeType aNodeType = childN.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
-      LDOM_Element unitN = (LDOM_Element &)aChildNode;
+      LDOM_Element unitN = (LDOM_Element &)childN;
       if (ocx::helper::GetLocalTagName(unitN) == "Unit") {
-        LDOM_NodeList attributes = unitN.GetAttributesList();
-
-        std::string id;
-        for (int i = 0; i < attributes.getLength(); i++) {
-          LDOM_Node theAtt = attributes.item(i);
-
-          if (ocx::helper::GetLocalAttrName(theAtt) == "id") {
-            id = std::string(theAtt.getNodeValue().GetString());
-          }
+        // Parse unit ID
+        std::string unitId = unitN.getAttribute("xml:id").GetString();
+        if (unitId.empty()) {
+          OCX_ERROR("No xml:id attribute found in Unit node");
+          childN = childN.getNextSibling();
+          continue;
         }
 
-        std::string symbol = ocx::helper::GetFirstChild(unitN, "UnitSymbol")
-                                 .getAttribute("type")
-                                 .GetString();
+        // Parse unit symbol
+        LDOM_Element unitSymbolN =
+            ocx::helper::GetFirstChild(unitN, "UnitSymbol");
+        if (unitSymbolN.isNull()) {
+          OCX_ERROR("No UnitSymbol child node found in Unit");
+          childN = childN.getNextSibling();
+          continue;
+        }
+        std::string unitSymbol = unitSymbolN.getAttribute("type").GetString();
 
-        if ("m" == symbol) {
-          unit2factor[id] = 1;
-        } else if ("dm" == symbol) {
-          unit2factor[id] = 1 / 10.0;
-        } else if ("cm" == symbol) {
-          unit2factor[id] = 1 / 100.0;
-        } else if ("mm" == symbol) {
-          unit2factor[id] = 1 / 1000.0;
+        OCX_INFO("UnitID={}, UnitSymbol={}", unitId, unitSymbol);
+
+        // Add unit to map
+        if ("m" == unitSymbol) {
+          unit2factor[unitId] = 1;
+        } else if ("dm" == unitSymbol) {
+          unit2factor[unitId] = 1 / 10.0;
+        } else if ("cm" == unitSymbol) {
+          unit2factor[unitId] = 1 / 100.0;
+        } else if ("mm" == unitSymbol) {
+          unit2factor[unitId] = 1 / 1000.0;
         }
       }
     }
-    aChildNode = aChildNode.getNextSibling();
+    childN = childN.getNextSibling();
   }
 
   OCX_INFO("Units set up successfully...");
@@ -171,7 +177,6 @@ TopoDS_Shape OCXContext::LookupShape(LDOM_Element const &element) {
       res != LDOM2TopoDS_Shape.end()) {
     return res->second;
   }
-  OCX_WARN("No TopoDS_Shape found for given LDOM_Element");
   return {};
 }
 

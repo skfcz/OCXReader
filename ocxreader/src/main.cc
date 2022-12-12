@@ -5,6 +5,7 @@
 // the terms of the GNU Lesser General Public License version 2.1 as published
 // by the Free Software Foundation.
 
+#include <BinXCAFDrivers.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
 #include <XmlDrivers.hxx>
@@ -18,7 +19,8 @@ int main() {
 
   // Initialize the document
   Handle(TDocStd_Document) doc;
-  app->NewDocument("XmlOcaf", doc);
+  // app->NewDocument("XmlOcaf", doc);
+  app->NewDocument("BinXCAF", doc);
   if (doc.IsNull()) {
     std::cerr << "Can not create OCAF document" << std::endl;
     return 1;
@@ -37,14 +39,24 @@ int main() {
     return 1;
   }
 
-  // Save the document
-  XmlDrivers::DefineFormat(app);
-  if (app->SaveAs(doc, "vessel.xml") != PCDM_SS_OK) {
+  // Save the document to xbf
+  BinXCAFDrivers::DefineFormat(app);
+  app->SaveAs(doc, "doc.xbf");
+  if (app->SaveAs(doc, "doc.xbf") != PCDM_SS_OK) {
     app->Close(doc);
 
-    std::cout << "Cannot write OCAF document." << std::endl;
+    std::cout << "Cannot write OCAF document to xbf." << std::endl;
     return 1;
   }
+
+  // Save the document to xml
+  // XmlDrivers::DefineFormat(app);
+  // if (app->SaveAs(doc, "doc.xml") != PCDM_SS_OK) {
+  //   app->Close(doc);
+  //
+  //   std::cout << "Cannot write OCAF document to xml." << std::endl;
+  //   return 1;
+  // }
 
   app->Close(doc);
 

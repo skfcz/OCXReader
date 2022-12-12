@@ -26,7 +26,7 @@
 namespace ocx::vessel::panel::composed_of {
 
 TopoDS_Shape ReadComposedOf(LDOM_Element const &panelN, bool withLimitedBy) {
-  std::unique_ptr<ocx::helper::OCXMeta> meta = ocx::helper::GetOCXMeta(panelN);
+  auto meta = ocx::helper::GetOCXMeta(panelN);
 
   LDOM_Element composedOfN = ocx::helper::GetFirstChild(panelN, "ComposedOf");
   if (composedOfN.isNull()) {
@@ -80,10 +80,8 @@ namespace {
 
 TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
                        bool withLimitedBy) {
-  std::unique_ptr<ocx::helper::OCXMeta> plateMeta =
-      ocx::helper::GetOCXMeta(plateN);
-  std::unique_ptr<ocx::helper::OCXMeta> panelMeta =
-      ocx::helper::GetOCXMeta(plateN);
+  auto plateMeta = ocx::helper::GetOCXMeta(plateN);
+  auto panelMeta = ocx::helper::GetOCXMeta(plateN);
 
   std::list<TopoDS_Shape> shapes;
 
@@ -112,7 +110,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
     } else {
       OCX_WARN(
           "No UnboundedGeometry child node found in Plate element id={} "
-          "guid={}. Try reading form parent UnboundedGeometry element.",
+          "guid={}. Try reading from parent UnboundedGeometry element.",
           plateMeta->id, plateMeta->guid);
       // Load it from the cache, as it should be parsed already
       unboundedGeometryShape = OCXContext::GetInstance()->LookupShape(panelN);
@@ -125,6 +123,14 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
                   panelMeta->id, panelMeta->guid);
       }
     }
+  }
+
+  // Disable PlateSurfaces if enabled and no UnboundedGeometry is found
+  if (unboundedGeometryShape.IsNull() && OCXContext::CreatePlateSurfaces) {
+    OCX_WARN(
+        "PlateSurfaces creation is enabled but belonging UnboundedGeometry "
+        "is null. Disabling PlateSurfaces.");
+    CreatePlateSurfaces = false;
   }
 
   // Read the Contour
@@ -149,7 +155,8 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
   }
 
   // Read the PlateSurface
-  if (CreatePlateSurfaces && OCXContext::CreateLimitedBy == withLimitedBy) {
+  if (CreatePlateSurfaces && CreatePlateContours &&
+      OCXContext::CreateLimitedBy == withLimitedBy) {
     TopoDS_Shape plateSurface = ocx::helper::CutShapeByWire(
         unboundedGeometryShape, outerContour, plateMeta->id, plateMeta->guid);
     if (!plateSurface.IsNull()) {
