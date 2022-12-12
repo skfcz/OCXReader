@@ -41,6 +41,13 @@
 /ocxreader/doc.*
 
 /cmake_install.cmake
+/**/*.cmake
+/**/Makefile
+/**/*.ninja
+/**/CMakeFiles
 
 # VSCode
 .vscode/
+/_deps/
+/cmake-build-*
+/lib/*

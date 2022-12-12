@@ -1,0 +1,1350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="NAPAExport" type="ShipSteelTransfer" nillable="true"/>
+	<xs:element name="AVEVAExport" type="ShipSteelTransfer" nillable="true"/>
+	<xs:element name="ShipSteelTransfer" type="ShipSteelTransfer" nillable="true"/>
+	<xs:complexType name="ShipSteelTransfer">
+		<xs:sequence>
+			<xs:element name="timestamp" type="xs:dateTime" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="GeneralData" type="GeneralData" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ReferenceTables" type="ReferenceTables" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Blocks" type="Blocks" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Structure" type="Structure" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Supports" type="Supports" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+		<xs:attribute name="version" type="xs:string"/>
+		<xs:attribute name="buildDate" type="xs:string"/>
+		<xs:attribute name="buildVersion" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="GeneralData">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">General information about the transfered ship used as context</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="shipName" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="yardNumber" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="aftEnd" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="aftPerpendicular" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="forwardEnd" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="forwardPerpendicular" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="lengthOverall" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="maxDraught" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="maxBreadth" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="maxHeight" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="heightOfMainDeck" type="xs:double" use="optional" default="0.0">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ReferenceTables" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:sequence>
+					<xs:element name="FrameTable" type="FrameTable" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="VerticalTable" type="VerticalTable" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="LongitudinalTable" type="LongitudinalTable" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="WebTable" type="FrameTable" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Entity" abstract="true">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">A base object which carries some comments</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="comment" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LongitudinalTable" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:sequence>
+					<xs:element name="Longidutinal" type="Longidutinal" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Longidutinal" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="SpacingPosition"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SpacingPosition" abstract="true" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="NamedEntity">
+				<xs:attribute name="pos" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NamedEntity" abstract="true" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">A base object which has a name</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:attribute name="name" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Vertical" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="SpacingPosition"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Frame" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="SpacingPosition"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VerticalTable" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:sequence>
+					<xs:element name="Vertical" type="Vertical" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FrameTable" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:sequence>
+					<xs:element name="Frame" type="Frame" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Blocks" type="Blocks" nillable="true"/>
+	<xs:complexType name="Blocks" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:sequence>
+					<xs:element name="Block" type="Block" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="name" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Block" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:attribute name="name" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="fore" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="aft" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="bot" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="top" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="port" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="stbd" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Supports" type="Supports" nillable="true"/>
+	<xs:complexType name="Supports" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:sequence>
+					<xs:element name="Support" type="Support" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Support" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The Support contains information on the plane housing a part, e.g. a deck or stiffener</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:attribute name="normal" type="Vector">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="grid" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The symbolic description of a  support, e.g. 'LFR#5'</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="coordinate" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The main plane if possible, e.g. 'Y=+3075'</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="orientation" type="Orientation" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Symbolic representation for the planes orientation, e.g. 'PS'</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="planar" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether we have a support plane ('true') or a arbitrary surface ('false')</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="locationType" type="LocationType" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The location of the support</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="majorPlane" type="MajorPlane" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The major plane; this is the nearest major plane to a plane given, for example, by three points</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="tp1" type="CartesianPoint">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">One point on the plane</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="tp2" type="CartesianPoint">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">One point on the plane</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="tp3" type="CartesianPoint">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">One point on the plane</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="Vector">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a vector in a Cartesian coordinate system</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="^\(([-+]?([0-9]*\.[0-9]+))\s([-+]?([0-9]*\.[0-9]+))\s([-+]?([0-9]*\.[0-9]+))\)$"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CartesianPoint">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a point on a Cartesian coordinate system</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="^\(([-+]?([0-9]*\.[0-9]+))\s([-+]?([0-9]*\.[0-9]+))\s([-+]?([0-9]*\.[0-9]+))\)$"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="EntityWithProperties" abstract="true" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The base class for all kinds of entities which have some kind of properties</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="NamedEntity">
+				<xs:sequence>
+					<xs:element name="Properties" type="Properties" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Properties">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Properties is container for two types of data: default data for a physical objects as well as carrier
+                for arbitrary key values.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Values" type="ArrayOfKeyValue" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+		<xs:attribute name="bbox0" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The minimum point of the bounding box</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="bbox1" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The maximum point of the bounding box</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="cog" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The center of gravity</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="weight" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The weight in kilogram</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="area" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfKeyValue">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="KeyValue" type="KeyValue" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="KeyValue">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">A holder for arbitrary properties</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="key" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The property name</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="value" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The property value</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="unit" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The property unit</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="Orientation">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="UNDEFINED"/>
+			<xs:enumeration value="FORE"/>
+			<xs:enumeration value="AFT"/>
+			<xs:enumeration value="PS"/>
+			<xs:enumeration value="SB"/>
+			<xs:enumeration value="TOP"/>
+			<xs:enumeration value="BOT"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="LocationType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="UNKNOWN"/>
+			<xs:enumeration value="X"/>
+			<xs:enumeration value="Y"/>
+			<xs:enumeration value="Z"/>
+			<xs:enumeration value="TP"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="MajorPlane">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="UNDEFINED"/>
+			<xs:enumeration value="X"/>
+			<xs:enumeration value="Y"/>
+			<xs:enumeration value="Z"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="Structure" type="Structure" nillable="true"/>
+	<xs:complexType name="Structure" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The root element for steel</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Entity">
+				<xs:sequence>
+					<xs:element name="Panels" type="ArrayOfPanel" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Brackets" type="ArrayOfBracket" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfPanel">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Panel" type="Panel" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Panel" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a panel</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="PanelType" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Extrusion" type="Extrusion" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Geometry" type="Curve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Support" type="Support" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Limits" type="ArrayOfLimit" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Facet" type="Facet" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Plates" type="ArrayOfPlate" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Seams" type="ArrayOfSeam" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Stiffeners" type="ArrayOfStiffener" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Holes" type="ArrayOfHole" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Cutouts" type="ArrayOfCutout" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Notches" type="ArrayOfNotch" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Brackets" type="ArrayOfBracket" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="blockName" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The block name</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="category" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">A category</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="categoryDes" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">A category description</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="planar" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether the panel is planar</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="pillar" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Wether the panel is just a holder for pillars</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="owner" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The top-level name for (knuckled) sub panels</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="defaultMaterial" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The default material quality for plates and stiffeners in this panel</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="tightness" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Tightness definition for this panel</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PanelType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Contains detailed information on the panel type</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="planar" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="knuckled" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="mainPanel" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="shellPanel" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="igesMainFile" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="igesOffsetFile" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Extrusion">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:attribute name="thickness" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="offset" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="orientation" type="Orientation" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Curve">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Any kind of curve description</xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+	<xs:complexType name="AMCurve" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">A curve description as used in AVEVA Marine, always has a representation in ArcSegments; NapaArcSegements and NapaNurbsCurve are optional.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="Curve">
+				<xs:sequence>
+					<xs:element name="NapaArcSegment" type="NapaArcSegment" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="NapaNurbsCurve" type="NapaNurbsCurve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="ArcSegment" type="ArcSegment" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="system" type="AMSystems" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The project plane of the planar curve, see associated Support element for exact plane definition</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NapaArcSegment">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The original Napa curve description, only used for debugging purposes</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="arcDirection" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="startPoint" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="middlePoint" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="endPoint" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="NapaNurbsCurve">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The original NAPA nurbs curve, only used for debugging purposes</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ControlPoints" type="ControlPoint" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="AdminData" type="AdminData" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ControlPoint">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:attribute name="p" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="weight" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="AdminData">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:attribute name="CloseParam" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Degree" type="xs:int" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Open" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Periodic" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Planar" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="Rational" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="KnotMultiplicites" type="IntArray">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">Multiplicity of the knots obtained from the property KnotPointsDistinct</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="KnotPoints" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The "expanded knot set", i.e. all knots with multiplicities as repeated values</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="KnotPointsDistinct" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">Returns each knot only once, together with KnotMultiplicities</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="IntArray">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents an array of integers</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="^([0-9]+\s)+[0-9]+$"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ArcSegment">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The representation of one circular arc segment; see parent curve and associated Support element for the plane</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="p0" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The start point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="p1" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The end point</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="pC" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The center point, not used if arc is straight line</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="pM" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The middle point, not used if arc is straight line</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="amp" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The secant height</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="radius" type="xs:double" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">The radius</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="isLine" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">Whether the arc segment is degenerated to a line</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="isWithershins" type="xs:boolean" use="required">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">Whether the arc is counterclockwise when seen from fore, top, starboard</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="AMSystems">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="XY"/>
+			<xs:enumeration value="XZ"/>
+			<xs:enumeration value="YZ"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ArrayOfLimit">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Limit" type="Limit" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Limit" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a geometrical or topological limit of a panel</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="NamedEntity">
+				<xs:sequence>
+					<xs:element name="Contour" type="Curve" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="feature" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The name of the topological partner; is empty if we have a pure geometrical limit (type = Curve)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="type" type="LimitType" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The type of limit, e.g. a Curve or a Panel</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="offset" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The limit offset</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="orientation" type="Orientation" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The limit orientation</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="p0" type="CartesianPoint">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The start point of the limit</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="p1" type="CartesianPoint">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The end point of the limit</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="p0Idx" type="xs:int" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The index of the point in the limit sequence</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="p1Idx" type="xs:int" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The index of the point in the limit sequence</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="sameDirection" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Deprecated; used to indicate whether geometry and start - end point have the same direction; now always true</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="LimitType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="UNKNOWN"/>
+			<xs:enumeration value="CURVE"/>
+			<xs:enumeration value="TRACE"/>
+			<xs:enumeration value="FOR_FLANGE"/>
+			<xs:enumeration value="BLOCK"/>
+			<xs:enumeration value="PANEL"/>
+			<xs:enumeration value="PANEL_SAME_PLANE"/>
+			<xs:enumeration value="STIFFENER"/>
+			<xs:enumeration value="KNUCKLE"/>
+			<xs:enumeration value="GAP"/>
+			<xs:enumeration value="HOLE"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="Facet">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Contains a facet representation of a panel border, for debugging purposes</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Points" type="ArrayOfFacetPoint" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfFacetPoint">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Point" type="FacetPoint" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FacetPoint">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:attribute name="p0" type="CartesianPoint">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfPlate">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Plate" type="Plate" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Plate" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a plate on a panel</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="Geometry" type="Curve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Holes" type="ArrayOfHole" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Seams" type="ArrayOfSeamRef" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="category" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">A category (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="categoryDes" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">A category description (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="material" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The material quality</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="thickness" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The thickness in millimetres</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="offset" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The offset in millimetres</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="orientation" type="Orientation" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The orientation</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfHole">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Hole" type="Hole" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Hole" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a hole</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="Section" type="Section" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Contour" type="Curve" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Section" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">A cross section definition, e.g. for profiles or holes</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="MouldedShape" type="Curve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="CrossSection" type="Curve" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="webOrientation" type="Orientation" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The orientation of the web</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="webOffset" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">An offset of the web</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="flangeOrientation" type="Orientation" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The orientation for the flange</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="flangeOffset" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The offset of the flange</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="angle" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The angle between the underlying plane and the stiffener (!= 90 if the stiffener is not orthogonal on the panel)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfSeamRef">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SeamRef" type="SeamRef" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SeamRef">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:attribute name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation xml:lang="en"/>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfSeam">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Seam" type="Seam" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Seam" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a seam</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="StartSeamRefs" type="ArrayOfString" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="EndSeamRefs" type="ArrayOfString" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Curve" type="Curve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Support" type="Support" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="type" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The seam type</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="blockSeam" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether this is a block seam</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="seamChain" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The name of seam chain</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="startsOnBorder" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether this seams starts on a panel border</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="endsOnBorder" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether this seams ends on a panel border</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfString">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="string" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfStiffener">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Stiffener" type="Stiffener" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Stiffener" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a stiffener on a panel</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="Start" type="StiffenerEnd" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="End" type="StiffenerEnd" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Section" type="Section" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="StiffenerSupport" type="Support" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Cutouts" type="ArrayOfCutout" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Holes" type="ArrayOfHole" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Limits" type="ArrayOfLimit" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Trace" type="Curve" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="category" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">A category (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="categoryDes" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">A category description (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="material" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The stiffener material; use panel material if not set</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="migrateToPanel" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether this (build T-bar) stiffener should be migrated to a panel</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="flange" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether this stiffener is a flange on panel or hole edge</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="straight" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether this stiffener is straight</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="unwarped" type="xs:boolean" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Whether this stiffener is warped over its length</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="StiffenerEnd" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">The description of the stiffener end</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:attribute name="point" type="CartesianPoint">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The location of the stiffener end</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="type" type="StiffenerEndType" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The definiton of the stiffener end, e.g. by an exact point or a reference to another object</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="panel" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The name of the panel referenced by the stiffener end (if available)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="stiffener" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The name of the stiffener referenced by the stiffener end (if available)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="bracket" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The name of the bracket referenced by the stiffener end (if available)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="endcutName" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The name off the endcut</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="endcutCode" type="xs:int" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The numerical code of the endcut</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="endcutSymbol" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The symbol used on drawings for the endcut</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="StiffenerEndType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="UNDEFINED"/>
+			<xs:enumeration value="COORDINATE"/>
+			<xs:enumeration value="OTHER_PANEL"/>
+			<xs:enumeration value="PANEL_BORDER"/>
+			<xs:enumeration value="STIFFENER"/>
+			<xs:enumeration value="STIFFENER_ON_SAME_PANEL"/>
+			<xs:enumeration value="BRACKET"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ArrayOfCutout">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Cutout" type="Cutout" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Cutout" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represenst a cutout in the part</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="Contour" type="Curve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="Section" type="Section" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="type" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The cutout's type from a catalogue</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="genStiffener" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The stiffener referenced by this cutout</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="ownerStiffener" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="location" type="CartesianPoint">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The location of the cutout</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfNotch">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Notch" type="Notch" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Notch" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a notch on the edge of a part</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="Contour" type="Curve" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ArrayOfBracket">
+		<xs:annotation>
+			<xs:documentation xml:lang="en"/>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Bracket" type="Bracket" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Bracket" mixed="false">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Represents a bracket</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EntityWithProperties">
+				<xs:sequence>
+					<xs:element name="BracketContour" type="Curve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="BracketSupport" type="Support" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="FlangeContour" type="Curve" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="FlangeSupport" type="Support" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="ShapeContour" type="Curve" minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+				<xs:attribute name="area" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="connectedStiffener1" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The first stiffener referenced by the bracket (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="connectedStiffener2" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="id" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The bracket ID</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="material" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The bracket material quality, e.g. 'A'</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="mainObject" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The first panel connected directlty or indirectly (via stiffener) by the bracket</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="weight" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The weight in kilogram</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="neighbour1" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The second panel connected directlty or indirectly (via stiffener) by the bracket</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="neighbour2" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en"/>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="side1" type="StiffenerSide" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">If the bracket is connecting stiffeners, this contains the location of the first stiffener with respect to the mainObject</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="side2" type="StiffenerSide" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">If the bracket is connecting stiffeners, this contains the location of the second stiffener with respect to the neighbour1</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="stiffenerId1" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Contains the stiffener ID if the bracket is connected to a stiffener on the mainObject</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="stiffenerId2" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Contains the stiffener ID if the bracket is connected to a stiffener on the neighbour1</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="stiffenerId3" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Contains the stiffener ID if the bracket is connected to a stiffener on the neighbour1</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="blockName" type="xs:string">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The block name for the bracket</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="thickness" type="xs:double" use="required">
+					<xs:annotation>
+						<xs:documentation xml:lang="en">The brackets thickness in millimetres</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="StiffenerSide">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="FRONT"/>
+			<xs:enumeration value="BACK"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

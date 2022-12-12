@@ -12,7 +12,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocx/internal/ocx-context.h"
+#include "ocx/ocx-context.h"
 
 #include <occutils/occutils-shape.h>
 
@@ -213,6 +213,9 @@ opencascade::handle<XCAFDoc_ShapeTool> OCXContext::OCAFShapeTool() const {
 
 opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() const {
   return ocafColorTool;
+}
+std::map<std::string, TopoDS_Shape, std::less<>> OCXContext::OCX2Geometry() {
+  return elem2geom;
 }
 
 }  // namespace ocx

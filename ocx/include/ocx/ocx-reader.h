@@ -18,8 +18,9 @@
 #include <LDOM_Element.hxx>
 #include <memory>
 #include <string>
+#include <iostream>
 
-#include "ocx/internal/ocx-context.h"
+#include "ocx/ocx-context.h"
 
 namespace ocx {
 
@@ -39,6 +40,7 @@ class OCXReader {
   static Standard_EXPORT Standard_Boolean
   Perform(Standard_CString filename, Handle(TDocStd_Document) & doc,
           Message_ProgressRange const &theProgress = Message_ProgressRange());
+  Standard_EXPORT LDOM_Element OCXRoot();
 
  private:
   /**

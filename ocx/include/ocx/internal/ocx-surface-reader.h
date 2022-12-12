@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-#include "ocx/internal/ocx-context.h"
+#include "ocx/ocx-context.h"
 
 namespace ocx::surface {
 

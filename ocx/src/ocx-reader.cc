@@ -23,6 +23,7 @@
 #include <TDataStd_Name.hxx>
 #include <memory>
 #include <string>
+#include <map>
 
 #include "ocx/internal/ocx-coordinate-system.h"
 #include "ocx/internal/ocx-helper.h"
@@ -132,8 +133,6 @@ Standard_Boolean OCXReader::Transfer(Handle(TDocStd_Document) & doc,
   // Read Vessel elements
   ocx::vessel::ReadVessel();
 
-  // Write to STEP
-  char const fileName[] = "vessel.stp";
 
   STEPCAFControl_Writer writer;
   try {

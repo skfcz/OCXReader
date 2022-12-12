@@ -21,7 +21,8 @@ FetchContent_MakeAvailable(OCCUtils)
 set(ocx_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
-    "${ocx_SOURCE_DIR}")
+    "${ocx_SOURCE_DIR}"
+)
 include_directories(SYSTEM ${ocx_include_dirs})
 
 # Define helper functions and macros used by ocx
@@ -42,7 +43,7 @@ endif ()
 
 cxx_library(${PROJECT_NAME} src/ocx-all.cc)
 
-add_subdirectory(test)
+# add_subdirectory(test)
 
 # Set target link libraries
 target_link_libraries(${PROJECT_NAME} occutils spdlog::spdlog)
