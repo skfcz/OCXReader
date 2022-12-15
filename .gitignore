@@ -38,7 +38,7 @@
 *.stp
 
 # OCXReader
-/generated/
+**/generated/
 config.json
 
 # VSCode
