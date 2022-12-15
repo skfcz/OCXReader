@@ -12,7 +12,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <BOPAlgo_PaveFiller.hxx>
 #include <string>
 
 namespace ocx::utils {

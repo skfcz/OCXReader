@@ -20,7 +20,7 @@
 #include <TopoDS_Compound.hxx>
 
 #include "ocx/internal/ocx-curve.h"
-#include "ocx/internal/ocx-helper.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::vessel::panel::stiffened_by {
 
@@ -33,7 +33,7 @@ TopoDS_Shape ReadStiffenedBy(LDOM_Element const &panelN, bool addShape) {
     OCX_ERROR(
         "No StiffenedBy child node found in ReadStiffenedBy with panel id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -60,7 +60,7 @@ TopoDS_Shape ReadStiffenedBy(LDOM_Element const &panelN, bool addShape) {
     OCX_WARN(
         "No Stiffener child node found in ReadStiffeners with panel id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -97,7 +97,7 @@ TopoDS_Shape ReadStiffener(LDOM_Element const &stiffenerN, bool addShape) {
     OCX_ERROR(
         "No TraceLine child node found in ReadStiffener with stiffener "
         "id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -106,7 +106,7 @@ TopoDS_Shape ReadStiffener(LDOM_Element const &stiffenerN, bool addShape) {
     OCX_ERROR(
         "Failed to read TraceLine in ReadStiffener with stiffener id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 

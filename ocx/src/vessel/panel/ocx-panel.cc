@@ -20,16 +20,16 @@
 #include <TopoDS_Compound.hxx>
 #include <list>
 
-#include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-log.h"
 #include "ocx/internal/ocx-outer-contour.h"
 #include "ocx/internal/ocx-stiffened-by.h"
 #include "ocx/internal/ocx-unbounded-geometry.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::vessel::panel {
 
 void ReadPanels(LDOM_Element const &vesselN) {
-  OCX_INFO("Start reading panels...");
+  OCX_INFO("Start reading panels...")
 
   // List containing the parsed panel assembly e.g. Contour, Surface,
   // ComposedOf, LimitedBy, etc.
@@ -54,7 +54,7 @@ void ReadPanels(LDOM_Element const &vesselN) {
   }
 
   if (panels.empty() && !OCXContext::CreateLimitedBy) {
-    OCX_WARN("No panels found.");
+    OCX_WARN("No panels found.")
     return;
   }
 
@@ -90,7 +90,7 @@ void ReadPanels(LDOM_Element const &vesselN) {
       OCXContext::GetInstance()->OCAFShapeTool()->AddShape(panelsAssy, true);
   TDataStd_Name::Set(panelsL, "Panels");
 
-  OCX_INFO("Finished reading panels...");
+  OCX_INFO("Finished reading panels...")
 }
 
 //-----------------------------------------------------------------------------
@@ -121,13 +121,13 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
     } else {
       OCX_ERROR(
           "Failed to read UnboundedGeometry element from Plane id={} guid={}",
-          meta->id, meta->guid);
+          meta->id, meta->guid)
 
       // Disable PanelSurfaces if enabled
       if (OCXContext::CreatePanelSurfaces) {
         OCX_WARN(
             "PanelSurfaces creation is enabled but belonging UnboundedGeometry "
-            "is null. Disabling PanelSurfaces.");
+            "is null. Disabling PanelSurfaces.")
         CreatePanelSurfaces = false;
       }
     }
@@ -142,13 +142,13 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
     } else {
       OCX_ERROR(
           "Failed to read OuterContour in ReadPanel with panel id={} guid={}",
-          meta->id, meta->guid);
+          meta->id, meta->guid)
 
       // Disable PanelSurfaces and PlateSurfaces if they are enabled
       if (OCXContext::CreatePanelSurfaces) {
         OCX_WARN(
             "PanelSurfaces creation is enabled but PanelContours creation "
-            "failed. Disabling PanelSurfaces.");
+            "failed. Disabling PanelSurfaces.")
         CreatePanelSurfaces = false;
       }
     }
@@ -178,7 +178,7 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
       OCX_ERROR(
           "Failed to create restricted surface (PlateSurface) in ReadPlate "
           "with plate id={} guid={}",
-          meta->id, meta->guid);
+          meta->id, meta->guid)
     }
   }
 
@@ -191,7 +191,7 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
     } else {
       OCX_ERROR(
           "Failed to read ComposedOf in ReadPanel with panel id={} guid={}",
-          meta->id, meta->guid);
+          meta->id, meta->guid)
     }
   }
 

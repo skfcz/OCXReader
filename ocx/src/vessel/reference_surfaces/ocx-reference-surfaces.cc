@@ -21,8 +21,8 @@
 #include <TopoDS_Compound.hxx>
 #include <list>
 
-#include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-surface-reader.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::vessel::reference_surfaces {
 
@@ -30,7 +30,7 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
   LDOM_Element refSurfsN =
       ocx::helper::GetFirstChild(vesselN, "ReferenceSurfaces");
   if (refSurfsN.isNull()) {
-    OCX_WARN("No ReferenceSurfaces child node found");
+    OCX_WARN("No ReferenceSurfaces child node found")
     return;
   }
 
@@ -66,14 +66,14 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
         }
       } else {
         OCX_ERROR("Failed to read reference surface {} guid={}", meta->name,
-                  meta->guid);
+                  meta->guid)
       }
     }
     childN = childN.getNextSibling();
   }
 
   if (shapes.empty()) {
-    OCX_WARN("No reference surfaces found");
+    OCX_WARN("No reference surfaces found")
     return;
   }
 
@@ -89,7 +89,7 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
       referenceSurfacesAssy, true);
   TDataStd_Name::Set(refSurfL, "Reference Surfaces");
 
-  OCX_INFO("Registered {} reference surfaces", shapes.size());
+  OCX_INFO("Registered {} reference surfaces", shapes.size())
 }
 
 }  // namespace ocx::vessel::reference_surfaces

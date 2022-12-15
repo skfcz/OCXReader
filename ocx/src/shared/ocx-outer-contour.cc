@@ -23,21 +23,21 @@ TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN) {
       ocx::helper::GetFirstChild(elementN, "OuterContour");
   if (outerContourN.isNull()) {
     OCX_ERROR("No OuterContour child node found in element id={} guid={}",
-              meta->id, meta->guid);
+              meta->id, meta->guid)
     return {};
   }
 
   TopoDS_Shape curveShape = ocx::shared::curve::ReadCurve(outerContourN);
   if (curveShape.IsNull()) {
     OCX_ERROR("Failed to read curve shape from element id={} guid={}", meta->id,
-              meta->guid);
+              meta->guid)
     return {};
   }
   if (!OCCUtils::Shape::IsWire(curveShape)) {
     OCX_ERROR(
         "OuterContour child node in element id={} guid={} is not of type "
         "TopoDS_Wire, expected a closed edge as OuterContour, but got {}",
-        meta->id, meta->guid, curveShape.ShapeType());
+        meta->id, meta->guid, curveShape.ShapeType())
     return {};
   }
 

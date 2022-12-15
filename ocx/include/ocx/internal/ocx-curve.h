@@ -20,7 +20,7 @@
 #include <TopoDS_Wire.hxx>
 #include <memory>
 
-#include "ocx/internal/ocx-context.h"
+#include "ocx/ocx-context.h"
 
 /**
  * This namespace is used to read OCX XML for curves and create OpenCascade

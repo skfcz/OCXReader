@@ -12,7 +12,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocx/internal/ocx-helper.h"
+#include "ocx/ocx-helper.h"
 
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
@@ -34,8 +34,8 @@
 #include "occutils/occutils-shape-components.h"
 #include "occutils/occutils-step-export.h"
 #include "occutils/occutils-surface.h"
-#include "ocx/internal/ocx-context.h"
 #include "ocx/internal/ocx-utils.h"
+#include "ocx/ocx-context.h"
 
 namespace ocx::helper {
 
@@ -46,23 +46,26 @@ std::unique_ptr<OCXMeta> GetOCXMeta(LDOM_Element const &element) {
 
   char const *id = element.getAttribute("id").GetString();
 
+  char const *localRef = element.getAttribute("localRef").GetString();
+
   char const *guid = element.getAttribute("ocx:GUIDRef").GetString();
 
   std::string refType = element.getAttribute("ocx:refType").GetString();
   if (!refType.empty()) {
-    if (size_t idx = refType.find(':'); idx != std::string::npos) {
+    if (std::size_t idx = refType.find(':'); idx != std::string::npos) {
       refType = refType.substr(idx + 1);
     }
   }
 
-  return std::make_unique<OCXMeta>(name, id, guid, refType);
+  return std::make_unique<OCXMeta>(name, id, localRef, guid, refType);
 }
 
 //-----------------------------------------------------------------------------
 
 std::string GetLocalTagName(LDOM_Element const &elem, bool keepPrefix) {
   auto tagName = std::string(elem.getTagName().GetString());
-  if (size_t idx = tagName.find(':'); idx != std::string::npos && !keepPrefix) {
+  if (std::size_t idx = tagName.find(':');
+      idx != std::string::npos && !keepPrefix) {
     return tagName.substr(idx + 1);
   }
   return tagName;
@@ -72,10 +75,24 @@ std::string GetLocalTagName(LDOM_Element const &elem, bool keepPrefix) {
 
 std::string GetLocalAttrName(LDOM_Node const &elem) {
   auto tagName = std::string(elem.getNodeName().GetString());
-  if (size_t idx = tagName.find(':'); idx != std::string::npos) {
+  if (std::size_t idx = tagName.find(':'); idx != std::string::npos) {
     return tagName.substr(idx + 1);
   }
   return tagName;
+}
+
+//-----------------------------------------------------------------------------
+
+std::string GetAttrValue(LDOM_Element const &element, std::string const &name) {
+  auto attributes = element.GetAttributesList();
+  for (int i = 0; i < attributes.getLength(); i++) {
+    LDOM_Node node = attributes.item(i);
+    auto attrName = GetLocalAttrName(node);
+    if (name == attrName) {
+      return node.getNodeValue().GetString();
+    }
+  }
+  return {};
 }
 
 //-----------------------------------------------------------------------------
@@ -186,7 +203,7 @@ KnotMults ParseKnotVector(std::string_view knotVectorS, int const &numKnots) {
     OCX_ERROR(
         "Knot vector size mismatch. Expected {} knot values when parsing [{}], "
         "but got {}",
-        numKnots, knotVectorS, out.size());
+        numKnots, knotVectorS, out.size())
     kn.IsNull = true;
     return kn;
   }
@@ -242,7 +259,7 @@ PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
 
   LDOM_Node childN = controlPtListN.getFirstChild();
   if (childN.isNull()) {
-    OCX_ERROR("No child node found in given ControlPointList element");
+    OCX_ERROR("No child node found in given ControlPointList element")
     polesWeights.IsNull = true;
     return polesWeights;
   }
@@ -255,7 +272,7 @@ PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
       OCX_ERROR(
           "Invalid node type found in ControlPointList element. Got {}, but"
           "expected {}",
-          nodeType, LDOM_Node::ELEMENT_NODE);
+          nodeType, LDOM_Node::ELEMENT_NODE)
       polesWeights.IsNull = true;
       return polesWeights;
     }
@@ -264,7 +281,7 @@ PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
     LDOM_Element controlPointN = (LDOM_Element &)childN;
     LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
     if (pointN.isNull()) {
-      OCX_ERROR("No Point3D child node found in given ControlPoint element");
+      OCX_ERROR("No Point3D child node found in given ControlPoint element")
       polesWeights.IsNull = true;
       return polesWeights;
     }
@@ -293,7 +310,7 @@ PolesWeightsSurface ParseControlPointsSurface(
 
   LDOM_Node childN = controlPtListN.getFirstChild();
   if (childN.isNull()) {
-    OCX_ERROR("No child node found in given ControlPointList element");
+    OCX_ERROR("No child node found in given ControlPointList element")
     polesWeights.IsNull = true;
     return polesWeights;
   }
@@ -306,7 +323,7 @@ PolesWeightsSurface ParseControlPointsSurface(
         OCX_ERROR(
             "Invalid node type found in ControlPointList element. Got {}, but"
             "expected {}",
-            nodeType, LDOM_Node::ELEMENT_NODE);
+            nodeType, LDOM_Node::ELEMENT_NODE)
         polesWeights.IsNull = true;
         return polesWeights;
       }
@@ -315,7 +332,7 @@ PolesWeightsSurface ParseControlPointsSurface(
       LDOM_Element controlPointN = (LDOM_Element &)childN;
       LDOM_Element pointN = GetFirstChild(controlPointN, "Point3D");
       if (pointN.isNull()) {
-        OCX_ERROR("No Point3D child node found in given ControlPoint element");
+        OCX_ERROR("No Point3D child node found in given ControlPoint element")
         polesWeights.IsNull = true;
         return polesWeights;
       }
@@ -345,7 +362,7 @@ TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
     OCX_ERROR(
         "Given TopoDS_Shape is neither a TopoDS_Face or a TopoDS_Shell in "
         "Shape id={} guid={}",
-        id, guid);
+        id, guid)
     return {};
   }
 
@@ -361,7 +378,7 @@ TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
         OCX_ERROR(
             "Failed to create restricted Shape from given Surface and "
             "OuterContour in id={} guid={}",
-            id, guid);
+            id, guid)
         return {};
       }
       return faceBuilder.Face();
@@ -369,7 +386,7 @@ TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
       OCX_ERROR(
           "Failed to create restricted Shape from given Surface and "
           "OuterContour in id={} guid={}",
-          id, guid);
+          id, guid)
       return {};
     }
   }

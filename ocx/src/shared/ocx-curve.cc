@@ -27,8 +27,8 @@
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
 
-#include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-utils.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::shared::curve {
 
@@ -67,14 +67,14 @@ TopoDS_Wire ReadCurve(LDOM_Element const &curveRootN) {
         edge = ReadNURBS3D(curveN);
       } else {
         OCX_WARN("Found unsupported curve type {} in curve {} id={} guid={}",
-                 curveType, meta->name, meta->id, meta->guid);
+                 curveType, meta->name, meta->id, meta->guid)
         childN = childN.getNextSibling();
         continue;
       }
 
       if (edge.IsNull()) {
         OCX_WARN("Failed to read curve type {} in curve {} id={} guid={}",
-                 curveType, meta->name, meta->id, meta->guid);
+                 curveType, meta->name, meta->id, meta->guid)
         childN = childN.getNextSibling();
         continue;
       }
@@ -90,7 +90,7 @@ TopoDS_Wire ReadCurve(LDOM_Element const &curveRootN) {
         default:
           OCX_WARN(
               "Received unsupported shape type {} in curve {} id={} guid={}",
-              edge.ShapeType(), meta->name, meta->id, meta->guid);
+              edge.ShapeType(), meta->name, meta->id, meta->guid)
           break;
       }
     }
@@ -100,7 +100,7 @@ TopoDS_Wire ReadCurve(LDOM_Element const &curveRootN) {
   wireBuilder.Build();
   if (!wireBuilder.IsDone()) {
     OCX_ERROR("Failed to build wire for curve {} id={} guid={}", meta->name,
-              meta->id, meta->guid);
+              meta->id, meta->guid)
     return {};
   }
 
@@ -135,7 +135,7 @@ TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveColN) {
         OCX_ERROR(
             "Found unsupported curve type {} in CompositeCurve3D with curve "
             "id={} guid={}",
-            curveType, meta->id, meta->guid);
+            curveType, meta->id, meta->guid)
         childN = childN.getNextSibling();
         continue;
       }
@@ -144,7 +144,7 @@ TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveColN) {
         OCX_ERROR(
             "Failed to read curve type {} in CompositeCurve3D with curve id={} "
             "guid={}",
-            curveType, meta->id, meta->guid);
+            curveType, meta->id, meta->guid)
         childN = childN.getNextSibling();
         continue;
       }
@@ -161,7 +161,7 @@ TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveColN) {
           OCX_ERROR(
               "Received unsupported shape type {} in CompositeCurve3D with "
               "curve id={} guid={}",
-              edge.ShapeType(), meta->id, meta->guid);
+              edge.ShapeType(), meta->id, meta->guid)
           break;
       }
     }
@@ -178,7 +178,7 @@ TopoDS_Wire ReadEllipse3D(LDOM_Element const &ellipseN) {
   if (centerN.isNull()) {
     OCX_ERROR(
         "No Center child node found in Ellipse3D with curve id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -188,7 +188,7 @@ TopoDS_Wire ReadEllipse3D(LDOM_Element const &ellipseN) {
     OCX_ERROR(
         "No MajorDiameter child node found in Ellipse3D with curve id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -198,7 +198,7 @@ TopoDS_Wire ReadEllipse3D(LDOM_Element const &ellipseN) {
     OCX_ERROR(
         "No MinorDiameter child node found in Ellipse3D with curve id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -206,7 +206,7 @@ TopoDS_Wire ReadEllipse3D(LDOM_Element const &ellipseN) {
   if (majorAxisN.isNull()) {
     OCX_ERROR(
         "No MajorAxis child node found in Ellipse3D with curve id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -214,7 +214,7 @@ TopoDS_Wire ReadEllipse3D(LDOM_Element const &ellipseN) {
   if (minorAxisN.isNull()) {
     OCX_ERROR(
         "No MinorAxis child node found in Ellipse3D with curve id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -242,7 +242,7 @@ TopoDS_Wire ReadCircumCircle3D(LDOM_Element const &circleN) {
     OCX_ERROR(
         "No Positions child node found in CircumCircle3D with curve id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -260,7 +260,7 @@ TopoDS_Wire ReadCircumCircle3D(LDOM_Element const &circleN) {
         OCX_ERROR(
             "Found unsupported child node {} in CircumCircle3D/Positions with "
             "curve id={} guid={}",
-            ocx::helper::GetLocalTagName(pointN), meta->id, meta->guid);
+            ocx::helper::GetLocalTagName(pointN), meta->id, meta->guid)
         childN = childN.getNextSibling();
         continue;
       }
@@ -279,7 +279,7 @@ TopoDS_Wire ReadCircumCircle3D(LDOM_Element const &circleN) {
           OCX_ERROR(
               "Found more than 3 points in CircumCircle3D/Positions with curve "
               "id={} guid={}",
-              meta->id, meta->guid);
+              meta->id, meta->guid)
           return {};
       }
       pointCnt++;
@@ -298,7 +298,7 @@ TopoDS_Wire ReadCircle3D(LDOM_Element const &circleN) {
   LDOM_Element centerN = ocx::helper::GetFirstChild(circleN, "Center");
   if (centerN.isNull()) {
     OCX_ERROR("No Center child node found in Circle3D with curve id={} guid={}",
-              meta->id, meta->guid);
+              meta->id, meta->guid)
     return {};
   }
 
@@ -306,14 +306,14 @@ TopoDS_Wire ReadCircle3D(LDOM_Element const &circleN) {
   if (diaN.isNull()) {
     OCX_ERROR(
         "No Diameter child node found in Circle3D with curve id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
   LDOM_Element normalN = ocx::helper::GetFirstChild(circleN, "Normal");
   if (normalN.isNull()) {
     OCX_ERROR("No Normal child node found in Circle3D with curve id={} guid={}",
-              meta->id, meta->guid);
+              meta->id, meta->guid)
     return {};
   }
 
@@ -336,7 +336,7 @@ TopoDS_Edge ReadCircumArc3D(LDOM_Element const &circleN) {
     OCX_ERROR(
         "No StartPoint child node found in CircumArc3D with curve id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -345,7 +345,7 @@ TopoDS_Edge ReadCircumArc3D(LDOM_Element const &circleN) {
     OCX_ERROR(
         "No IntermediatePoint child node found in CircumArc3D with curve id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -353,7 +353,7 @@ TopoDS_Edge ReadCircumArc3D(LDOM_Element const &circleN) {
   if (endN.isNull()) {
     OCX_ERROR(
         "No EndPoint child node found in CircumArc3D with curve id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -373,14 +373,14 @@ TopoDS_Edge ReadLine3D(LDOM_Element const &lineN) {
   if (startN.isNull()) {
     OCX_ERROR(
         "No StartPoint child node found in Line3D with curve id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
   LDOM_Element endN = ocx::helper::GetFirstChild(lineN, "EndPoint");
   if (endN.isNull()) {
     OCX_ERROR("No EndPoint child node found in Line3D with curve id={} guid={}",
-              meta->id, meta->guid);
+              meta->id, meta->guid)
     return {};
   }
 
@@ -393,7 +393,7 @@ TopoDS_Edge ReadLine3D(LDOM_Element const &lineN) {
 }
 
 TopoDS_Shape ReadPolyLine3D(LDOM_Element const &curveN) {
-  OCX_ERROR("PolyLine3D not implemented yet");
+  OCX_ERROR("PolyLine3D not implemented yet")
   return {};
 }
 
@@ -403,7 +403,7 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
   LDOM_Element propsN = ocx::helper::GetFirstChild(nurbs3DN, "NURBSproperties");
   if (propsN.isNull()) {
     OCX_ERROR("No NURBSproperties child node found in NURBS3D with curve id={}",
-              meta->id);
+              meta->id)
     return {};
   }
 
@@ -419,13 +419,13 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
       "Found NURBSproperties: degree={}, numCtrlPoints={}, numKnots={}, "
       "form={}, isRational={}",
       degree, numCtrlPoints, numKnots, form.empty() ? "Unknown" : form,
-      isRational);
+      isRational)
 
   // Parse knotVector
   LDOM_Element knotVectorN = ocx::helper::GetFirstChild(nurbs3DN, "KnotVector");
   if (knotVectorN.isNull()) {
     OCX_ERROR("No KnotVector child node found in NURBS3D with curve id={}",
-              meta->id);
+              meta->id)
     return {};
   }
   auto knotVectorS = std::string(knotVectorN.getAttribute("value").GetString());
@@ -433,7 +433,7 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
       ocx::helper::ParseKnotVector(knotVectorS, numKnots);
   if (kn.IsNull) {
     OCX_ERROR("Failed to parse KnotVector in NURBS3D with curve id={}",
-              meta->id);
+              meta->id)
     return {};
   }
 
@@ -442,29 +442,15 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
       ocx::helper::GetFirstChild(nurbs3DN, "ControlPtList");
   if (controlPtListN.isNull()) {
     OCX_ERROR("No ControlPtList child node found in NURBS3D with curve id={}",
-              meta->id);
+              meta->id)
     return {};
   }
   ocx::helper::PolesWeightsCurve pw =
       ocx::helper::ParseControlPointsCurve(controlPtListN, numCtrlPoints);
   if (pw.IsNull) {
     OCX_ERROR("Failed to parse ControlPtList in NURBS3D with curve id={}",
-              meta->id);
+              meta->id)
     return {};
-  }
-
-  if (IsEqual(meta->id, "ID53")) {
-    for (int i = 1; i <= numCtrlPoints; i++) {
-      OCX_INFO("Control Point: [{}, {}, {}], Weight: {}", pw.poles.Value(i).X(),
-               pw.poles.Value(i).Y(), pw.poles.Value(i).Z(),
-               pw.weights.Value(i));
-    }
-
-    OCX_INFO("Knot vector: {}", knotVectorS);
-    for (int i = 1; i <= kn.knots.Length(); i++) {
-      OCX_INFO("Knot: {}", kn.knots.Value(i));
-      OCX_INFO("Mults: {}", kn.mults.Value(i));
-    }
   }
 
   // Create the curve

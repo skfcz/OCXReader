@@ -32,7 +32,7 @@ TopoDS_Shape ReadComposedOf(LDOM_Element const &panelN, bool withLimitedBy) {
   if (composedOfN.isNull()) {
     OCX_ERROR(
         "No ComposedOf child node found in ReadPlates with panel id={} guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return {};
   }
 
@@ -105,13 +105,13 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
       } else {
         OCX_ERROR(
             "Failed to read UnboundedGeometry element from Plate id={} guid={}",
-            plateMeta->id, plateMeta->guid);
+            plateMeta->id, plateMeta->guid)
       }
     } else {
       OCX_WARN(
           "No UnboundedGeometry child node found in Plate element id={} "
           "guid={}. Try reading from parent UnboundedGeometry element.",
-          plateMeta->id, plateMeta->guid);
+          plateMeta->id, plateMeta->guid)
       // Load it from the cache, as it should be parsed already
       unboundedGeometryShape = OCXContext::GetInstance()->LookupShape(panelN);
       if (!unboundedGeometryShape.IsNull()) {
@@ -120,7 +120,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
                                                  unboundedGeometryShape);
       } else {
         OCX_ERROR("Failed to lookup parent ReferenceSurface id={} guid={}",
-                  panelMeta->id, panelMeta->guid);
+                  panelMeta->id, panelMeta->guid)
       }
     }
   }
@@ -129,7 +129,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
   if (unboundedGeometryShape.IsNull() && OCXContext::CreatePlateSurfaces) {
     OCX_WARN(
         "PlateSurfaces creation is enabled but belonging UnboundedGeometry "
-        "is null. Disabling PlateSurfaces.");
+        "is null. Disabling PlateSurfaces.")
     CreatePlateSurfaces = false;
   }
 
@@ -142,13 +142,13 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
     } else {
       OCX_ERROR(
           "Failed to read OuterContour in ReadPlate with plate id={} guid={}",
-          plateMeta->id, plateMeta->guid);
+          plateMeta->id, plateMeta->guid)
 
       // Disable PlateSurfaces if enabled
       if (OCXContext::CreatePlateSurfaces) {
         OCX_WARN(
             "PlateSurfaces creation is enabled but but PlateContours creation "
-            "failed. Disabling PlateSurfaces.");
+            "failed. Disabling PlateSurfaces.")
         CreatePlateSurfaces = false;
       }
     }
@@ -175,7 +175,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
       OCX_ERROR(
           "Failed to create restricted surface (PlateSurface) in ReadPlate "
           "with plate id={} guid={}",
-          plateMeta->id, plateMeta->guid);
+          plateMeta->id, plateMeta->guid)
     }
   }
 
@@ -210,7 +210,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
 //-----------------------------------------------------------------------------
 
 TopoDS_Shape ReadBracket(LDOM_Element const &bracketN) {
-  OCX_WARN("Bracket not implemented yet");
+  OCX_WARN("Bracket not implemented yet")
   return {};
 }
 

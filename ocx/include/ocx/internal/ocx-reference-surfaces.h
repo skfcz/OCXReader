@@ -20,7 +20,7 @@
 #include <memory>
 #include <utility>
 
-#include "ocx/internal/ocx-context.h"
+#include "ocx/ocx-context.h"
 
 namespace ocx::vessel::reference_surfaces {
 

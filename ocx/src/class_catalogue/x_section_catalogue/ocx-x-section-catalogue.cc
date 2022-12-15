@@ -17,8 +17,8 @@
 #include <LDOM_Element.hxx>
 #include <memory>
 
-#include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-utils.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::x_section_catalogue {
 
@@ -26,7 +26,7 @@ void ReadXSectionCatalogue(LDOM_Element const &catalogueN) {
   LDOM_Element xSectionCatalogueN =
       ocx::helper::GetFirstChild(catalogueN, "XSectionCatalogue");
   if (xSectionCatalogueN.isNull()) {
-    OCX_ERROR("No XSectionCatalogue child node found.");
+    OCX_ERROR("No XSectionCatalogue child node found.")
     return;
   }
 
@@ -41,7 +41,7 @@ void ReadBarSections(LDOM_Element const &xSectionCatalogueN) {
   LDOM_Element barSectionN =
       ocx::helper::GetFirstChild(xSectionCatalogueN, "BarSection");
   if (barSectionN.isNull()) {
-    OCX_ERROR("No BarSection child node found in XSectionCatalogue");
+    OCX_ERROR("No BarSection child node found in XSectionCatalogue")
     return;
   }
 
@@ -52,8 +52,7 @@ void ReadBarSections(LDOM_Element const &xSectionCatalogueN) {
     if (nodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element elementN = (LDOM_Element &)childN;
 
-      auto barSectionMeta =
-          ocx::helper::GetOCXMeta(elementN);
+      auto barSectionMeta = ocx::helper::GetOCXMeta(elementN);
 
       std::string barSectionType = ocx::helper::GetChildTagName(elementN);
       if (barSectionType == "FlatBar") {
@@ -62,7 +61,7 @@ void ReadBarSections(LDOM_Element const &xSectionCatalogueN) {
         OCX_ERROR(
             "Found unsupported BarSection type {} in ReadBarSection with "
             "BarSection id={} guid={}",
-            barSectionType, barSectionMeta->id, barSectionMeta->guid);
+            barSectionType, barSectionMeta->id, barSectionMeta->guid)
       }
     }
     childN = childN.getNextSibling();
@@ -72,8 +71,7 @@ void ReadBarSections(LDOM_Element const &xSectionCatalogueN) {
 //-----------------------------------------------------------------------------
 
 void ReadFlatBar(LDOM_Element const &barSectionN) {
-  auto meta =
-      ocx::helper::GetOCXMeta(barSectionN);
+  auto meta = ocx::helper::GetOCXMeta(barSectionN);
 
   // Read height and width
   LDOM_Element heightElement =
@@ -82,7 +80,7 @@ void ReadFlatBar(LDOM_Element const &barSectionN) {
     OCX_ERROR(
         "No Height child node found in ReadFlatBar with BarSection id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return;
   }
 
@@ -91,7 +89,7 @@ void ReadFlatBar(LDOM_Element const &barSectionN) {
     OCX_ERROR(
         "No Width child node found in ReadFlatBar with BarSection id={} "
         "guid={}",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
     return;
   }
 

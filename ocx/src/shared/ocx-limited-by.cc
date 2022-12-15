@@ -20,7 +20,7 @@
 #include <TopoDS_Shape.hxx>
 
 #include "occutils/occutils-curve.h"
-#include "ocx/internal/ocx-helper.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::shared::limited_by {
 
@@ -30,7 +30,7 @@ TopoDS_Shape ReadLimitedBy(LDOM_Element const &panelN) {
   LDOM_Element limitedByN = ocx::helper::GetFirstChild(panelN, "LimitedBy");
   if (limitedByN.isNull()) {
     OCX_ERROR("No LimitedBy child node found in id={} guid={}", meta->id,
-              meta->guid);
+              meta->guid)
     return {};
   }
 
@@ -52,7 +52,7 @@ TopoDS_Shape ReadLimitedBy(LDOM_Element const &panelN) {
         limitedByShape = ReadGridRef(panelN, aElement);
       } else {
         OCX_ERROR("Found unsupported LimitedBy child node {} in id={} guid={}",
-                  meta->name, meta->id, meta->guid);
+                  meta->name, meta->id, meta->guid)
         aChildNode = aChildNode.getNextSibling();
         continue;
       }
@@ -65,7 +65,7 @@ TopoDS_Shape ReadLimitedBy(LDOM_Element const &panelN) {
   }
 
   if (limitedByShapes.empty()) {
-    OCX_ERROR("No LimitedBy resolved in id={} guid={}", meta->id, meta->guid);
+    OCX_ERROR("No LimitedBy resolved in id={} guid={}", meta->id, meta->guid)
     return {};
   }
 
@@ -95,21 +95,21 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
   TopoDS_Shape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
   if (panelShape.IsNull()) {
     OCX_ERROR("No Shape for given Panel found with id={} guid={}",
-              panelMeta->id, panelMeta->guid);
+              panelMeta->id, panelMeta->guid)
     return {};
   }
   TopoDS_Shape ocxItemPtrShape =
       OCXContext::GetInstance()->LookupShape(ocxItemPtrN);
   if (ocxItemPtrShape.IsNull()) {
     OCX_ERROR("No Shape for given OcxItemPtr found with guid={}",
-              ocxItemPtrMeta->guid);
+              ocxItemPtrMeta->guid)
     return {};
   }
 
   // TODO: Only faces are supported for now
   if (!OCCUtils::Shape::IsFace(panelShape) ||
       !OCCUtils::Shape::IsFace(ocxItemPtrShape)) {
-    OCX_ERROR("Only faces are supported for now");
+    OCX_ERROR("Only faces are supported for now")
     return {};
   }
 
@@ -118,7 +118,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
       OCCUtils::Surface::FromFace(TopoDS::Face(panelShape));
   if (panelShapeAdapter.Surface().IsNull()) {
     OCX_ERROR("Failed to get surface from Panel with id={} guid={}",
-              panelMeta->id, panelMeta->guid);
+              panelMeta->id, panelMeta->guid)
     return {};
   }
 
@@ -126,7 +126,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
       OCCUtils::Surface::FromFace(TopoDS::Face(ocxItemPtrShape));
   if (ocxItemPtrShapeAdapter.Surface().IsNull()) {
     OCX_ERROR("Failed to get surface from OcxItemPtr with guid={}",
-              ocxItemPtrMeta->guid);
+              ocxItemPtrMeta->guid)
     return {};
   }
 
@@ -136,7 +136,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
     OCX_ERROR(
         "No intersection found between Panel id={} guid={} and "
         "OcxItemPtr guid={}",
-        panelMeta->id, panelMeta->guid, ocxItemPtrMeta->guid);
+        panelMeta->id, panelMeta->guid, ocxItemPtrMeta->guid)
     return {};
   }
 
@@ -145,7 +145,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
       ocx::helper::GetFirstChild(ocxItemPtrN, "BoundingBox");
   if (boundingBoxN.isNull()) {
     OCX_ERROR("No BoundingBox child node found in OcxItemPtr guid={}",
-              ocxItemPtrMeta->guid);
+              ocxItemPtrMeta->guid)
     return {};
   }
 
@@ -173,7 +173,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
     OCX_ERROR(
         "Failed to limit the TopoDS_Edge by given BoundingBox with Panel id={} "
         "guid={} and OcxItemPtr guid={}",
-        panelMeta->id, panelMeta->guid, ocxItemPtrMeta->guid);
+        panelMeta->id, panelMeta->guid, ocxItemPtrMeta->guid)
   }
 
   // Add TopoDS_Edge to the OCAF
@@ -198,7 +198,7 @@ TopoDS_Shape ReadFreeEdgeCurve3D(LDOM_Element const &curveN) {
   TopoDS_Shape curveShape = ocx::shared::curve::ReadCurve(curveN);
   if (curveShape.IsNull()) {
     OCX_ERROR("Failed to read FreeEdgeCurve3D with id={} guid={}", meta->id,
-              meta->guid);
+              meta->guid)
     return {};
   }
 
@@ -225,20 +225,20 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
   TopoDS_Shape panelShape = OCXContext::GetInstance()->LookupShape(panelN);
   if (panelShape.IsNull()) {
     OCX_ERROR("No Shape for given Panel found with id={} guid={}",
-              panelMeta->id, panelMeta->guid);
+              panelMeta->id, panelMeta->guid)
     return {};
   }
   TopoDS_Shape gridRefShape = OCXContext::GetInstance()->LookupShape(gridRefN);
   if (gridRefShape.IsNull()) {
     OCX_ERROR("No Shape for given GridRef found with guid={}",
-              gridRefMeta->guid);
+              gridRefMeta->guid)
     return {};
   }
 
   // TODO: Only faces are supported for now
   if (!OCCUtils::Shape::IsFace(panelShape) ||
       !OCCUtils::Shape::IsFace(gridRefShape)) {
-    OCX_ERROR("Only faces are supported for now");
+    OCX_ERROR("Only faces are supported for now")
     return {};
   }
 
@@ -247,7 +247,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
   LDOM_Element offsetN = ocx::helper::GetFirstChild(gridRefN, "Offset");
   if (offsetN.isNull()) {
     OCX_ERROR("No Offset child node found in GridRef guid={}",
-              gridRefMeta->guid);
+              gridRefMeta->guid)
     return {};
   }
   double offset = ocx::helper::ReadDimension(offsetN);
@@ -256,7 +256,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
   BRepOffsetAPI_MakeOffsetShape makeOffsetShape;
   makeOffsetShape.PerformBySimple(gridRefShape, offset);
   if (!makeOffsetShape.IsDone()) {
-    OCX_ERROR("Failed to offset GridRef with guid={}", gridRefMeta->guid);
+    OCX_ERROR("Failed to offset GridRef with guid={}", gridRefMeta->guid)
     return {};
   }
   TopoDS_Shape gridRefOffsetShape = makeOffsetShape.Shape();
@@ -269,7 +269,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
       OCCUtils::Surface::FromFace(TopoDS::Face(panelShape));
   if (panelShapeAdapter.Surface().IsNull()) {
     OCX_ERROR("Failed to get surface from Panel with id={} guid={}",
-              panelMeta->id, panelMeta->guid);
+              panelMeta->id, panelMeta->guid)
     return {};
   }
 
@@ -277,7 +277,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
       OCCUtils::Surface::FromFace(TopoDS::Face(gridRefOffsetShape));
   if (gridRefShapeAdapter.Surface().IsNull()) {
     OCX_ERROR("Failed to get surface from GridRef with guid={}",
-              gridRefMeta->guid);
+              gridRefMeta->guid)
     return {};
   }
 
@@ -287,7 +287,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
     OCX_ERROR(
         "No intersection found between Panel id={} guid={} and "
         "GridRef guid={}",
-        panelMeta->id, panelMeta->guid, gridRefMeta->guid);
+        panelMeta->id, panelMeta->guid, gridRefMeta->guid)
     return {};
   }
 
@@ -296,7 +296,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
       ocx::helper::GetFirstChild(gridRefN, "BoundingBox");
   if (boundingBoxN.isNull()) {
     OCX_ERROR("No BoundingBox child node found in GridRef guid={}",
-              gridRefMeta->guid);
+              gridRefMeta->guid)
     return {};
   }
 
@@ -324,7 +324,7 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
     OCX_ERROR(
         "Failed to limit the TopoDS_Edge by given BoundingBox with Panel id={} "
         "guid={} and GridRef guid={}",
-        panelMeta->id, panelMeta->guid, gridRefMeta->guid);
+        panelMeta->id, panelMeta->guid, gridRefMeta->guid)
   }
 
   // Add TopoDS_Edge to the OCAF

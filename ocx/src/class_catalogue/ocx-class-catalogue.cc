@@ -14,8 +14,8 @@
 
 #include "ocx/internal/ocx-class-catalogue.h"
 
-#include "ocx/internal/ocx-helper.h"
 #include "ocx/internal/ocx-x-section-catalogue.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::class_catalogue {
 
@@ -23,7 +23,7 @@ void ReadClassCatalogue() {
   LDOM_Element catalogueN = ocx::helper::GetFirstChild(
       OCXContext::GetInstance()->OCXRoot(), "ClassCatalogue");
   if (catalogueN.isNull()) {
-    OCX_ERROR("No ClassCatalogue child node found.");
+    OCX_ERROR("No ClassCatalogue child node found.")
     return;
   }
 

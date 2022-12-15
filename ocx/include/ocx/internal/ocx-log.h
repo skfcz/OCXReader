@@ -22,7 +22,7 @@
 namespace ocx {
 
 /**
- * Logging class for OCXReader library
+ * Logging class for ocx library
  */
 class Log {
  public:

@@ -16,10 +16,10 @@
 
 #include <LDOM_Element.hxx>
 
-#include "ocx/internal/ocx-context.h"
 #include "ocx/internal/ocx-coordinate-system.h"
 #include "ocx/internal/ocx-panel.h"
 #include "ocx/internal/ocx-reference-surfaces.h"
+#include "ocx/ocx-context.h"
 
 namespace ocx::vessel {
 
@@ -27,7 +27,7 @@ void ReadVessel() {
   LDOM_Element vesselN = ocx::helper::GetFirstChild(
       OCXContext::GetInstance()->OCXRoot(), "Vessel");
   if (vesselN.isNull()) {
-    OCX_ERROR("No Vessel child node found.");
+    OCX_ERROR("No Vessel child node found.")
     return;
   }
 

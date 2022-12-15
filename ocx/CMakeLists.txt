@@ -1,6 +1,10 @@
+option(libocx_build_tests "Build all of libocx's own tests." OFF)
+
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(ocx VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
+
+set(library_name lib${PROJECT_NAME})
 
 # External dependencies
 include(FetchContent)
@@ -22,7 +26,7 @@ set(ocx_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
     "${ocx_SOURCE_DIR}"
-)
+    )
 include_directories(SYSTEM ${ocx_include_dirs})
 
 # Define helper functions and macros used by ocx
@@ -41,16 +45,18 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
-cxx_library(${PROJECT_NAME} src/ocx-all.cc)
+cxx_library(${library_name} src/ocx-all.cc)
 
-# add_subdirectory(test)
+if (${libocx_build_tests})
+  add_subdirectory(test)
+endif ()
 
 # Set target link libraries
-target_link_libraries(${PROJECT_NAME} occutils spdlog::spdlog)
+target_link_libraries(${library_name} occutils spdlog::spdlog)
 
 # Adjust runtime environment for Visual Studio
 set_property(
-  TARGET ${PROJECT_NAME}
+  TARGET ${library_name}
   PROPERTY
   VS_DEBUGGER_ENVIRONMENT
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"

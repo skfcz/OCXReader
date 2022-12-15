@@ -12,8 +12,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_CONTEXT_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_CONTEXT_H_
+#ifndef OCX_INCLUDE_OCX_OCX_CONTEXT_H_
+#define OCX_INCLUDE_OCX_OCX_CONTEXT_H_
 
 #include <LDOM_Element.hxx>
 #include <TDocStd_Application.hxx>
@@ -26,8 +26,8 @@
 #include <string>
 #include <utility>
 
-#include "ocx-bar-section.h"
-#include "ocx/internal/ocx-helper.h"
+#include "ocx-helper.h"
+#include "ocx/internal/ocx-bar-section.h"
 #include "ocx/internal/ocx-utils.h"
 
 namespace ocx {
@@ -170,4 +170,4 @@ class OCXContext {
 
 }  // namespace ocx
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_CONTEXT_H_
+#endif  // OCX_INCLUDE_OCX_OCX_CONTEXT_H_

@@ -24,7 +24,7 @@
 #include <utility>
 
 #include "ocx/internal/ocx-exceptions.h"
-#include "ocx/internal/ocx-helper.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx {
 
@@ -37,6 +37,8 @@ bool LDOMCompare::operator()(LDOM_Element const &lhs,
     return strcmp(metaLhs->guid, metaRhs->guid) < 0;
   } else if (metaLhs->id != nullptr && metaRhs->id != nullptr) {
     return strcmp(metaLhs->id, metaRhs->id) < 0;
+  } else if (metaLhs->localRef != nullptr && metaRhs->localRef != nullptr) {
+    return strcmp(metaLhs->localRef, metaRhs->localRef) < 0;
   } else {
     return false;
   }
@@ -63,7 +65,7 @@ void OCXContext::Initialize(LDOM_Element const &root,
           "OCXContext initialization failed");
     }
   } else {
-    OCX_ERROR("OCXContext already initialized");
+    OCX_ERROR("OCXContext already initialized")
   }
 }
 
@@ -87,7 +89,7 @@ std::string OCXContext::Prefix() const { return m_nsPrefix; }
 //-----------------------------------------------------------------------------
 
 void OCXContext::PrepareUnits() {
-  OCX_INFO("Setting up units...");
+  OCX_INFO("Setting up units...")
 
   // Set main unit
   UnitsAPI::SetLocalSystem(UnitsAPI_SI);
@@ -100,13 +102,13 @@ void OCXContext::PrepareUnits() {
 
   LDOM_Element unitsMLN = ocx::helper::GetFirstChild(m_root, "UnitsML");
   if (unitsMLN.isNull()) {
-    OCX_ERROR("No UnitsML node found");
+    OCX_ERROR("No UnitsML node found")
     return;
   }
 
   LDOM_Node unitsSetN = ocx::helper::GetFirstChild(unitsMLN, "UnitSet");
   if (unitsSetN.isNull()) {
-    OCX_ERROR("No UnitSet node found in UnitsML");
+    OCX_ERROR("No UnitSet node found in UnitsML")
     return;
   }
 
@@ -120,7 +122,7 @@ void OCXContext::PrepareUnits() {
         // Parse unit ID
         std::string unitId = unitN.getAttribute("xml:id").GetString();
         if (unitId.empty()) {
-          OCX_ERROR("No xml:id attribute found in Unit node");
+          OCX_ERROR("No xml:id attribute found in Unit node")
           childN = childN.getNextSibling();
           continue;
         }
@@ -129,13 +131,13 @@ void OCXContext::PrepareUnits() {
         LDOM_Element unitSymbolN =
             ocx::helper::GetFirstChild(unitN, "UnitSymbol");
         if (unitSymbolN.isNull()) {
-          OCX_ERROR("No UnitSymbol child node found in Unit");
+          OCX_ERROR("No UnitSymbol child node found in Unit")
           childN = childN.getNextSibling();
           continue;
         }
         std::string unitSymbol = unitSymbolN.getAttribute("type").GetString();
 
-        OCX_INFO("UnitID={}, UnitSymbol={}", unitId, unitSymbol);
+        OCX_INFO("UnitID={}, UnitSymbol={}", unitId, unitSymbol)
 
         // Add unit to map
         if ("m" == unitSymbol) {
@@ -152,7 +154,7 @@ void OCXContext::PrepareUnits() {
     childN = childN.getNextSibling();
   }
 
-  OCX_INFO("Units set up successfully...");
+  OCX_INFO("Units set up successfully...")
 }
 
 //-----------------------------------------------------------------------------
@@ -161,7 +163,7 @@ double OCXContext::LoopupFactor(const std::string &unit) const {
   if (auto res = unit2factor.find(unit); res != unit2factor.end()) {
     return res->second;
   }
-  OCX_INFO("No factor found for unit {}, using 1.0 instead", unit);
+  OCX_INFO("No loopup-factor found for unit {}, using 1.0 instead", unit)
   return 1;
 }
 
@@ -191,7 +193,7 @@ BarSection OCXContext::LookupBarSection(LDOM_Element const &element) const {
   if (auto res = LDOM2BarSection.find(element); res != LDOM2BarSection.end()) {
     return res->second;
   }
-  OCX_ERROR("No Shape found for given LDOM_Element");
+  OCX_ERROR("No Shape found for given LDOM_Element")
   return {};
 }
 
@@ -213,9 +215,6 @@ opencascade::handle<XCAFDoc_ShapeTool> OCXContext::OCAFShapeTool() const {
 
 opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() const {
   return ocafColorTool;
-}
-std::map<std::string, TopoDS_Shape, std::less<>> OCXContext::OCX2Geometry() {
-  return elem2geom;
 }
 
 }  // namespace ocx

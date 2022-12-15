@@ -26,17 +26,17 @@
 #include <gp_Pln.hxx>
 #include <list>
 
-#include "ocx/internal/ocx-context.h"
-#include "ocx/internal/ocx-helper.h"
+#include "ocx/ocx-context.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::vessel::coordinate_system {
 
 void ReadCoordinateSystem(LDOM_Element const &vesselN) {
-  OCX_INFO("Start reading coordinate system...");
+  OCX_INFO("Start reading coordinate system...")
 
   LDOM_Element cosysN = ocx::helper::GetFirstChild(vesselN, "CoordinateSystem");
   if (cosysN.isNull()) {
-    OCX_ERROR("No CoordinateSystem child node found.");
+    OCX_ERROR("No CoordinateSystem child node found.")
     return;
   }
 
@@ -45,7 +45,7 @@ void ReadCoordinateSystem(LDOM_Element const &vesselN) {
 
   LDOM_Element frameTblsN = ocx::helper::GetFirstChild(cosysN, "FrameTables");
   if (frameTblsN.isNull()) {
-    OCX_ERROR("No FrameTables child node found in CoordinateSystem");
+    OCX_ERROR("No FrameTables child node found in CoordinateSystem")
     return;
   }
 
@@ -54,7 +54,7 @@ void ReadCoordinateSystem(LDOM_Element const &vesselN) {
   LDOM_Element xRefPlanesN =
       ocx::helper::GetFirstChild(frameTblsN, "XRefPlanes");
   if (xRefPlanesN.isNull()) {
-    OCX_ERROR("No XRefPlanes child node found in CoordinateSystem/FrameTables");
+    OCX_ERROR("No XRefPlanes child node found in CoordinateSystem/FrameTables")
   } else {
     // Material Green 400
     auto color =
@@ -66,7 +66,7 @@ void ReadCoordinateSystem(LDOM_Element const &vesselN) {
   LDOM_Element yRefPlanesN =
       ocx::helper::GetFirstChild(frameTblsN, "YRefPlanes");
   if (yRefPlanesN.isNull()) {
-    OCX_ERROR("No YRefPlanes child node found in CoordinateSystem/FrameTables");
+    OCX_ERROR("No YRefPlanes child node found in CoordinateSystem/FrameTables")
   } else {
     // Material Lime 400
     auto color =
@@ -78,7 +78,7 @@ void ReadCoordinateSystem(LDOM_Element const &vesselN) {
   LDOM_Element zRefPlanesN =
       ocx::helper::GetFirstChild(frameTblsN, "ZRefPlanes");
   if (zRefPlanesN.isNull()) {
-    OCX_ERROR("No ZRefPlanes child node found in CoordinateSystem/FrameTables");
+    OCX_ERROR("No ZRefPlanes child node found in CoordinateSystem/FrameTables")
   } else {
     // Material Amber 400
     auto color =
@@ -98,7 +98,7 @@ void ReadCoordinateSystem(LDOM_Element const &vesselN) {
       OCXContext::GetInstance()->OCAFShapeTool()->AddShape(refPlanesAssy, true);
   TDataStd_Name::Set(label, "Reference Planes");
 
-  OCX_INFO("Finished reading coordinate system...");
+  OCX_INFO("Finished reading coordinate system...")
 }
 
 namespace {
@@ -107,7 +107,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
                           Quantity_Color const &color) {
   std::string refPlaneType = ocx::helper::GetLocalTagName(refPlanesN);
 
-  OCX_INFO("Reading reference planes from {}", refPlaneType);
+  OCX_INFO("Reading reference planes from {}", refPlaneType)
 
   int cntPlanes = 0;
   std::list<TopoDS_Shape> shapes;
@@ -124,7 +124,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         OCX_ERROR(
             "Unexpected node type {} found in {}, expected node type to be "
             "RefPlane",
-            refPlaneName, refPlaneType);
+            refPlaneName, refPlaneType)
         aChildN = aChildN.getNextSibling();
         continue;
       }
@@ -134,7 +134,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
       if (refLocN.isNull()) {
         OCX_ERROR(
             "No ReferenceLocation child node found in RefPlane {} guid={}",
-            meta->name, meta->guid);
+            meta->name, meta->guid)
         aChildN = aChildN.getNextSibling();
         continue;
       }
@@ -185,7 +185,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         OCX_ERROR(
             "Outer contour in ReadRefPlane is not closed. Skip building the "
             "RefPlane {} guid={}",
-            meta->name, meta->guid);
+            meta->name, meta->guid)
         return {};
       }
 
@@ -218,7 +218,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
   TDataStd_Name::Set(refPlaneLabel, refPlaneType.c_str());
 
   OCX_INFO("Registered {} reference planes found in {}", cntPlanes,
-           refPlaneType);
+           refPlaneType)
 
   return refPlanesAssy;
 }

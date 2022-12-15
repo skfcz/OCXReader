@@ -16,7 +16,7 @@
 
 #include <LDOM_Element.hxx>
 
-#include "ocx/internal/ocx-helper.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx::shared::unbounded_geometry {
 
@@ -27,7 +27,7 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
       ocx::helper::GetFirstChild(elementN, "UnboundedGeometry");
   if (unboundedGeometryN.isNull()) {
     OCX_ERROR("No UnboundedGeometry child node found in element id={} guid={}",
-              meta->id, meta->guid);
+              meta->id, meta->guid)
     return {};
   }
 
@@ -38,18 +38,18 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
       !gridRefN.isNull()) {
     refN = gridRefN;
     OCX_DEBUG("Using GridRef guid={} as UnboundedGeometry",
-              refN.getAttribute("ocx:GUIDRef").GetString());
+              refN.getAttribute("ocx:GUIDRef").GetString())
   } else if (LDOM_Element surfaceRefN =
                  ocx::helper::GetFirstChild(unboundedGeometryN, "SurfaceRef");
              !surfaceRefN.isNull()) {
     refN = surfaceRefN;
     OCX_DEBUG("Using SurfaceRef guid={} as UnboundedGeometry",
-              refN.getAttribute("ocx:GUIDRef").GetString());
+              refN.getAttribute("ocx:GUIDRef").GetString())
   } else {
     OCX_DEBUG(
         "No GridRef or SurfaceRef child node found in element id={} guid={}. "
         "Try reading directly from UnboundedGeometry.",
-        meta->id, meta->guid);
+        meta->id, meta->guid)
   }
 
   // Read from GridRef or SurfaceRef
@@ -58,7 +58,7 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
 
     TopoDS_Shape surface = OCXContext::GetInstance()->LookupShape(refN);
     if (surface.IsNull()) {
-      OCX_ERROR("Failed to lookup ReferenceSurface guid={}", refNMeta->guid);
+      OCX_ERROR("Failed to lookup ReferenceSurface guid={}", refNMeta->guid)
       return {};
     }
 
@@ -88,7 +88,7 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
   OCX_ERROR(
       "Failed to directly read surface from UnboundedGeometry in "
       "element id={} guid={}",
-      meta->id, meta->guid);
+      meta->id, meta->guid)
   return {};
 }
 

@@ -18,7 +18,6 @@
 #include <LDOM_Element.hxx>
 #include <memory>
 #include <string>
-#include <iostream>
 
 #include "ocx/ocx-context.h"
 
@@ -39,29 +38,30 @@ class OCXReader {
    */
   static Standard_EXPORT Standard_Boolean
   Perform(Standard_CString filename, Handle(TDocStd_Document) & doc,
+          std::shared_ptr<OCXContext> &ctx,
           Message_ProgressRange const &theProgress = Message_ProgressRange());
-  Standard_EXPORT LDOM_Element OCXRoot();
 
  private:
   /**
    * Translate OCX file given by filename into the document
    * Return True if succeeded, and False in case of fail
    * @param filename the file to read
+   * @param ctx the context to use
    * @return true if result is usable for Transfer
    */
-  static Standard_EXPORT Standard_Boolean ReadFile(Standard_CString filename);
+  static Standard_EXPORT Standard_Boolean
+  ReadFile(Standard_CString filename, std::shared_ptr<OCXContext> &ctx);
 
   /**
-   * Transfer the parsed model into OCAFS
-   * TODO: discuss if parsing should get handled inside Reader::Transfer
+   * Parsed the document model into OCAF
    *
    * @param doc the target model
    * @param theProgress progress
    * @return true if result could be used.
    */
   static Standard_EXPORT Standard_Boolean
-  Transfer(Handle(TDocStd_Document) & doc,
-           Message_ProgressRange const &theProgress = Message_ProgressRange());
+  Parse(Handle(TDocStd_Document) & doc,
+        Message_ProgressRange const &theProgress = Message_ProgressRange());
 };
 
 }  // namespace ocx

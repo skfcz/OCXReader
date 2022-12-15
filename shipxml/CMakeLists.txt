@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(shipxml VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
+set(library_name lib${PROJECT_NAME})
+
 # External dependencies
 include(FetchContent)
 
 FetchContent_Declare(
-  spdlog # Specify the commit you depend on and update it regularly.
+  spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
   GIT_TAG v1.x)
 FetchContent_MakeAvailable(spdlog)
@@ -17,23 +19,24 @@ FetchContent_Declare(
   GIT_TAG master)
 FetchContent_MakeAvailable(OCCUtils)
 
-# Where ocx's .h files can be found
+# Where shipxml's .h files can be found
 set(shipxml_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
+    # This directory is needed to build directly from ocx sources.
     "${ocx_SOURCE_DIR}"
     "${shipxml_SOURCE_DIR}/include"
     "${shipxml_SOURCE_DIR}"
 )
-include_directories(SYSTEM ${shipXML_include_dirs})
+include_directories(SYSTEM ${shipxml_include_dirs})
 
 # Define helper functions and macros used by ocx
 include(cmake/internal_utils.cmake)
 
 # Set compile definitions
 add_compile_definitions(
-  $<$<CONFIG:DEBUG>:OCX_CONFIG_DEBUG>
-  $<$<CONFIG:RELEASE>:OCX_CONFIG_RELEASE>)
+  $<$<CONFIG:DEBUG>:SHIPXML_CONFIG_DEBUG>
+  $<$<CONFIG:RELEASE>:SHIPXML_CONFIG_RELEASE>)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -43,18 +46,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
-cxx_library(${PROJECT_NAME} src/shipxml-all.cc)
-
-# add_subdirectory(test)
+cxx_library(${library_name} src/shipxml-all.cc)
 
 # Set target link libraries
-target_link_libraries(${PROJECT_NAME} debug ocx  ${boost_libs})
-target_link_libraries(${PROJECT_NAME} optimized  ocx  ${boost_libs})
-
+target_link_libraries(${library_name} libocx spdlog::spdlog)
 
 # Adjust runtime environment for Visual Studio
 set_property(
-  TARGET ${PROJECT_NAME}
+  TARGET ${library_name}
   PROPERTY
   VS_DEBUGGER_ENVIRONMENT
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
