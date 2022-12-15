@@ -1,30 +1,95 @@
-// This file is part of OCXReader library
-// Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
+/***************************************************************************
+ *   Created on: 03 Nov 2022                                               *
+ ***************************************************************************
+ *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
+ *   Copyright (c) 2022, Paul Buechner                                     *
+ *                                                                         *
+ *   This file is part of the OCXReader library.                           *
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public License    *
+ *   version 2.1 as published by the Free Software Foundation.             *
+ *                                                                         *
+ ***************************************************************************/
 
 #include "ocx/ocx-context.h"
 
 #include <occutils/occutils-shape.h>
 
+#include <LDOM_Element.hxx>
 #include <TDocStd_Document.hxx>
 #include <UnitsAPI.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
+#include <memory>
+#include <utility>
 
-#include "ocx/internal/ocx-helper.h"
+#include "ocx/internal/ocx-exceptions.h"
+#include "ocx/ocx-helper.h"
 
 namespace ocx {
 
-std::string OCXContext::Prefix() const { return nsPrefix; }
+bool LDOMCompare::operator()(LDOM_Element const &lhs,
+                             LDOM_Element const &rhs) const {
+  auto metaLhs = ocx::helper::GetOCXMeta(lhs);
+  auto metaRhs = ocx::helper::GetOCXMeta(rhs);
 
-LDOMString OCXContext::OCXGUIDRef() const { return ocxGUIDRef; }
+  if (metaLhs->guid != nullptr && metaRhs->guid != nullptr) {
+    return strcmp(metaLhs->guid, metaRhs->guid) < 0;
+  } else if (metaLhs->id != nullptr && metaRhs->id != nullptr) {
+    return strcmp(metaLhs->id, metaRhs->id) < 0;
+  } else if (metaLhs->localRef != nullptr && metaRhs->localRef != nullptr) {
+    return strcmp(metaLhs->localRef, metaRhs->localRef) < 0;
+  } else {
+    return false;
+  }
+}
 
-LDOMString OCXContext::OCXGUID() const { return ocxGUID; }
+//-----------------------------------------------------------------------------
+
+OCXContext::OCXContext(LDOM_Element const &root, std::string nsPrefix)
+    : m_root(root), m_nsPrefix(std::move(nsPrefix)) {}
+
+//-----------------------------------------------------------------------------
+
+std::shared_ptr<OCXContext> OCXContext::s_instance = nullptr;
+
+//-----------------------------------------------------------------------------
+
+void OCXContext::Initialize(LDOM_Element const &root,
+                            std::string const &nsPrefix) {
+  if (s_instance == nullptr) {
+    if (root != nullptr) {
+      s_instance = create(root, nsPrefix);
+    } else {
+      throw OCXInitializationFailedException(
+          "OCXContext initialization failed");
+    }
+  } else {
+    OCX_ERROR("OCXContext already initialized")
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+std::shared_ptr<OCXContext> OCXContext::GetInstance() {
+  if (s_instance == nullptr) {
+    throw OCXNotFoundException("OCXContext not initialized");
+  }
+  return s_instance;
+}
+
+//-----------------------------------------------------------------------------
+
+LDOM_Element OCXContext::OCXRoot() const { return m_root; }
+
+//-----------------------------------------------------------------------------
+
+std::string OCXContext::Prefix() const { return m_nsPrefix; }
+
+//-----------------------------------------------------------------------------
 
 void OCXContext::PrepareUnits() {
-  OCX_INFO("Setting up units...");
+  OCX_INFO("Setting up units...")
 
   // Set main unit
   UnitsAPI::SetLocalSystem(UnitsAPI_SI);
@@ -35,85 +100,104 @@ void OCXContext::PrepareUnits() {
   unit2factor["Ucm"] = 0.01;
   unit2factor["Umm"] = 0.001;
 
-  LDOM_Element unitsMLN = OCXHelper::GetFirstChild(ocxDocN, "UnitsML");
+  LDOM_Element unitsMLN = ocx::helper::GetFirstChild(m_root, "UnitsML");
   if (unitsMLN.isNull()) {
-    OCX_ERROR("No UnitsML node found");
+    OCX_ERROR("No UnitsML node found")
     return;
   }
 
-  LDOM_Node unitsSetN = OCXHelper::GetFirstChild(unitsMLN, "UnitSet");
+  LDOM_Node unitsSetN = ocx::helper::GetFirstChild(unitsMLN, "UnitSet");
   if (unitsSetN.isNull()) {
-    OCX_ERROR("No UnitSet node found in UnitsML");
+    OCX_ERROR("No UnitSet node found in UnitsML")
     return;
   }
 
-  LDOM_Node aChildNode = unitsSetN.getFirstChild();
-  while (aChildNode != nullptr) {
-    const LDOM_Node::NodeType aNodeType = aChildNode.getNodeType();
+  LDOM_Node childN = unitsSetN.getFirstChild();
+  while (childN != nullptr) {
+    const LDOM_Node::NodeType aNodeType = childN.getNodeType();
     if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
-      LDOM_Element unitN = (LDOM_Element &)aChildNode;
-      if (OCXHelper::GetLocalTagName(unitN) == "Unit") {
-        LDOM_NodeList attributes = unitN.GetAttributesList();
-
-        std::string id;
-        for (int i = 0; i < attributes.getLength(); i++) {
-          LDOM_Node theAtt = attributes.item(i);
-
-          if (OCXHelper::GetLocalAttrName(theAtt) == "id") {
-            id = std::string(theAtt.getNodeValue().GetString());
-          }
+      LDOM_Element unitN = (LDOM_Element &)childN;
+      if (ocx::helper::GetLocalTagName(unitN) == "Unit") {
+        // Parse unit ID
+        std::string unitId = unitN.getAttribute("xml:id").GetString();
+        if (unitId.empty()) {
+          OCX_ERROR("No xml:id attribute found in Unit node")
+          childN = childN.getNextSibling();
+          continue;
         }
 
-        std::string symbol = OCXHelper::GetFirstChild(unitN, "UnitSymbol")
-                                 .getAttribute("type")
-                                 .GetString();
+        // Parse unit symbol
+        LDOM_Element unitSymbolN =
+            ocx::helper::GetFirstChild(unitN, "UnitSymbol");
+        if (unitSymbolN.isNull()) {
+          OCX_ERROR("No UnitSymbol child node found in Unit")
+          childN = childN.getNextSibling();
+          continue;
+        }
+        std::string unitSymbol = unitSymbolN.getAttribute("type").GetString();
 
-        if ("m" == symbol) {
-          unit2factor[id] = 1;
-        } else if ("dm" == symbol) {
-          unit2factor[id] = 1 / 10.0;
-        } else if ("cm" == symbol) {
-          unit2factor[id] = 1 / 100.0;
-        } else if ("mm" == symbol) {
-          unit2factor[id] = 1 / 1000.0;
+        OCX_INFO("UnitID={}, UnitSymbol={}", unitId, unitSymbol)
+
+        // Add unit to map
+        if ("m" == unitSymbol) {
+          unit2factor[unitId] = 1;
+        } else if ("dm" == unitSymbol) {
+          unit2factor[unitId] = 1 / 10.0;
+        } else if ("cm" == unitSymbol) {
+          unit2factor[unitId] = 1 / 100.0;
+        } else if ("mm" == unitSymbol) {
+          unit2factor[unitId] = 1 / 1000.0;
         }
       }
     }
-    aChildNode = aChildNode.getNextSibling();
+    childN = childN.getNextSibling();
   }
 
-  OCX_INFO("Units set up successfully...");
+  OCX_INFO("Units set up successfully...")
 }
+
+//-----------------------------------------------------------------------------
 
 double OCXContext::LoopupFactor(const std::string &unit) const {
   if (auto res = unit2factor.find(unit); res != unit2factor.end()) {
     return res->second;
   }
-  OCX_INFO("No factor found for unit {}, using 1.0 instead", unit);
+  OCX_INFO("No loopup-factor found for unit {}, using 1.0 instead", unit)
   return 1;
 }
 
-void OCXContext::RegisterSurface(TopoDS_Shape const &shape,
-                                 std::string const &guid) {
-  if (OCCUtils::Shape::IsFace(shape) || OCCUtils::Shape::IsShell(shape)) {
-    guid2refPlane[guid] = shape;
-  } else {
-    OCX_ERROR(
-        "Trying to register a non-shell. Expected a TopAbs_SHELL or a "
-        "TopAbs_FACE, but got type {} for guid={}",
-        shape.ShapeType(), guid);
-  }
+//-----------------------------------------------------------------------------
+
+void OCXContext::RegisterShape(LDOM_Element const &element,
+                               TopoDS_Shape const &shape) {
+  LDOM2TopoDS_Shape[element] = shape;
 }
 
-TopoDS_Shape OCXContext::LookupSurface(
-    std::basic_string<char> const &guid) const {
-  if (auto res = guid2refPlane.find(guid); res != guid2refPlane.end()) {
+TopoDS_Shape OCXContext::LookupShape(LDOM_Element const &element) {
+  if (auto res = LDOM2TopoDS_Shape.find(element);
+      res != LDOM2TopoDS_Shape.end()) {
     return res->second;
   }
-  OCX_ERROR("No registered surface found for guid={}", guid);
   return {};
 }
+
+//-----------------------------------------------------------------------------
+
+void OCXContext::RegisterBarSection(LDOM_Element const &element,
+                                    BarSection const &section) {
+  LDOM2BarSection[element] = section;
+}
+
+BarSection OCXContext::LookupBarSection(LDOM_Element const &element) const {
+  if (auto res = LDOM2BarSection.find(element); res != LDOM2BarSection.end()) {
+    return res->second;
+  }
+  OCX_ERROR("No Shape found for given LDOM_Element")
+  return {};
+}
+
+//-----------------------------------------------------------------------------
 
 void OCXContext::OCAFDoc(const opencascade::handle<TDocStd_Document> &handle) {
   ocafDoc = handle;
@@ -131,9 +215,6 @@ opencascade::handle<XCAFDoc_ShapeTool> OCXContext::OCAFShapeTool() const {
 
 opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() const {
   return ocafColorTool;
-}
-std::map<std::string, TopoDS_Shape, std::less<>> OCXContext::OCX2Geometry() {
-  return elem2geom;
 }
 
 }  // namespace ocx

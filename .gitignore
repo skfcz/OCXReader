@@ -37,16 +37,9 @@
 *.ninja
 *.stp
 
-*vessel.xml
-
-/cmake_install.cmake
-/**/*.cmake
-/**/Makefile
-/**/*.ninja
-/**/CMakeFiles
+# OCXReader
+**/generated/
+config.json
 
 # VSCode
 .vscode/
-/_deps/
-/cmake-build-*
-/lib/*

@@ -1,157 +1,235 @@
-// This file is part of OCXReader library
-// Copyright Carsten Zerbst (carsten.zerbst@groy-groy.de)
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
+/***************************************************************************
+ *   Created on: 31 May 2022                                               *
+ ***************************************************************************
+ *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
+ *   Copyright (c) 2022, Paul Buechner                                     *
+ *                                                                         *
+ *   This file is part of the OCXReader library.                           *
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public License    *
+ *   version 2.1 as published by the Free Software Foundation.             *
+ *                                                                         *
+ ***************************************************************************/
 
-#include <ocx/internal/ocx-log.h>
-
-
-#include <STEPCAFControl_Writer.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
-#include <XmlDrivers.hxx>
 #include <boost/program_options.hpp>
-#include <exception>
+#include <filesystem>
 #include <memory>
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::exception;
 
-#include "../../shipxml/include/ShipXMLDriver.h"
 #include "ocx/ocx-reader.h"
+#include "ocxreader/ocx-reader-cli.h"
+#include "ocxreader/ocx-reader-export.h"
 
-namespace po = boost::program_options;
+int main(int argc, char** argv) {
+  namespace po = boost::program_options;
 
-int main(int ac, char** av) {
+  // Path to config file
+  std::string config_file_path;
+
+  // Only allowed in cli mode
+  po::options_description generic("Generic options");
+  generic.add_options()                      //
+      ("version,v", "print version string")  //
+      ("help,h", "produce help message")     //
+      ("config-file", po::value<std::string>(&config_file_path),
+       "The path to the file containing OCX parsing options (e.g. "
+       "path/to/config_file.json)");
+
+  po::options_description opts("OCXReader CLI options");
+  opts.add_options()                                                      //
+      ("input-file,i", po::value<std::string>(), "The OCX file to read")  //
+      ("export-format", po::value<std::vector<std::string>>()->multitoken(),
+       "The export format(s) to use. This can be one or more of the following: "
+       "STEP, XML, XBF, SHIPXML")  //
+      ("save-to,s", po::value<std::string>(),
+       "The output-file path. Defines were to write the exported file(s) to. "
+       "If not defined files get saved relative to the program working "
+       "directory.")  //
+      ("output-file,o", po::value<std::string>(),
+       "The output file name. This is used as the filename to the defined "
+       "export formats. If not defined input-file is used.");
+
+  po::options_description allopts("Allowed options");
+  allopts.add(generic).add(opts);
+
+  po::variables_map vm;
+
   try {
-    po::options_description desc("Supported options");
-    desc.add_options()("help", "produce help message")(
-        "in", po::value<std::string>(), "the OCX file to read")(
-        "step", po::value<std::string>(), "the step file to write")(
-        "ocaf", po::value<std::string>(), "the OCAF file to write")(
-        "xml", po::value<std::string>(), "the ShipXML file to write");
-
-    po::variables_map vm;
-    po::store(po::parse_command_line(ac, av, desc), vm);
+    // Parse all options to handle generic options and make config-file
+    // available if defined
+    po::store(po::parse_command_line(argc, argv, allopts), vm);
     po::notify(vm);
 
-    if (vm.count("help")) {
-      cout << desc << "\n";
+    if (vm.count("help") || vm.count("h")) {
+      std::cout << allopts << std::endl;
       return 0;
     }
 
-    std::string ocxFileName = "";
-    // "data/Aveva-OHCM-MidShip_V285.3docx";  // NAPA-D-BULKER-MID_V286.3docx,
-    // Aveva-OHCM-MidShip_V285.3docx,
-    // ERHULLV2.3docx
-    if (!vm.count("in")) {
-      cerr << "no input OCX file given.\n";
-      return 33;
-    } else {
-      ocxFileName = vm["in"].as<std::string>();
+    if (vm.count("version") || vm.count("v")) {
+      std::cout << "Not yet implemented." << std::endl;
+      return 0;
     }
 
-    std::string stepFileName = "";
-    if (vm.count("step")) {
-      stepFileName = vm["step"].as<std::string>();
-    }
-
-    std::string ocafFileName = "";
-    if (vm.count("ocaf")) {
-      ocafFileName = vm["ocaf"].as<std::string>();
-    }
-
-    std::string shipXMLFileName = "";
-    if (vm.count("xml")) {
-      shipXMLFileName = vm["xml"].as<std::string>();
-    }
-
-    // Initialize the application
-    Handle(TDocStd_Application) app = new TDocStd_Application;
-
-    // Initialize the document
-    Handle(TDocStd_Document) doc;
-    app->NewDocument("XmlOcaf", doc);
-    if (doc.IsNull()) {
-      std::cerr << "Can not create OCAF document" << std::endl;
-      return 1;
-    }
-
-    // Read and parse the OCX file
-    auto reader = std::make_unique<ocx::OCXReader>();
-
-    std::cout << "Read from " << ocxFileName << std::endl;
-    if (!reader->Perform(ocxFileName.c_str(), doc)) {
-      std::cerr << "Can't read OCX document" << std::endl;
-      app->Close(doc);
-      return 1;
-    }
-
-    // Write to STEP
-    if (!stepFileName.empty()) {
-      STEPCAFControl_Writer writer;
-      try {
-        if (!writer.Transfer(doc, STEPControl_AsIs)) {
-          cerr << "Failed to transfer document to STEP model" << endl;
-          return 66;
-        }
-        const IFSelect_ReturnStatus ret = writer.Write(stepFileName.c_str());
-        if (ret != IFSelect_RetDone) {
-          OCX_ERROR("Failed to write STEP file, exited with status {}", ret);
-          return 66;
-        }
-      } catch (Standard_Failure const& exp) {
-        OCX_ERROR("Failed to write STEP file, exception: {}",
-                  exp.GetMessageString());
-        return 66;
+    // Parse options from config file if defined
+    if (!config_file_path.empty()) {
+      std::filesystem::path configFilePath(config_file_path);
+      // Use system dependent preferred path separators
+      configFilePath.make_preferred();
+      if (!std::filesystem::exists(configFilePath)) {
+        std::cerr << "No config file found at: " << configFilePath << std::endl;
+        return 33;
       }
+      std::ifstream configFileStream(configFilePath.generic_string());
+      po::store(
+          ocxreader::cli::parse_json_config_file(configFileStream, opts, true),
+          vm);
     }
 
-    // Save the document
-    if (!ocafFileName.empty()) {
-      XmlDrivers::DefineFormat(app);
-      if (app->SaveAs(doc, ocafFileName.c_str()) != PCDM_SS_OK) {
-        app->Close(doc);
-
-        std::cerr << "Cannot write OCAF document." << std::endl;
-        return 66;
-      }
-    }
-
-
-    // Write to ShipXML
-    if (!shipXMLFileName.empty()) {
-
-      cout << "write ShipXML to " << shipXMLFileName <<  endl;
-      shipxml::ShipXMLDriver xmlDriver;
-      try {
-        if (! (xmlDriver.Transfer( reader->OCXRoot() ))) {
-          cerr << "Failed to transfer document to ShipXML model" << endl;
-          return 66;
-        }
-////        const bool ret = xmlDriver.Write(shipXMLFileName);
-////        if (ret != IFSelect_RetDone) {
-////          OCX_ERROR("Failed to write STEP file, exited with status {}", ret);
-////          return 66;
-////        }
-      } catch (Standard_Failure const& exp) {
-        OCX_ERROR("Failed to write STEP file, exception: {}",
-                  exp.GetMessageString());
-        return 66;
-      }
-    }
-
-    app->Close(doc);
-
-  } catch (exception& e) {
-    cerr << "error: " << e.what() << "\n";
-    return 1;
+    // Parse all options again (overwrites config-file options)
+    po::store(po::parse_command_line(argc, argv, allopts), vm);
+  } catch (po::unknown_option& e) {
+    std::cout << "Error parsing command line options: " << e.what()
+              << std::endl;
+    std::cout << allopts << std::endl;
+    return 33;
+  } catch (po::invalid_command_line_syntax& e) {
+    std::cout << "Error parsing command line options: " << e.what()
+              << std::endl;
+    return 33;
   } catch (...) {
-    cerr << "Exception of unknown type!\n";
-    return 1;
+    std::cout << "Unknown error parsing command line options" << std::endl;
+    std::cout << allopts << std::endl;
+    return 33;
   }
+
+  po::notify(vm);
+
+  std::string ocxFileInput;
+  if (vm.count("input-file")) {
+    ocxFileInput = vm["input-file"].as<std::string>();
+  } else {
+    std::cerr << "No input OCX file given." << std::endl;
+    return 33;
+  }
+
+  // Validate export formats, also cache OCAF export type if present (XML, XBF)
+  bool exportXbf = false;
+  bool exportXml = false;
+  std::vector<std::string> exportFormats;
+  if (vm.count("export-format")) {
+    exportFormats = vm["export-format"].as<std::vector<std::string>>();
+    for (auto& format : exportFormats) {
+      if (format == "STEP") {
+        // ...
+      } else if (format == "XML") {
+        exportXml = true;
+      } else if (format == "XBF") {
+        exportXbf = true;
+      } else if (format == "SHIPXML") {
+        // ...
+      } else {
+        std::cerr << "Invalid export format: " << format << std::endl;
+        return 33;
+      }
+    }
+    if (exportXbf && exportXml) {
+      std::cerr << "XBF and XML export formats are mutually exclusive. Please "
+                   "choose only one."
+                << std::endl;
+      return 33;
+    }
+  } else {
+    std::cerr << "No export format given. Please specify at least one export "
+                 "format target."
+              << std::endl;
+    return 33;
+  }
+
+  std::string saveTo;
+  if (vm.count("save-to")) {
+    std::filesystem::path saveToPath(vm["save-to"].as<std::string>());
+    // Use system dependent preferred path separators
+    saveToPath.make_preferred();
+    // Check if saveTo is a valid path else try to create it
+    if (!std::filesystem::exists(saveToPath)) {
+      try {
+        std::filesystem::create_directories(saveToPath);
+      } catch (std::filesystem::filesystem_error& e) {
+        std::cerr << "Error creating output directory: " << e.what()
+                  << std::endl;
+        return 33;
+      }
+    }
+    // Append system dependent preferred path separator if not present
+    if (saveToPath.string().back() !=
+        std::filesystem::path::preferred_separator) {
+      saveToPath += std::filesystem::path::preferred_separator;
+    }
+    saveTo = saveToPath.string();
+  }
+
+  std::string outputFileName;
+  if (vm.count("output-file")) {
+    outputFileName = vm["output-file"].as<std::string>();
+    // Check if user accidentally added file extension
+    if (std::size_t idx = outputFileName.find_last_of('.');
+        idx != std::string::npos) {
+      outputFileName = ocxFileInput.substr(0, idx);
+    }
+  } else {
+    // Get filename without extension from given input-file/path
+    std::string outputFile;
+    if (std::size_t idx = ocxFileInput.find_last_of("/\\");
+        idx != std::string::npos) {
+      outputFile = ocxFileInput.substr(idx + 1);
+    } else {
+      outputFile = ocxFileInput;
+    }
+    outputFileName = outputFile.substr(0, outputFile.find_last_of('.'));
+  }
+
+  // Assemble output file path location
+  std::string outputFilePath = saveTo + outputFileName;
+
+  // Initialize the application
+  Handle(TDocStd_Application) app = new TDocStd_Application;
+
+  // Initialize the document
+  Handle(TDocStd_Document) doc;
+  if (exportXml) {
+    app->NewDocument("XmlOcaf", doc);
+  } else {
+    app->NewDocument("BinXCAF", doc);  // default to XBF
+  }
+
+  if (doc.IsNull()) {
+    std::cerr << "Failed to create document" << std::endl;
+    return 33;
+  }
+
+  // Read and parse the OCX file
+  std::shared_ptr<ocx::OCXContext> ctx = nullptr;
+  auto reader = std::make_unique<ocx::OCXReader>();
+
+  std::cout << "Read from " << ocxFileInput << std::endl;
+  if (!reader->Perform(ocxFileInput.c_str(), doc, ctx)) {
+    std::cerr << "Failed to read OCX document" << std::endl;
+    app->Close(doc);
+    return 33;
+  }
+
+  // Handle the export
+  if (int ret = ocxreader::file_export::HandleExport(doc, app, outputFilePath,
+                                                     exportFormats);
+      ret == 66) {
+    std::cerr << "Failed to export" << std::endl;
+    app->Close(doc);
+    return ret;
+  }
+
+  app->Close(doc);
+
   return 0;
 }

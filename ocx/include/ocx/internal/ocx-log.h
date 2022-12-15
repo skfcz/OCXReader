@@ -1,12 +1,19 @@
-// This file is part of OCXReader library
-// Copyright Paul Buechner
-//
-// This library is free software; you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License version 2.1 as published
-// by the Free Software Foundation.
+/***************************************************************************
+ *   Created on: 19 Nov 2022                                               *
+ ***************************************************************************
+ *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
+ *   Copyright (c) 2022, Paul Buechner                                     *
+ *                                                                         *
+ *   This file is part of the OCXReader library.                           *
+ *                                                                         *
+ *   This library is free software; you can redistribute it and/or         *
+ *   modify it under the terms of the GNU Lesser General Public License    *
+ *   version 2.1 as published by the Free Software Foundation.             *
+ *                                                                         *
+ ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_LOG_H_
-#define OCX_INCLUDE_OCX_INTERNAL_LOG_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 
@@ -15,7 +22,7 @@
 namespace ocx {
 
 /**
- * Logging class for OCXReader library
+ * Logging class for ocx library
  */
 class Log {
  public:
@@ -63,4 +70,4 @@ constexpr char OCX_DEFAULT_LOGGER_NAME[] = "OCX";
 #define OCX_FATAL(...) (void)0
 #endif
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_LOG_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_

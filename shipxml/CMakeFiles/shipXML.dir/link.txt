@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib/libshipXML.a "CMakeFiles/shipXML.dir/src/shipxml-all.cc.o"
-/usr/bin/ranlib ../lib/libshipXML.a
