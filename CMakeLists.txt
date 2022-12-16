@@ -7,13 +7,10 @@ enable_testing()
 
 include(GNUInstallDirs)
 
-# Set OCCT cmake directory on windows
-if (WIN32)
-  set(OpenCASCADE_DIR "C:/Program Files/OCCT/cmake")
-endif ()
-
-find_package(OpenCASCADE REQUIRED)
-
-add_subdirectory(ocx)
+# Application
 add_subdirectory(ocxreader)
-add_subdirectory(shipxml)
+
+# Packages
+add_subdirectory(libs/ocx)
+add_subdirectory(libs/shipxml)
+add_subdirectory(libs/occutils)

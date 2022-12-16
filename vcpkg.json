@@ -1,0 +1,40 @@
+{
+  "name": "ocxreader-distribution",
+  "version": "0.0.1",
+  "license": "LGPL-2.1",
+  "description": [
+    "OCXReader is a tool to read and parse data from OCX files and export them",
+    "to different formats (e.g. STEP, SHIPXML, OCAF-XML, OCAF-XFB)"
+  ],
+  "builtin-baseline": "4b6bce313ef917b9635e9287d06225743e242888",
+  "dependencies": [
+    {
+      "name": "spdlog",
+      "version>=": "1.11.0"
+    },
+    {
+      "name": "opencascade",
+      "version>=": "7.6.2#1"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.12.1"
+    },
+    {
+      "name": "boost-system",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-filesystem",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-program-options",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-property-tree",
+      "version>=": "1.80.0#1"
+    }
+  ]
+}
