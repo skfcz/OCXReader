@@ -12,7 +12,9 @@ find_package(spdlog CONFIG REQUIRED)
 set(ocx_reader_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
+    "${ocx_SOURCE_DIR}"
     "${shipxml_SOURCE_DIR}/include"
+    "${shipxml_SOURCE_DIR}"
     "${ocxreader_SOURCE_DIR}/include"
     "${ocxreader_SOURCE_DIR}")
 include_directories(SYSTEM ${ocx_reader_include_dirs})

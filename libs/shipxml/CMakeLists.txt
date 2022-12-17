@@ -11,6 +11,7 @@ set(shipxml_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${occutils_SOURCE_DIR}/include"
     "${ocx_SOURCE_DIR}/include"
+    "${ocx_SOURCE_DIR}"
     "${shipxml_SOURCE_DIR}/include"
     "${shipxml_SOURCE_DIR}")
 include_directories(SYSTEM ${shipxml_include_dirs})

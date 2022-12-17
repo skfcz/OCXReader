@@ -18,6 +18,7 @@
 #include <BRep_Builder.hxx>
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
+#include <list>
 
 #include "occutils/occutils-curve.h"
 #include "ocx/ocx-helper.h"

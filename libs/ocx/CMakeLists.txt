@@ -12,6 +12,7 @@ find_package(spdlog CONFIG REQUIRED)
 set(ocx_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${occutils_SOURCE_DIR}/include"
+    "${occutils_SOURCE_DIR}"
     "${ocx_SOURCE_DIR}/include"
     "${ocx_SOURCE_DIR}")
 include_directories(SYSTEM ${ocx_include_dirs})
