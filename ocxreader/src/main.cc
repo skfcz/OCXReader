@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
   std::vector<std::string> exportFormats;
   if (vm.count("export-format")) {
     exportFormats = vm["export-format"].as<std::vector<std::string>>();
-    for (auto& format : exportFormats) {
+    for (auto const& format : exportFormats) {
       if (format == "STEP") {
         // ...
       } else if (format == "XML") {
