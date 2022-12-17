@@ -211,10 +211,8 @@ int main(int argc, char** argv) {
 
   // Read and parse the OCX file
   std::shared_ptr<ocx::OCXContext> ctx = nullptr;
-  auto reader = std::make_unique<ocx::OCXReader>();
-
   std::cout << "Read from " << ocxFileInput << std::endl;
-  if (!reader->Perform(ocxFileInput.c_str(), doc, ctx)) {
+  if (!ocx::OCXReader::Perform(ocxFileInput.c_str(), doc, ctx)) {
     std::cerr << "Failed to read OCX document" << std::endl;
     app->Close(doc);
     return 33;
