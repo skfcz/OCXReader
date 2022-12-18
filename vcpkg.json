@@ -1,11 +1,11 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
-  "name": "ocxreader-distribution",
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/master/docs/vcpkg.schema.json",
+  "name": "ocxreader",
   "version": "0.0.1",
   "license": "LGPL-2.1",
   "description": [
     "OCXReader is a tool to read and parse data from OCX files and export them",
-    "to different formats (e.g. STEP, SHIPXML, OCAF-XML, OCAF-XFB)"
+    "to different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB."
   ],
   "builtin-baseline": "4b6bce313ef917b9635e9287d06225743e242888",
   "dependencies": [
