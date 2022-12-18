@@ -59,7 +59,7 @@ Standard_Boolean OCXReader::ReadFile(Standard_CString filename,
       aFileSystem->OpenIStream(filename, std::ios::in);
 
   if (aFileStream == nullptr || !aFileStream->good()) {
-    OCX_ERROR("Could not open file {} for reading", filename)
+    OCX_ERROR("Could not open file '{}' for reading", filename)
     return Standard_False;
   }
 

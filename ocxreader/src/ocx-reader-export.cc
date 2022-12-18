@@ -70,6 +70,7 @@ int HandleExport(Handle(TDocStd_Document) const& doc,
     }
 
     else if (format == "SHIPXML") {
+      std::cout << "Transfer to ShipXML" << std::endl;
       shipxml::ShipXMLDriver xmlDriver;
       try {
         if (!(xmlDriver.Transfer())) {

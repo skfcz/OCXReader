@@ -46,11 +46,16 @@ void PanelReader::ReadPanels() const {
     }
     aChildNode = aChildNode.getNextSibling();
   }
+  std::cout << "transferred #" << m_sst->GetStructure()->GetPanels().size() << " panels" << std::endl;
+
 }
 
 //-----------------------------------------------------------------------------
 
 shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
+
+  std::cout << "ReadPanel '" << panelN.getAttribute("name").GetString() << "'" << std::endl;
+
   auto meta = ocx::helper::GetOCXMeta(panelN);
 
   shipxml::Panel panel(meta->name);
@@ -65,6 +70,8 @@ shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
   if (!desc.isNull()) {
     panel.GetProperties().Add("description", desc.getNodeValue().GetString());
   }
+  std::cout << "transferred #" << panel.GetProperties().GetValues().size() << " properties " << std::endl;
+
 
   // the support
   auto unboundedGeometryN =

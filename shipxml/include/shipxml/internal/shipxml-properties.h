@@ -15,7 +15,7 @@
 #ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PROPERTIES_H_
 #define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PROPERTIES_H_
 
-#include <list>
+#include <vector>
 #include <string>
 
 #include "shipxml/internal/shipxml-key-value.h"
@@ -31,10 +31,10 @@ class Properties {
   shipxml::KeyValue Add(std::string const &key, double value);
   shipxml::KeyValue Add(std::string const &key, int value);
 
-  [[nodiscard]] std::list<shipxml::KeyValue> GetValues() const;
+  [[nodiscard]] std::vector<shipxml::KeyValue> GetValues() const;
 
  private:
-  std::list<shipxml::KeyValue> m_values;
+  std::vector<shipxml::KeyValue> m_values;
 };
 
 }  // namespace shipxml

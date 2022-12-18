@@ -68,6 +68,7 @@ class ShipXMLDriver {
   void AddAttribute(LDOM_Element parentEL, std::string attrName,
                     bool attrValue);
   void WritePanels();
+  void WriteProperties(EntityWithProperties ewp, LDOM_Element entityEL);
 };
 
 }  // namespace shipxml

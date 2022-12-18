@@ -22,6 +22,6 @@ void Structure::AddPanel(shipxml::Panel const &panel) {
 
 //-----------------------------------------------------------------------------
 
-std::list<shipxml::Panel> Structure::GetPanels() const { return m_panels; }
+std::vector<shipxml::Panel> Structure::GetPanels() const { return m_panels; }
 
 }  // namespace shipxml

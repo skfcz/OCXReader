@@ -39,6 +39,8 @@ ShipXMLDriver::ShipXMLDriver() {
 //-----------------------------------------------------------------------------
 
 bool ShipXMLDriver::Transfer() const {
+  std::cout << "Transfer OCX/OCAD -> ShipXML" << std::endl;
+
   LDOM_Element ocxDocEL = ocx::OCXContext::GetInstance()->OCXRoot();
 
   LDOM_Element vesselN = ocx::helper::GetFirstChild(ocxDocEL, "Vessel");
@@ -55,6 +57,8 @@ bool ShipXMLDriver::Transfer() const {
 //-----------------------------------------------------------------------------
 
 bool ShipXMLDriver::Write(std::string const& filepath) {
+
+  std::cout << "Write ShipXML -> XML" << std::endl;
   // Create DOM
   sxDoc = LDOM_Document::createDocument("ShipSteelTransfer");
   sxRootEL = sxDoc.getDocumentElement();
@@ -63,11 +67,12 @@ bool ShipXMLDriver::Write(std::string const& filepath) {
   // Set the transfer timestamp
   auto tsSX = sxDoc.createElement("timestamp");
   sxRootEL.appendChild(tsSX);
-  time_t t = time(nullptr);
-  struct tm tstruct {};
+
+  time_t now = time(0);
+  struct tm tm = *gmtime(&now);
+
   char time_buf[21];
-  gmtime_s(&tstruct, &t);
-  strftime(time_buf, sizeof(time_buf), "%Y-%m-%dT%H:%M:%SZ", &tstruct);
+  strftime(time_buf, sizeof(time_buf), "%Y-%m-%dT%H:%M:%SZ", &tm);
   tsSX.appendChild(sxDoc.createTextNode(time_buf));
 
   sxStructureEL = sxDoc.createElement("Structure");
@@ -99,29 +104,47 @@ ShipXMLDriver::GetShipSteelTransfer() const {
 //-----------------------------------------------------------------------------
 
 void ShipXMLDriver::WritePanels() {
-  //  auto sxPanelsEL = sxDoc.createElement("Panels");
-  //  sxStructureEL.appendChild(sxPanelsEL);
-  //
-  //  auto panels = sst->Structure()->Panels();
-  //
-  //
-  //  std::list<Panel*>::iterator it = panels.begin();
-  //  do  {
-  //
-  //    auto sxPanelEL = sxDoc.createElement("Panel");
-  //    sxPanelsEL.appendChild(sxPanelEL);
-  //
-  //    sxPanelsEL.setAttribute( "name", it->Name().c_str());
-  //    sxPanelsEL.setAttribute( "blockName", it->BlockName().c_str());
-  //    sxPanelsEL.setAttribute( "category", it->Category().c_str());
-  //    sxPanelsEL.setAttribute( "categoryDes",
-  //    it->CategoryDescription().c_str()); sxPanelsEL.setAttribute( "planar",
-  //    it->Planar() ? "true" : "false"); sxPanelsEL.setAttribute( "pillar",
-  //    it->Pillar()? "true":"false"); sxPanelsEL.setAttribute( "owner",
-  //    it->Owner().c_str()); sxPanelsEL.setAttribute( "defaultMaterial",
-  //    it->DefaultMaterial().c_str()); sxPanelsEL.setAttribute( "tightness",
-  //    it->Tightness().c_str()); it++;
-  //  } while ( it != panels.end());
+  auto sxPanelsEL = sxDoc.createElement("Panels");
+  sxStructureEL.appendChild(sxPanelsEL);
+
+   auto panels = sst->GetStructure()->GetPanels();
+
+   for ( int i = 0; i < panels.size();i++) {
+
+     Panel panel = panels.at(i);
+
+      auto sxPanelEL = sxDoc.createElement("Panel");
+      sxPanelsEL.appendChild(sxPanelEL);
+
+      sxPanelEL.setAttribute( "name", panel.GetName().c_str());
+      sxPanelEL.setAttribute( "blockName", panel.GetBlockName().c_str());
+      sxPanelEL.setAttribute( "category", panel.GetCategory().c_str());
+      sxPanelEL.setAttribute( "categoryDes", panel.GetCategoryDescription().c_str());
+      sxPanelEL.setAttribute( "planar", panel.IsPlanar() ?  "true" : "false");
+      sxPanelEL.setAttribute( "pillar", panel.IsPillar() ? "true":"false");
+      sxPanelEL.setAttribute( "defaultMaterial", panel.GetDefaultMaterial().c_str());
+
+      WriteProperties( panel, sxPanelEL);
+
+    }
+}
+
+void ShipXMLDriver::WriteProperties(EntityWithProperties ewp, LDOM_Element entityEL) {
+  auto sxPropsEL = sxDoc.createElement("Properties");
+  entityEL.appendChild(sxPropsEL);
+
+  auto kvs = ewp.GetProperties().GetValues();
+  for ( int i = 0; i < kvs.size();i++) {
+    KeyValue kv  = kvs.at(i);
+    auto sxKvEL = sxDoc.createElement("KeyValue");
+    sxPropsEL.appendChild(sxKvEL);
+
+    sxKvEL.setAttribute( "key", kv.GetKey().c_str());
+    sxKvEL.setAttribute( "value", kv.GetValue().c_str());
+    // TODO: support Unit
+
+  }
+
 }
 
 }  // namespace shipxml

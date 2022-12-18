@@ -15,14 +15,37 @@
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
 #include <boost/program_options.hpp>
-#include <filesystem>
+//#include <filesystem>
 #include <memory>
+
+#include <unistd.h>
+#include <stdio.h>
+#include <limits.h>
 
 #include "ocx/ocx-reader.h"
 #include "ocxreader/ocx-reader-cli.h"
 #include "ocxreader/ocx-reader-export.h"
 
 int main(int argc, char** argv) {
+
+
+  printf("   ____  _______  __ ____                 __         \n"
+  "  / __ \\/ ____/ |/ // __ \\___  ____ _____/ /__  _____\n"
+  " / / / / /    |   // /_/ / _ \\/ __ `/ __  / _ \\/ ___/\n"
+  "/ /_/ / /___ /   |/ _, _/  __/ /_/ / /_/ /  __/ /    \n"
+  "\\____/\\____//_/|_/_/ |_|\\___/\\__,_/\\__,_/\\___/_/     Version 0.3\n"
+  "                                                     \n");
+
+  char cwd[PATH_MAX];
+  if (getcwd(cwd, sizeof(cwd)) == NULL) {
+    printf("could not determine current directory");
+    exit(99);
+  }
+  printf("Current working dir: %s\n", cwd);
+
+
+
+
   namespace po = boost::program_options;
 
   // Path to config file
@@ -73,19 +96,20 @@ int main(int argc, char** argv) {
     }
 
     // Parse options from config file if defined
-    if (!config_file_path.empty()) {
-      std::filesystem::path configFilePath(config_file_path);
-      // Use system dependent preferred path separators
-      configFilePath.make_preferred();
-      if (!std::filesystem::exists(configFilePath)) {
-        std::cerr << "No config file found at: " << configFilePath << std::endl;
-        return 33;
-      }
-      std::ifstream configFileStream(configFilePath.generic_string());
-      po::store(
-          ocxreader::cli::parse_json_config_file(configFileStream, opts, true),
-          vm);
-    }
+// CZ std:filesystem not working for me
+//    if (!config_file_path.empty()) {
+//      std::filesystem::path configFilePath(config_file_path);
+//      // Use system dependent preferred path separators
+//      configFilePath.make_preferred();
+//      if (!std::filesystem::exists(configFilePath)) {
+//        std::cerr << "No config file found at: " << configFilePath << std::endl;
+//        return 33;
+//      }
+//      std::ifstream configFileStream(configFilePath.generic_string());
+//      po::store(
+//          ocxreader::cli::parse_json_config_file(configFileStream, opts, true),
+//          vm);
+//    }
 
     // Parse all options again (overwrites config-file options)
     po::store(po::parse_command_line(argc, argv, allopts), vm);
@@ -117,18 +141,20 @@ int main(int argc, char** argv) {
   // Validate export formats, also cache OCAF export type if present (XML, XBF)
   bool exportXbf = false;
   bool exportXml = false;
+  bool exportShipXml = false;
+
   std::vector<std::string> exportFormats;
   if (vm.count("export-format")) {
     exportFormats = vm["export-format"].as<std::vector<std::string>>();
     for (auto& format : exportFormats) {
       if (format == "STEP") {
-        // ...
+        // ok
       } else if (format == "XML") {
         exportXml = true;
       } else if (format == "XBF") {
         exportXbf = true;
       } else if (format == "SHIPXML") {
-        // ...
+        exportShipXml=true;
       } else {
         std::cerr << "Invalid export format: " << format << std::endl;
         return 33;
@@ -147,28 +173,29 @@ int main(int argc, char** argv) {
     return 33;
   }
 
-  std::string saveTo;
-  if (vm.count("save-to")) {
-    std::filesystem::path saveToPath(vm["save-to"].as<std::string>());
-    // Use system dependent preferred path separators
-    saveToPath.make_preferred();
-    // Check if saveTo is a valid path else try to create it
-    if (!std::filesystem::exists(saveToPath)) {
-      try {
-        std::filesystem::create_directories(saveToPath);
-      } catch (std::filesystem::filesystem_error& e) {
-        std::cerr << "Error creating output directory: " << e.what()
-                  << std::endl;
-        return 33;
-      }
-    }
-    // Append system dependent preferred path separator if not present
-    if (saveToPath.string().back() !=
-        std::filesystem::path::preferred_separator) {
-      saveToPath += std::filesystem::path::preferred_separator;
-    }
-    saveTo = saveToPath.string();
-  }
+//  std::string saveTo
+// CZ : if ouputdirectory does not exist, do complain but never create it ! Much to dangerous
+//  if (vm.count("save-to")) {
+//    std::filesystem::path saveToPath(vm["save-to"].as<std::string>());
+//    // Use system dependent preferred path separators
+//    saveToPath.make_preferred();
+//    // Check if saveTo is a valid path else try to create it
+//    if (!std::filesystem::exists(saveToPath)) {
+//      try {
+//        std::filesystem::create_directories(saveToPath);
+//      } catch (std::filesystem::filesystem_error& e) {
+//        std::cerr << "Error creating output directory: " << e.what()
+//                  << std::endl;
+//        return 33;
+//      }
+//    }
+//    // Append system dependent preferred path separator if not present
+//    if (saveToPath.string().back() !=
+//        std::filesystem::path::preferred_separator) {
+//      saveToPath += std::filesystem::path::preferred_separator;
+//    }
+//    saveTo = saveToPath.string();
+//  }
 
   std::string outputFileName;
   if (vm.count("output-file")) {
@@ -191,7 +218,8 @@ int main(int argc, char** argv) {
   }
 
   // Assemble output file path location
-  std::string outputFilePath = saveTo + outputFileName;
+  std::string outputFilePath = //saveTo +
+      outputFileName;
 
   // Initialize the application
   Handle(TDocStd_Application) app = new TDocStd_Application;
@@ -220,7 +248,7 @@ int main(int argc, char** argv) {
     return 33;
   }
 
-  // Handle the export
+  // Handle the export of Geometry
   if (int ret = ocxreader::file_export::HandleExport(doc, app, outputFilePath,
                                                      exportFormats);
       ret == 66) {
@@ -229,7 +257,7 @@ int main(int argc, char** argv) {
     return ret;
   }
 
-  app->Close(doc);
+
 
   return 0;
 }
