@@ -56,9 +56,9 @@ system [here](https://vcpkg.io/en/getting-started.html).
 
 ### Build
 
-As the project uses vcpkg to install the dependencies, you only need to provide the path to the
-vcpkg installation directory. This can be done by passing `-DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake` 
-to your CMake options.
+The project uses vcpkg to install the dependencies, you only need to provide the path to the
+vcpkg installation directory. This can be done by passing `DCMAKE_TOOLCHAIN_FILE` in your CMake 
+options.
 
 #### Windows
 
@@ -70,7 +70,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 #### Linux
 
 In order to build shared libraries on non-Windows systems, vcpkg requires you to provide a custom
-triplet file in `-DVCPKG_TARGET_TRIPLET` configuration option. You can find community provided
+triplet file in `DVCPKG_TARGET_TRIPLET` configuration option. You can find community provided
 triplet files under `vcpkg/triplets/community` directory.
 
 ```shell
@@ -81,7 +81,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVC
 #### OSX
 
 In order to build shared libraries on non-Windows systems, vcpkg requires you to provide a custom
-triplet file in `-DVCPKG_TARGET_TRIPLET` configuration option. You can find community provided
+triplet file in `DVCPKG_TARGET_TRIPLET` configuration option. You can find community provided
 triplet files under `vcpkg/triplets/community` directory.
 
 ```shell
@@ -89,9 +89,9 @@ triplet files under `vcpkg/triplets/community` directory.
 cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-osx-dynamic
 ```
 
-For building on OSX vcpkg currently does not support building `opencascade` library. In order to
-build the project anyway, you can fallback by installing the `opencascade` library from a different
-source. For this installation with [`brew`](https://formulae.brew.sh/formula/opencascade) package 
+For building on OSX, vcpkg currently does not support building `opencascade` library. In order to
+build the project, you can fall back to install the library from a different source instead. For 
+this, installation with [`brew`](https://formulae.brew.sh/formula/opencascade) package 
 manager is recommended.
 
 ```shell
@@ -126,8 +126,8 @@ OCXReader CLI options:
                             input-file is used.
 ```
 
-The generic option `--config-file` can be used to define the OCX parsing options in a JSON file. A
-sample configuration file can be found [here](ocxreader/config.example.json).
+The generic option `--config-file` can be used to define the OCXReader CLI options in a JSON file. 
+A sample configuration file can be found [here](ocxreader/config.example.json).
 
 ## Contributors
 
