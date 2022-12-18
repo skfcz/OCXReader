@@ -28,13 +28,13 @@
 
 #ifdef _MSC_VER
 // Microsoft Visual C++ compiler
-#define gmtime(time, tz) gmtime_s(time)
+#define gmtime(t, tstruct) gmtime_s(tstruct, t)
 #elif defined(__STDC_WANT_LIB_EXT1__)
 // Other compiler with support for the __STDC_WANT_LIB_EXT1__ macro
-#define gmtime(time, tz) gmtime_s(time, tz)
+#define gmtime(t, tstruct) gmtime_s(tstruct, t)
 #else
 // Other compiler without support for the __STDC_WANT_LIB_EXT1__ macro
-#define gmtime(time, tz) gmtime_r(time, tz)
+#define gmtime(t, tstruct) gmtime_r(t, tstruct)
 #endif
 
 namespace shipxml {
