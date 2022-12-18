@@ -1,4 +1,4 @@
-# OCXReader
+<h1 align="center">OCXReader</h1>
 
 OCXReader is a tool to read and parse data from OCX files and export them to different formats such
 as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB for visualization.
