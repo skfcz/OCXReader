@@ -30,11 +30,11 @@ endif ()
 # Add executable
 add_executable(${PROJECT_NAME} src/ocx-reader-all.cc)
 
-target_link_occt_libraries(${PROJECT_NAME})
-
 target_link_libraries(${PROJECT_NAME}
                       ocx
                       shipxml
                       spdlog::spdlog
                       Boost::boost
                       Boost::program_options)
+
+target_link_occt_libraries_vcpkg(${PROJECT_NAME})

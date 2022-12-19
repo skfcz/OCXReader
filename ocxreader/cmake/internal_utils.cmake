@@ -35,6 +35,14 @@ macro (target_link_occt_libraries target)
   endforeach ()
 endmacro ()
 
+# Configure OCCT libraries to link with (vcpkg)
+macro (target_link_occt_libraries_vcpkg target)
+  foreach (LIB ${OpenCASCADE_LIBRARIES})
+    target_link_libraries(${target} debug ${LIB})
+    target_link_libraries(${target} optimized ${LIB})
+  endforeach ()
+endmacro ()
+
 # Copy target runtime dlls to the build directory by manually specifying the dlls to copy
 macro (copy_runtime_dlls_manual target)
   message(STATUS "OpenCASCADE_BINARY_DIR: ${OpenCASCADE_BINARY_DIR}")

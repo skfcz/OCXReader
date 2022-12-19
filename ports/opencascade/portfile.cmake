@@ -79,11 +79,9 @@ file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 
 if (VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
   # debug creates libd and bind directories that need moving
-  if (VCPKG_BUILD_TYPE STREQUAL debug)
+  if (WIN32)
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/bin")
     file(RENAME "${CURRENT_PACKAGES_DIR}/debug/bind" "${CURRENT_PACKAGES_DIR}/debug/bin")
-    file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/lib")
-    file(RENAME "${CURRENT_PACKAGES_DIR}/debug/libd" "${CURRENT_PACKAGES_DIR}/debug/lib")
   endif ()
 
   # fix paths in target files

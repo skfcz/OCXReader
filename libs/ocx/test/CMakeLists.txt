@@ -12,6 +12,6 @@ target_link_libraries(${PROJECT_NAME}
                       GTest::gtest
                       GTest::gtest_main)
 
-target_link_occt_libraries(${PROJECT_NAME})
+target_link_occt_libraries_vcpkg(${PROJECT_NAME})
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
