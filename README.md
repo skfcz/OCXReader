@@ -1,7 +1,8 @@
 <h1 align="center">OCXReader</h1>
 
-OCXReader is a tool to read and parse data from OCX files and export them to different formats such
-as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB for visualization.
+OCXReader is a tool to read and parse data from OCX files and export them to
+different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB for
+visualization.
 
 ## Roadmap
 
@@ -50,14 +51,17 @@ ${vesselname}
 
 ### Prerequisites
 
-This project is build with CMake and uses the [vcpkg](https://vcpkg.io/en/index.html) package 
-manager to install the required dependencies. You can follow the steps to set up vcpkg on your 
+This project is build with CMake and uses the
+[vcpkg](https://vcpkg.io/en/index.html) package manager to install the required
+dependencies. You can follow the steps to set up vcpkg on your
 system [here](https://vcpkg.io/en/getting-started.html).
 
 ### Build
 
-The project uses vcpkg to install the dependencies, you only need to provide the path to the
-vcpkg installation directory. This can be done by passing `DCMAKE_TOOLCHAIN_FILE` in your CMake 
+The project uses vcpkg to install the dependencies, you only need to provide the
+path to the
+vcpkg installation directory. This can be done by
+passing `DCMAKE_TOOLCHAIN_FILE` in your CMake
 options.
 
 #### Windows
@@ -69,9 +73,29 @@ cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 #### Linux
 
-In order to build shared libraries on non-Windows systems, vcpkg requires you to provide a custom
-triplet file in `DVCPKG_TARGET_TRIPLET` configuration option. You can find community provided
-triplet files under `vcpkg/triplets/community` directory.
+Before you can build the project you need to install the following third party
+dependencies to build OpenCascade:
+
+```shell
+sudo apt-get install software-properties-common
+sudo apt-get install libtool autoconf automake gfortran gdebi
+sudo apt-get install gcc-multilib libxi-dev libxmu-dev libxmu-headers
+sudo apt-get install libx11-dev mesa-common-dev libglu1-mesa-dev
+sudo apt-get install libfontconfig1-dev
+```
+
+The minimum requirements for third party dependencies to run OpenCascade itself
+is Freetype 2.5 and Tcl/TK 8.6:
+
+```shell
+sudo apt-get install libfreetype6 libfreetype6-dev
+sudo apt-get install tcl tcl-dev tk tk-dev
+```
+
+In order to build shared libraries on non-Windows systems, vcpkg requires you to
+provide a custom triplet file in `DVCPKG_TARGET_TRIPLET` configuration option.
+You can find community provided triplet files under `vcpkg/triplets/community`
+directory.
 
 ```shell
 # CMake options
@@ -80,28 +104,24 @@ cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVC
 
 #### OSX
 
-In order to build shared libraries on non-Windows systems, vcpkg requires you to provide a custom
-triplet file in `DVCPKG_TARGET_TRIPLET` configuration option. You can find community provided
-triplet files under `vcpkg/triplets/community` directory.
+In order to build shared libraries on non-Windows systems, vcpkg requires you to
+provide a custom triplet file in `DVCPKG_TARGET_TRIPLET` configuration option.
+You can find community provided triplet files under `vcpkg/triplets/community`
+directory.
+
+> For building on OSX, vcpkg currently has no support official for building
+> `opencascade` library. This can be overridden by passing `--allow-unsupported`
+> to the `DVCPKG_INSTALL_OPTIONS` in the CMake options.
 
 ```shell
 # CMake options
-cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-osx-dynamic
-```
-
-For building on OSX, vcpkg currently does not support building `opencascade` library. In order to
-build the project, you can fall back to install the library from a different source instead. For 
-this, installation with [`brew`](https://formulae.brew.sh/formula/opencascade) package 
-manager is recommended.
-
-```shell
-# Install opencascade with brew
-brew install opencascade
+cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-osx-dynamic -DVCPKG_INSTALL_OPTIONS=--allow-unsupported
 ```
 
 ## Usage
 
-OCXReader should be used as a command line tool. The following options are available:
+OCXReader should be used as a command line tool. The following options are
+available:
 
 ```shell
 $ ocxreader --help
@@ -126,7 +146,8 @@ OCXReader CLI options:
                             input-file is used.
 ```
 
-The generic option `--config-file` can be used to define the OCXReader CLI options in a JSON file. 
+The generic option `--config-file` can be used to define the OCXReader CLI
+options in a JSON file.
 A sample configuration file can be found [here](ocxreader/config.example.json).
 
 ## Contributors
