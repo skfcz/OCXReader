@@ -51,18 +51,22 @@ ${vesselname}
 
 ### Prerequisites
 
+#### vcpkg
+
 This project is build with CMake and uses the
 [vcpkg](https://vcpkg.io/en/index.html) package manager to install the required
 dependencies. You can follow the steps to set up vcpkg on your
 system [here](https://vcpkg.io/en/getting-started.html).
 
+> Note: For WSL users, make sure to install vcpkg in a directory which grants
+> permission for all users. Otherwise, you will get an error when trying to
+> access and install vcpkg packages through a non-root user.
+
 ### Build
 
-The project uses vcpkg to install the dependencies, you only need to provide the
-path to the
-vcpkg installation directory. This can be done by
-passing `DCMAKE_TOOLCHAIN_FILE` in your CMake
-options.
+The project uses vcpkg to install the dependencies, in most cases you need to
+provide the path to the vcpkg installation directory. This can be done by
+passing `DCMAKE_TOOLCHAIN_FILE` in your CMake options.
 
 #### Windows
 
