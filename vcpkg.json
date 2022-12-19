@@ -7,7 +7,6 @@
     "OCXReader is a tool to read and parse data from OCX files and export them",
     "to different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB."
   ],
-  "builtin-baseline": "4b6bce313ef917b9635e9287d06225743e242888",
   "dependencies": [
     {
       "name": "spdlog",

@@ -6,9 +6,9 @@
   },
   "registries": [],
   "overlay-ports": [
-    "./ports/opencascade"
+    "./vcpkg/ports/opencascade"
   ],
   "overlay-triplets": [
-    "./triplets"
+    "./vcpkg/triplets"
   ]
 }
