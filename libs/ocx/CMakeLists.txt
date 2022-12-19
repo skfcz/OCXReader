@@ -4,15 +4,10 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(ocx VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
-# Dependencies
-find_package(OpenCASCADE CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
-
 # Where ocx's .h files can be found
 set(ocx_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${occutils_SOURCE_DIR}/include"
-    "${occutils_SOURCE_DIR}"
     "${ocx_SOURCE_DIR}/include"
     "${ocx_SOURCE_DIR}")
 include_directories(SYSTEM ${ocx_include_dirs})
@@ -42,8 +37,7 @@ endif ()
 # Set target link libraries
 target_link_libraries(${PROJECT_NAME}
                       occutils
-                      spdlog::spdlog
-                      spdlog::spdlog_header_only)
+                      spdlog::spdlog)
 
 # Adjust runtime environment for Visual Studio
 set_property(

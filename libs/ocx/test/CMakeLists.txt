@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(ocx-test VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
-# Dependencies
-find_package(GTest CONFIG REQUIRED)
-
 # Define helper functions and macros used by ocx-test
 include(cmake/internal_utils.cmake)
 

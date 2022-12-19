@@ -2,19 +2,11 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(ocxreader VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
-# Dependencies
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS program_options)
-find_package(OpenCASCADE CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
-
 # Where ocxreader's .h files can be found
 set(ocx_reader_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
-    "${ocx_SOURCE_DIR}"
     "${shipxml_SOURCE_DIR}/include"
-    "${shipxml_SOURCE_DIR}"
     "${ocxreader_SOURCE_DIR}/include"
     "${ocxreader_SOURCE_DIR}")
 include_directories(SYSTEM ${ocx_reader_include_dirs})
@@ -38,12 +30,11 @@ endif ()
 # Add executable
 add_executable(${PROJECT_NAME} src/ocx-reader-all.cc)
 
+target_link_occt_libraries(${PROJECT_NAME})
+
 target_link_libraries(${PROJECT_NAME}
                       ocx
                       shipxml
                       spdlog::spdlog
-                      spdlog::spdlog_header_only
                       Boost::boost
                       Boost::program_options)
-
-target_link_occt_libraries(${PROJECT_NAME})

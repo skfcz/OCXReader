@@ -4,11 +4,6 @@ cmake_minimum_required(VERSION 3.24)
 
 project(occutils VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
-# Dependencies
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS system filesystem)
-find_package(OpenCASCADE CONFIG REQUIRED)
-
 # Where occutils's .h files can be found
 set(occutils_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
