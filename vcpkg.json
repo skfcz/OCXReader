@@ -15,8 +15,7 @@
     },
     {
       "name": "opencascade",
-      "version>=": "7.6.2#1",
-      "platform": "!(uwp | osx | arm)"
+      "version>=": "7.6.2#1"
     },
     {
       "name": "gtest",
