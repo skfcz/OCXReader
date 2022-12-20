@@ -23,9 +23,7 @@ namespace shipxml {
 
 shipxml::KeyValue Properties::Add(std::string const &key,
                                   std::string const &value) {
-  shipxml::KeyValue kv(key, value);
-  m_values.push_back(kv);
-  return kv;
+  return m_values.emplace_back(key, value);
 }
 
 shipxml::KeyValue Properties::Add(std::string const &key, double value) {

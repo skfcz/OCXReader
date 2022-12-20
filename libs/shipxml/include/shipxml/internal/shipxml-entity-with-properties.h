@@ -26,7 +26,7 @@ class EntityWithProperties : public NamedEntity {
  public:
   explicit EntityWithProperties(std::string_view name);
 
-  [[nodiscard]] shipxml::Properties GetProperties() const;
+  [[nodiscard]] shipxml::Properties &GetProperties();
 
  private:
   shipxml::Properties m_properties;
