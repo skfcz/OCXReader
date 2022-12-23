@@ -15,7 +15,7 @@
 #ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_STRUCTURE_H_
 #define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_STRUCTURE_H_
 
-#include <vector>
+#include <list>
 
 #include "shipxml/internal/shipxml-panel.h"
 
@@ -28,10 +28,10 @@ class Structure {
 
   void AddPanel(shipxml::Panel const &panel);
 
-  [[nodiscard]] std::vector<shipxml::Panel> GetPanels() const;
+  [[nodiscard]] std::list<shipxml::Panel> GetPanels() const;
 
  private:
-  std::vector<shipxml::Panel> m_panels;
+  std::list<shipxml::Panel> m_panels;
 };
 
 }  // namespace shipxml

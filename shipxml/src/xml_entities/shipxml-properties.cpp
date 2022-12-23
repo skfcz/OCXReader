@@ -25,10 +25,6 @@ shipxml::KeyValue Properties::Add(std::string const &key,
                                   std::string const &value) {
   shipxml::KeyValue kv(key, value);
   m_values.push_back(kv);
-
-  std::cout << "add KeyValue #" << m_values.size() << " to Properties " << std::endl;
-
-
   return kv;
 }
 
@@ -42,6 +38,6 @@ shipxml::KeyValue Properties::Add(std::string const &key, int value) {
 
 //-----------------------------------------------------------------------------
 
-std::vector<shipxml::KeyValue> Properties::GetValues() const { return m_values; }
+std::list<shipxml::KeyValue> Properties::GetValues() const { return m_values; }
 
 }  // namespace shipxml
