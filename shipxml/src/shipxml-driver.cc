@@ -27,6 +27,17 @@
 #include "shipxml/internal/shipxml-panel-reader.h"
 #include "shipxml/internal/shipxml-ship-steel-transfer.h"
 
+#ifdef _MSC_VER
+// Microsoft Visual C++ compiler
+#define gmtime(t, tstruct) gmtime_s(tstruct, t)
+#elif defined(__STDC_WANT_LIB_EXT1__)
+// Other compiler with support for the __STDC_WANT_LIB_EXT1__ macro
+#define gmtime(t, tstruct) gmtime_s(tstruct, t)
+#else
+// Other compiler without support for the __STDC_WANT_LIB_EXT1__ macro
+#define gmtime(t, tstruct) gmtime_r(t, tstruct)
+#endif
+
 namespace shipxml {
 
 ShipXMLDriver::ShipXMLDriver() {
@@ -66,7 +77,7 @@ bool ShipXMLDriver::Write(std::string const& filepath) {
   time_t t = time(nullptr);
   struct tm tstruct {};
   char time_buf[21];
-  gmtime_s(&tstruct, &t);
+  gmtime(&t, &tstruct);
   strftime(time_buf, sizeof(time_buf), "%Y-%m-%dT%H:%M:%SZ", &tstruct);
   tsSX.appendChild(sxDoc.createTextNode(time_buf));
 
