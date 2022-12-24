@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(shipxml VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
-set(library_name lib${PROJECT_NAME})
-
 # External dependencies
 include(FetchContent)
 
@@ -23,8 +21,6 @@ FetchContent_MakeAvailable(OCCUtils)
 set(shipxml_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
-    # This directory is needed to build directly from ocx sources.
-    "${ocx_SOURCE_DIR}"
     "${shipxml_SOURCE_DIR}/include"
     "${shipxml_SOURCE_DIR}"
 )
@@ -46,14 +42,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
-cxx_library(${library_name} src/shipxml-all.cc)
+cxx_library(${PROJECT_NAME} src/shipxml-all.cc)
 
 # Set target link libraries
-target_link_libraries(${library_name} libocx spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} ocx spdlog::spdlog)
 
 # Adjust runtime environment for Visual Studio
 set_property(
-  TARGET ${library_name}
+  TARGET ${PROJECT_NAME}
   PROPERTY
   VS_DEBUGGER_ENVIRONMENT
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"

@@ -1,24 +1,22 @@
 # Configure OCCT libraries to link with
 macro (target_link_occt_libraries target)
+  # Set debug libraries on debug mode (WIN32 only)
+  if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(DEBUG_POSTFIX "d")
+  endif ()
+
   foreach (LIB ${OpenCASCADE_LIBRARIES})
     if (WIN32)
-      if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-        set(DEBUG_SUFFIX "d")
-      endif ()
-      if (EXISTS ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib)
-        set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib)
-        # message(STATUS "Adding ${occt_lib_dir}")
-
+      if (EXISTS "${OpenCASCADE_LIBRARY_DIR}${DEBUG_POSTFIX}/${LIB}.lib")
+        set(occt_lib_dir "${OpenCASCADE_LIBRARY_DIR}${DEBUG_POSTFIX}/${LIB}.lib")
         target_link_libraries(${target} debug ${occt_lib_dir})
         target_link_libraries(${target} optimized ${occt_lib_dir})
       else ()
-        message(FATAL_ERROR "Library ${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}")
+        message(FATAL_ERROR "Library ${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}${DEBUG_POSTFIX}")
       endif ()
     elseif (APPLE)
       if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
         set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-        # message(STATUS "Adding ${occt_lib_dir}")
-
         target_link_libraries(${target} debug ${occt_lib_dir})
         target_link_libraries(${target} optimized ${occt_lib_dir})
       else ()
@@ -27,8 +25,6 @@ macro (target_link_occt_libraries target)
     elseif (UNIX)
       if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
         set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-        # message(STATUS "Adding ${occt_lib_dir}")
-
         target_link_libraries(${target} debug ${occt_lib_dir})
         target_link_libraries(${target} optimized ${occt_lib_dir})
       else ()
@@ -37,7 +33,6 @@ macro (target_link_occt_libraries target)
     endif ()
   endforeach ()
 endmacro ()
-
 
 # Copy target runtime dlls to the build directory by manually specifying the dlls to copy
 macro (copy_runtime_dlls_manual target)
@@ -50,7 +45,6 @@ macro (copy_runtime_dlls_manual target)
     $<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>
     $<TARGET_FILE_DIR:${target}>)
 endmacro ()
-
 
 # Dynamically resolve target runtime dlls with $<TARGET_RUNTIME_DLLS:tgt>
 # available with CMake 3.21+

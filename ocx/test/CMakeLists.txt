@@ -22,7 +22,7 @@ include(cmake/internal_utils.cmake)
 
 add_executable(${PROJECT_NAME} ocx-all-test.cc)
 
-target_link_libraries(${PROJECT_NAME} libocx gtest_main)
+target_link_libraries(${PROJECT_NAME} ocx gtest_main)
 
 target_link_occt_libraries(${PROJECT_NAME})
 

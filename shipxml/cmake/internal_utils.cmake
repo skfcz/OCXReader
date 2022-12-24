@@ -3,6 +3,9 @@ function (cxx_library_with_type name type)
   # type can be either STATIC or SHARED to denote a static or shared library.
   # ARGN refers to additional arguments after 'type'.
   add_library(${name} ${type} ${ARGN})
+
+  set_target_properties(${name} PROPERTIES DEBUG_POSTFIX d)
+
   # Set the output directory for build artifacts
   set_target_properties(${name}
                         PROPERTIES
