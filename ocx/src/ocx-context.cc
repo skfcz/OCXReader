@@ -217,4 +217,30 @@ opencascade::handle<XCAFDoc_ColorTool> OCXContext::OCAFColorTool() const {
   return ocafColorTool;
 }
 
+RefPlaneWrapper OCXContext::LookupRefPlane(const std::string &guid) {
+  if (auto res = RefPlane_GUID_WRAPPER.find(guid); res != RefPlane_GUID_WRAPPER.end()) {
+    return res->second;
+  }
+  OCX_ERROR("No RefPlane found for guid {0}", guid);
+  return {};
+}
+void OCXContext::RegisterRefPlane(const std::string &guid,
+                                  const RefPlaneType type,
+                                  const LDOM_Element &element,
+                                  const gp_Dir &normal,
+                                  const gp_Pnt &p0, const gp_Pnt &p1, const gp_Pnt &p2
+                                  ) {
+
+  auto wrp = RefPlaneWrapper();
+  wrp.type=type;
+  wrp.refPlaneN=element;
+  wrp.normal = normal;
+  wrp.p1 = p0;
+  wrp.p2 = p1;
+  wrp.p3 = p2;
+
+  RefPlane_GUID_WRAPPER[guid]=wrp;
+
+}
+
 }  // namespace ocx

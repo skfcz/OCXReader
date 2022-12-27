@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 02 Dec 2022                                               *
+ *   Created on: 01 Dec 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,41 +12,33 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PANEL_READER_H_
-#define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PANEL_READER_H_
-
-#include <LDOM_Element.hxx>
-#include <memory>
-
-#include "shipxml/internal/shipxml-panel.h"
-#include "shipxml/internal/shipxml-ship-steel-transfer.h"
+#include "shipxml/internal/shipxml-vector.h"
 
 namespace shipxml {
 
-class PanelReader {
- public:
-  PanelReader(LDOM_Element const &vesselN,
-              std::shared_ptr<ShipSteelTransfer> sst);
+Vector::Vector() = default;
 
-  ~PanelReader() = default;
+//-----------------------------------------------------------------------------
 
-  void ReadPanels() const;
+Vector::Vector(double x, double y, double z)
+    : m_x(x), m_y(y), m_z(z) {}
 
-  [[nodiscard]] static shipxml::Panel ReadPanel(LDOM_Element const &panelN);
+//-----------------------------------------------------------------------------
 
+void Vector::SetX(double value) { m_x = value; }
 
+double Vector::GetX() const { return m_x; }
 
-  static void  ReadLimits(LDOM_Element const &limitedByN, Panel &panel);
+//-----------------------------------------------------------------------------
 
+void Vector::SetY(double value) { m_y = value; }
 
- private:
+double Vector::GetY() const { return m_y; }
 
-  std::shared_ptr<ShipSteelTransfer> m_sst;
-  LDOM_Element m_ocxVesselEL;
+//-----------------------------------------------------------------------------
 
-  [[nodiscard]] static bool ReadSupport(LDOM_Element const &panelN, Panel &panel);
-};
+void Vector::SetZ(double value) { m_z = value; }
+
+double Vector::GetZ() const { return m_z; }
 
 }  // namespace shipxml
-
-#endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PANEL_READER_H_

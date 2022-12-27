@@ -21,6 +21,7 @@
 
 #include "occutils/occutils-curve.h"
 #include "ocx/ocx-helper.h"
+#include <list>
 
 namespace ocx::shared::limited_by {
 

@@ -26,9 +26,6 @@ shipxml::KeyValue Properties::Add(std::string const &key,
   shipxml::KeyValue kv(key, value);
   m_values.push_back(kv);
 
-  std::cout << "add KeyValue #" << m_values.size() << " to Properties " << std::endl;
-
-
   return kv;
 }
 

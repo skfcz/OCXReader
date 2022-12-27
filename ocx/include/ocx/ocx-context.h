@@ -39,6 +39,17 @@ struct LDOMCompare {
   bool operator()(LDOM_Element const &lhs, LDOM_Element const &rhs) const;
 };
 
+enum RefPlaneType {X, Y, Z, UNDEF};
+
+struct RefPlaneWrapper {
+  RefPlaneType type;
+  LDOM_Element refPlaneN;
+  gp_Dir normal;
+  gp_Pnt p1;
+  gp_Pnt p2;
+  gp_Pnt p3;
+};
+
 class OCXContext {
  public:
   OCXContext(OCXContext const &) = delete;
@@ -97,6 +108,18 @@ class OCXContext {
    */
   [[nodiscard]] double LoopupFactor(const std::string &unit) const;
 
+
+  /**
+   * @brief Register an X/Y/ZRefPlane element by its GUID
+   *
+   * @param element the LDOM_Element
+   * @param guid the guid
+   * @package type the ref plane type
+   */
+  void RegisterRefPlane(const std::string &guid,  const RefPlaneType type, LDOM_Element const &element,
+                        const gp_Dir &normal, const gp_Pnt &p0, const gp_Pnt &p1, const gp_Pnt &p2);
+
+
   /**
    * @brief Register a TopoDS_Shape by its LDOM_Element (matched by given
    * GUID or ID)
@@ -105,6 +128,15 @@ class OCXContext {
    * @param shape the TopoDS_Shape
    */
   void RegisterShape(LDOM_Element const &element, TopoDS_Shape const &shape);
+
+  /**
+   * @brief Get a previously registered X/Y/Z Refplane LDOM_Element by its GUID
+   *
+   * @param guid the guid
+   * @return the LDOM_Element to lookup
+   */
+  [[nodiscard]] RefPlaneWrapper LookupRefPlane(std::string const &guid);
+
 
   /**
    * @brief Get a previously registered Shape by its LDOM_Element (matched by
@@ -159,6 +191,8 @@ class OCXContext {
   std::string m_nsPrefix;
 
   std::map<std::string, double, std::less<>> unit2factor;
+
+  std::map<std::string, RefPlaneWrapper> RefPlane_GUID_WRAPPER;
 
   std::map<LDOM_Element, TopoDS_Shape, LDOMCompare> LDOM2TopoDS_Shape;
   std::map<LDOM_Element, BarSection, LDOMCompare> LDOM2BarSection;

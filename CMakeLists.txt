@@ -15,5 +15,6 @@ endif ()
 find_package(OpenCASCADE REQUIRED)
 
 add_subdirectory(ocx)
-add_subdirectory(ocxreader)
 add_subdirectory(shipxml)
+add_subdirectory(ocxreader)
+

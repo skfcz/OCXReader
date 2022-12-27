@@ -86,4 +86,9 @@ void Support::SetTP3(shipxml::CartesianPoint cartesianPoint) {
 
 CartesianPoint Support::GetTP3() const { return m_tp3; }
 
+void Support::SetNormal(shipxml::Vector n) {
+  m_normal = n;
+}
+shipxml::Vector Support::GetNormal() const { return m_normal; }
+
 }  // namespace shipxml

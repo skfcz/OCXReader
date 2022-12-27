@@ -69,6 +69,7 @@ class ShipXMLDriver {
                     bool attrValue);
   void WritePanels();
   void WriteProperties(EntityWithProperties ewp, LDOM_Element entityEL);
+  void WriteSupport(Panel panel, LDOM_Element element);
 };
 
 }  // namespace shipxml

@@ -75,7 +75,7 @@ class Panel : public EntityWithProperties {
   /**
    * Get the Support
    */
-  [[nodiscard]] Support GetSupport() const;
+  [[nodiscard]] shipxml::Support &GetSupport();
 
   /**
    * Set the list of Limits
@@ -109,6 +109,7 @@ class Panel : public EntityWithProperties {
   std::string m_defaultMaterial;
   std::string m_tightness;
   shipxml::Extrusion m_extrusion;
+
   shipxml::Support m_support;
   std::list<shipxml::Limit> m_limits;
   shipxml::AMCurve m_geometry;

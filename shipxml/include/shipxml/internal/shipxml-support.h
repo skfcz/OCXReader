@@ -18,6 +18,7 @@
 #include <string>
 
 #include "shipxml/internal/shipxml-cartesian-point.h"
+#include "shipxml/internal/shipxml-vector.h"
 #include "shipxml/internal/shipxml-enums.h"
 
 namespace shipxml {
@@ -63,6 +64,10 @@ class Support {
 
   [[nodiscard]] CartesianPoint GetTP3() const;
 
+  void SetNormal(shipxml::Vector n);
+
+  [[nodiscard]] shipxml::Vector GetNormal() const;
+
  private:
   std::string m_grid;
   std::string m_coordinate;
@@ -73,6 +78,7 @@ class Support {
   shipxml::CartesianPoint m_tp1;
   shipxml::CartesianPoint m_tp2;
   shipxml::CartesianPoint m_tp3;
+  shipxml::Vector m_normal;
 };
 }  // namespace shipxml
 

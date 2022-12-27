@@ -126,6 +126,8 @@ void ShipXMLDriver::WritePanels() {
 
       WriteProperties( panel, sxPanelEL);
 
+      WriteSupport( panel, sxPanelEL);
+
     }
 }
 
@@ -144,6 +146,29 @@ void ShipXMLDriver::WriteProperties(EntityWithProperties ewp, LDOM_Element entit
     // TODO: support Unit
 
   }
+
+}
+void ShipXMLDriver::WriteSupport(Panel panel, LDOM_Element panelEL) {
+  auto support = panel.GetSupport();
+
+  auto sxSuppEL = sxDoc.createElement("Support");
+  panelEL.appendChild(sxSuppEL);
+
+  sxSuppEL.setAttribute("grid", support.GetGrid().c_str());
+  sxSuppEL.setAttribute("coordinate", support.GetCoordinate().c_str());
+
+
+  sxSuppEL.setAttribute("orientation", shipxml::ToString(support.GetOrientation()).c_str());
+  sxSuppEL.setAttribute("planar", support.IsPlanar() ? "true" : "false");
+  sxSuppEL.setAttribute("locationType", shipxml::ToString(support.GetLocationType()).c_str());
+  sxSuppEL.setAttribute("majorPlane", shipxml::ToString(support.GetMajorPlane()).c_str());
+
+
+ sxSuppEL.setAttribute("normal", shipxml::ToString(support.GetNormal()).c_str());
+ sxSuppEL.setAttribute("tp1", shipxml::ToString(support.GetTP1()).c_str());
+ sxSuppEL.setAttribute("tp2", shipxml::ToString(support.GetTP2()).c_str());
+ sxSuppEL.setAttribute("tp3", shipxml::ToString(support.GetTP3()).c_str());
+
 
 }
 

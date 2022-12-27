@@ -105,9 +105,11 @@ namespace {
 
 TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
                           Quantity_Color const &color) {
-  std::string refPlaneType = ocx::helper::GetLocalTagName(refPlanesN);
+  std::string refPlaneTypeName = ocx::helper::GetLocalTagName(refPlanesN);
 
-  OCX_INFO("Reading reference planes from {}", refPlaneType)
+  OCX_INFO("Reading reference planes from {}", refPlaneTypeName)
+
+
 
   int cntPlanes = 0;
   std::list<TopoDS_Shape> shapes;
@@ -124,7 +126,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         OCX_ERROR(
             "Unexpected node type {} found in {}, expected node type to be "
             "RefPlane",
-            refPlaneName, refPlaneType)
+            refPlaneName, refPlaneTypeName)
         aChildN = aChildN.getNextSibling();
         continue;
       }
@@ -146,8 +148,9 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
       gp_Pnt org;
       gp_Dir direction;
       gp_Pnt pnt0, pnt1, pnt2, pnt3;
+      RefPlaneType refPlaneType = UNDEF;
 
-      if (refPlaneType == "XRefPlanes") {
+      if (refPlaneTypeName == "XRefPlanes") {
         // YZ plane (frame)
         org = gp_Pnt(location, 0, 0);
         direction = gp_Dir(1, 0, 0);
@@ -157,7 +160,9 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         pnt2 = gp_Pnt(location, -1.10 * width / 2.0, OCXContext::MaxZ);
         pnt3 = gp_Pnt(location, 1.10 * width / 2.0, OCXContext::MaxZ);
 
-      } else if (refPlaneType == "YRefPlanes") {
+        refPlaneType = X;
+
+      } else if (refPlaneTypeName == "YRefPlanes") {
         // XZ plane (longitudinal)
         org = gp_Pnt(0, location, 0);
         direction = gp_Dir(0, 1, 0);
@@ -167,7 +172,9 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         pnt2 = gp_Pnt(OCXContext::MaxX, location, OCXContext::MaxZ);
         pnt3 = gp_Pnt(OCXContext::MinX, location, OCXContext::MaxZ);
 
-      } else if (refPlaneType == "ZRefPlanes") {
+        refPlaneType = Y;
+
+      } else if (refPlaneTypeName == "ZRefPlanes") {
         // XY plane (deck)
         org = gp_Pnt(0, 0, location);
         direction = gp_Dir(0, 0, 1);
@@ -176,6 +183,8 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         pnt1 = gp_Pnt(OCXContext::MinX, -1.05 * width / 2.0, location);
         pnt2 = gp_Pnt(OCXContext::MaxX, -1.05 * width / 2.0, location);
         pnt3 = gp_Pnt(OCXContext::MaxX, 1.05 * width / 2.0, location);
+
+        refPlaneType = Z;
       }
 
       auto unlimitedSurface = gp_Pln(org, direction);
@@ -192,6 +201,9 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
       TopoDS_Face surface =
           BRepBuilderAPI_MakeFace(unlimitedSurface, outerContour);
       OCXContext::GetInstance()->RegisterShape(refPlaneN, surface);
+      const std::string guid = std::string( meta->guid);
+
+      OCXContext::GetInstance()->RegisterRefPlane(guid, refPlaneType,  refPlaneN, direction, pnt0, pnt1, pnt3);
 
       TDF_Label surfaceL =
           OCXContext::GetInstance()->OCAFShapeTool()->AddShape(surface, false);
@@ -215,10 +227,10 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
 
   TDF_Label refPlaneLabel =
       OCXContext::GetInstance()->OCAFShapeTool()->AddShape(refPlanesAssy, true);
-  TDataStd_Name::Set(refPlaneLabel, refPlaneType.c_str());
+  TDataStd_Name::Set(refPlaneLabel, refPlaneTypeName.c_str());
 
   OCX_INFO("Registered {} reference planes found in {}", cntPlanes,
-           refPlaneType)
+           refPlaneTypeName)
 
   return refPlanesAssy;
 }

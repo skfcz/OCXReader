@@ -37,3 +37,4 @@
 #include "src/xml_entities/shipxml-properties.cpp"
 #include "src/xml_entities/shipxml-structure.cpp"
 #include "src/xml_entities/shipxml-support.cpp"
+#include "src/xml_entities/shipxml-vector.cpp"

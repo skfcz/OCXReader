@@ -91,7 +91,9 @@ shipxml::Extrusion Panel::GetExtrusion() const { return m_extrusion; }
 
 //-----------------------------------------------------------------------------
 
-shipxml::Support Panel::GetSupport() const { return m_support; }
+shipxml::Support & Panel::GetSupport() {
+  return m_support;
+}
 
 //-----------------------------------------------------------------------------
 

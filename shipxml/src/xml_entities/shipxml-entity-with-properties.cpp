@@ -25,7 +25,7 @@ EntityWithProperties::EntityWithProperties(std::string_view name)
 
 //-----------------------------------------------------------------------------
 
-shipxml::Properties EntityWithProperties::GetProperties() const {
+shipxml::Properties &EntityWithProperties::GetProperties() {
   return m_properties;
 }
 

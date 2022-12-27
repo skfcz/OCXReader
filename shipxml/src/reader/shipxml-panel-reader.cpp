@@ -14,13 +14,15 @@
 
 #include "shipxml/internal/shipxml-panel-reader.h"
 
+#include <shipxml/internal/shipxml-helper.h>
+
 #include <utility>
 
 #include "ocx/ocx-helper.h"
 #include "shipxml/internal/shipxml-enums.h"
+#include "shipxml/internal/shipxml-limit.h"
 #include "shipxml/internal/shipxml-log.h"
 #include "shipxml/internal/shipxml-panel.h"
-#include "shipxml/internal/shipxml-limit.h"
 
 namespace shipxml {
 
@@ -40,7 +42,7 @@ void PanelReader::ReadPanels() const {
       LDOM_Element aElement = (LDOM_Element &)aChildNode;
 
       if (ocx::helper::GetLocalTagName(aElement) == "Panel") {
-        Panel panel = ReadPanel(aElement);
+        Panel panel = this->ReadPanel(aElement);
         m_sst->GetStructure()->AddPanel(panel);
       }
     }
@@ -70,19 +72,10 @@ shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
   if (!desc.isNull()) {
     panel.GetProperties().Add("description", desc.getNodeValue().GetString());
   }
-  std::cout << "transferred #" << panel.GetProperties().GetValues().size() << " properties " << std::endl;
 
 
   // the support
-  auto unboundedGeometryN =
-      ocx::helper::GetFirstChild(panelN, "UnboundedGeometry");
-  if (!unboundedGeometryN.isNull()) {
-    // TODO: Get from OCX context
-    // ocx::OCXContext::GetInstance()->LookupShape(SomeElement);
-  } else {
-    SHIPXML_WARN("No UnboundedGeometry found in Panel id={} guid={}", meta->id,
-                 meta->guid)
-  }
+  ReadSupport(panelN, panel);
 
   // the outer contour
   auto outerContourN = ocx::helper::GetFirstChild(panelN, "OuterContour");
@@ -149,5 +142,137 @@ void PanelReader::ReadLimits(LDOM_Element const &limitedByN, Panel &panel) {
   }
   panel.SetLimits(limits);
 }
+bool PanelReader::ReadSupport(const LDOM_Element &panelN, Panel &panel) {
+
+  auto meta = ocx::helper::GetOCXMeta(panelN);
+
+
+  OCX_DEBUG("ReadSupport {} ", panel.GetName() );
+
+  auto unboundedGeometryN =
+      ocx::helper::GetFirstChild(panelN, "UnboundedGeometry");
+  if (unboundedGeometryN.isNull()) {
+    SHIPXML_WARN("No UnboundedGeometry found in Panel id={} guid={}", meta->id,
+                 meta->guid)
+    return false;
+  }
+
+
+  // UnboundedGeometry is either a shell, a shell reference, or a grid reference
+  LDOM_Element refN{};
+  if (LDOM_Element gridRefN =
+          ocx::helper::GetFirstChild(unboundedGeometryN, "GridRef");
+      !gridRefN.isNull()) {
+    refN = gridRefN;
+
+    auto guid= refN.getAttribute("ocx:GUIDRef").GetString();
+    OCX_DEBUG("    Using GridRef guid={} as UnboundedGeometry", guid)
+
+    panel.GetProperties().Add("support.gridRef.GUID", guid);
+
+    auto refPlaneW = ocx::OCXContext::GetInstance()->LookupRefPlane(guid );
+    if (refPlaneW.refPlaneN.isNull()) {
+      SHIPXML_WARN("Failed to lookup an RefPlane for guid={}",guid);
+      return false;
+    }
+    auto refPlaneN = refPlaneW.refPlaneN;
+    auto refPlaneType = refPlaneW.type;
+
+    OCX_DEBUG("       RefPlane {} id={}, name={}, guid={}",
+              refPlaneType,
+                  refPlaneN.getAttribute("id").GetString(),
+                  refPlaneN.getAttribute("name").GetString(),
+              ocx::helper::GetAttrValue(refPlaneN, "GUIDRef"));
+
+
+    panel.GetProperties().Add("support.gridRef.id", refPlaneN.getAttribute("id").GetString());
+    panel.GetProperties().Add("support.gridRef.name", refPlaneN.getAttribute("name").GetString());
+    switch (refPlaneType) {
+      case ocx::X : panel.GetProperties().Add("support.gridRef.type", "X");
+        break;
+      case ocx::Y : panel.GetProperties().Add("support.gridRef.type", "Y");
+        break;
+      case ocx::Z : panel.GetProperties().Add("support.gridRef.type", "Z");
+        break;
+    }
+
+    auto support = panel.GetSupport();
+    support.SetGrid( refPlaneN.getAttribute("id").GetString());
+    support.SetCoordinate( refPlaneN.getAttribute("name").GetString());
+    support.SetIsPlanar(true);
+    support.SetNormal( shipxml::Convert( refPlaneW.normal));
+    support.SetTP1( shipxml::Convert( refPlaneW.p1));
+    support.SetTP2( shipxml::Convert( refPlaneW.p2));
+    support.SetTP3( shipxml::Convert( refPlaneW.p3));
+
+    OCX_DEBUG("       Support grid {}, coordinates {}",
+              support.GetGrid(), support.GetCoordinate());
+
+    support = panel.GetSupport();
+    OCX_DEBUG("       Support' grid {}, coordinates {}",
+              support.GetGrid(), support.GetCoordinate());
+
+
+
+  } else if (LDOM_Element surfaceRefN =
+                 ocx::helper::GetFirstChild(unboundedGeometryN, "SurfaceRef");
+             !surfaceRefN.isNull()) {
+    refN = surfaceRefN;
+    OCX_DEBUG("Using SurfaceRef guid={} as UnboundedGeometry",
+              refN.getAttribute("ocx:GUIDRef").GetString())
+  } else {
+    OCX_DEBUG(
+        "No GridRef or SurfaceRef child node found in element id={} guid={}. "
+        "Try reading directly from UnboundedGeometry.",
+        meta->id, meta->guid)
+  }
+
+  return true;
+  // Read from GridRef or SurfaceRef
+
+  /*if (!refN.isNull()) {
+    auto refNMeta = ocx::helper::GetOCXMeta(refN);
+
+    TopoDS_Shape surface = ocx::OCXContext::GetInstance()->LookupShape(refN);
+    if (surface.IsNull()) {
+      OCX_ERROR("Failed to lookup ReferenceSurface guid={}", refNMeta->guid)
+      return {};
+    }
+
+    // TODO: Both GridRef and SurfaceRef allow for specifying an offset
+    // TODO: parameter of the referenced Surface. This is currently ignored.
+    // TODO: Maybe refactor into separate GridRef SurfaceRef functions as its
+    // TODO: also used in vessel/panel/limited_by/ocx-limited-by.cc
+    return surface;*/
+  /*
+
+  // Read directly from UnboundedGeometry
+  LDOM_Node childN = unboundedGeometryN.getFirstChild();
+  while (childN != nullptr) {
+    const LDOM_Node::NodeType aNodeType = childN.getNodeType();
+    if (aNodeType == LDOM_Node::ATTRIBUTE_NODE) break;
+    if (aNodeType == LDOM_Node::ELEMENT_NODE) {
+      LDOM_Element surfaceN = (LDOM_Element &)childN;
+
+      if (TopoDS_Shape surface = ocx::surface::ReadSurface(surfaceN);
+          !surface.IsNull()) {
+        return surface;
+      }
+    }
+    childN = childN.getNextSibling();
+  }
+
+  OCX_ERROR(
+      "Failed to directly read surface from UnboundedGeometry in "
+      "element id={} guid={}",
+      meta->id, meta->guid)
+  return {};
+*/
+
+
+
+
+
+  }
 
 }  // namespace shipxml

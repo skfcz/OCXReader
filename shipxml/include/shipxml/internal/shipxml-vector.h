@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 02 Dec 2022                                               *
+ *   Created on: 01 Dec 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,41 +12,33 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PANEL_READER_H_
-#define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PANEL_READER_H_
-
-#include <LDOM_Element.hxx>
-#include <memory>
-
-#include "shipxml/internal/shipxml-panel.h"
-#include "shipxml/internal/shipxml-ship-steel-transfer.h"
+#ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_VECTOR_H_
+#define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_VECTOR_H_
 
 namespace shipxml {
 
-class PanelReader {
+class Vector {
  public:
-  PanelReader(LDOM_Element const &vesselN,
-              std::shared_ptr<ShipSteelTransfer> sst);
+  Vector();
+  Vector(double x, double y, double z);
+  
+  ~Vector() = default;
 
-  ~PanelReader() = default;
+  void SetX(double value);
+  [[nodiscard]] double GetX() const;
 
-  void ReadPanels() const;
+  void SetY(double value);
+  [[nodiscard]] double GetY() const;
 
-  [[nodiscard]] static shipxml::Panel ReadPanel(LDOM_Element const &panelN);
-
-
-
-  static void  ReadLimits(LDOM_Element const &limitedByN, Panel &panel);
-
+  void SetZ(double value);
+  [[nodiscard]] double GetZ() const;
 
  private:
-
-  std::shared_ptr<ShipSteelTransfer> m_sst;
-  LDOM_Element m_ocxVesselEL;
-
-  [[nodiscard]] static bool ReadSupport(LDOM_Element const &panelN, Panel &panel);
+  double m_x{};
+  double m_y{};
+  double m_z{};
 };
 
 }  // namespace shipxml
 
-#endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PANEL_READER_H_
+#endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_VECTOR_H_
