@@ -20,8 +20,7 @@
 
 namespace  shipxml {
 
-[[nodiscard]] std::vector<shipxml::ArcSegment> ReadCurve(
-    LDOM_Element const &curveRootN);
+[[nodiscard]] shipxml::AMSystem ToAMSystem(gp_Dir normal);
 
 [[nodiscard]] shipxml::CartesianPoint Convert( gp_Pnt point);
 
@@ -36,6 +35,9 @@ namespace  shipxml {
 [[nodiscard]] std::string ToString(shipxml::LocationType l);
 
 [[nodiscard]] std::string ToString(shipxml::MajorPlane p);
+
+[[nodiscard]] std::string ToString(shipxml::AMSystem s);
+
 }
 
 

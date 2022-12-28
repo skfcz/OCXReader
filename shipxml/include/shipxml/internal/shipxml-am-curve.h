@@ -15,7 +15,7 @@
 #ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_
 #define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_
 
-#include <list>
+#include <vector>
 
 #include "shipxml/internal/shipxml-arc-segment.h"
 #include "shipxml/internal/shipxml-enums.h"
@@ -26,12 +26,12 @@ class AMCurve {
  public:
   explicit AMCurve(shipxml::AMSystem system);
 
-  [[nodiscard]] std::list<shipxml::ArcSegment> GetSegments() const;
+  [[nodiscard]] std::vector<shipxml::ArcSegment>&  GetSegments() ;
 
   [[nodiscard]] shipxml::AMSystem GetSystem() const;
 
  private:
-  std::list<shipxml::ArcSegment> m_segments;
+  std::vector<shipxml::ArcSegment> m_segments;
   shipxml::AMSystem m_system;
 };
 

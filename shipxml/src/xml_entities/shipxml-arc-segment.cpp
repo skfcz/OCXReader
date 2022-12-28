@@ -33,4 +33,12 @@ ArcSegment::ArcSegment(shipxml::CartesianPoint pS, shipxml::CartesianPoint pE,
       m_witherShins(counterClockWise),
       m_isLine(false) {}
 
+bool ArcSegment::IsLine() { return m_isLine; }
+bool ArcSegment::IsWithershins() { return m_witherShins; }
+
+CartesianPoint ArcSegment::GetStartPoint() { return m_p0; }
+CartesianPoint ArcSegment::GetEndPoint() { return m_p0; }
+CartesianPoint ArcSegment::GetCenterPoint() { return m_pC; }
+CartesianPoint ArcSegment::GetPointOnCircle() { return m_pM; }
+
 }  // namespace shipxml

@@ -26,6 +26,14 @@ class ArcSegment {
              shipxml::CartesianPoint pM, shipxml::CartesianPoint pC,
              bool counterClockWise);
 
+
+  bool IsLine();
+  bool IsWithershins();
+  CartesianPoint GetStartPoint();
+  CartesianPoint GetEndPoint();
+  CartesianPoint GetCenterPoint();
+  CartesianPoint GetPointOnCircle();
+
  private:
   CartesianPoint m_p0;
   CartesianPoint m_p1;

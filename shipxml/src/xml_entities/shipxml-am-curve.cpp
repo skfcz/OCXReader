@@ -14,7 +14,7 @@
 
 #include "shipxml/internal/shipxml-am-curve.h"
 
-#include <list>
+#include <vector>
 
 #include "shipxml/internal/shipxml-arc-segment.h"
 #include "shipxml/internal/shipxml-enums.h"
@@ -25,7 +25,7 @@ AMCurve::AMCurve(shipxml::AMSystem system) : m_system(system) {}
 
 //-----------------------------------------------------------------------------
 
-std::list<shipxml::ArcSegment> AMCurve::GetSegments() const {
+std::vector<shipxml::ArcSegment>&  AMCurve::GetSegments()  {
   return m_segments;
 }
 

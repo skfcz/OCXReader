@@ -15,6 +15,7 @@
 #include "shipxml/internal/shipxml-panel-reader.h"
 
 #include <shipxml/internal/shipxml-helper.h>
+#include <shipxml/internal/shipxml-curve-reader.h>
 
 #include <utility>
 
@@ -56,7 +57,7 @@ void PanelReader::ReadPanels() const {
 
 shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
 
-  std::cout << "ReadPanel '" << panelN.getAttribute("name").GetString() << "'" << std::endl;
+  OCX_INFO("ReadPanel {}", panelN.getAttribute("name").GetString());
 
   auto meta = ocx::helper::GetOCXMeta(panelN);
 
@@ -68,23 +69,20 @@ shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
     panel.GetProperties().Add(node.getNodeName().GetString(),
                               node.getNodeValue().GetString());
   }
-  auto desc = ocx::helper::GetFirstChild(panelN, "Description");
-  if (!desc.isNull()) {
-    panel.GetProperties().Add("description", desc.getNodeValue().GetString());
+
+  auto descN = ocx::helper::GetFirstChild(panelN, "Description");
+  if (!descN.isNull()) {
+    panel.GetProperties().Add("description", descN.getFirstChild().getNodeValue().GetString());
+    panel.SetCategoryDescription(descN.getFirstChild().getNodeValue().GetString());
+  } else {
+    OCX_INFO("    no Description child found");
   }
 
-
-  // the support
-  ReadSupport(panelN, panel);
+  // the support and outer contour
+  ReadSupportAndOuterContour(panelN, panel);
 
   // the outer contour
-  auto outerContourN = ocx::helper::GetFirstChild(panelN, "OuterContour");
-  if (!outerContourN.isNull()) {
-    // TODO: Get from OCX context
-  } else {
-    SHIPXML_WARN("No OuterContour found in Panel id={} guid={}", meta->id,
-                 meta->guid)
-  }
+
 
   // the limits
   auto limitedByN = ocx::helper::GetFirstChild(panelN, "LimitedBy");
@@ -99,7 +97,6 @@ shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
 }
 
 //-----------------------------------------------------------------------------
-
 void PanelReader::ReadLimits(LDOM_Element const &limitedByN, Panel &panel) {
   std::list<shipxml::Limit> limits;
 
@@ -142,12 +139,13 @@ void PanelReader::ReadLimits(LDOM_Element const &limitedByN, Panel &panel) {
   }
   panel.SetLimits(limits);
 }
-bool PanelReader::ReadSupport(const LDOM_Element &panelN, Panel &panel) {
+bool PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN, Panel &panel) {
 
   auto meta = ocx::helper::GetOCXMeta(panelN);
 
 
   OCX_DEBUG("ReadSupport {} ", panel.GetName() );
+  auto support = panel.GetSupport();
 
   auto unboundedGeometryN =
       ocx::helper::GetFirstChild(panelN, "UnboundedGeometry");
@@ -159,11 +157,15 @@ bool PanelReader::ReadSupport(const LDOM_Element &panelN, Panel &panel) {
 
 
   // UnboundedGeometry is either a shell, a shell reference, or a grid reference
+  gp_Dir supportNormal;
+
   LDOM_Element refN{};
   if (LDOM_Element gridRefN =
           ocx::helper::GetFirstChild(unboundedGeometryN, "GridRef");
       !gridRefN.isNull()) {
     refN = gridRefN;
+
+    panel.SetIsPlanar(true);
 
     auto guid= refN.getAttribute("ocx:GUIDRef").GetString();
     OCX_DEBUG("    Using GridRef guid={} as UnboundedGeometry", guid)
@@ -196,22 +198,20 @@ bool PanelReader::ReadSupport(const LDOM_Element &panelN, Panel &panel) {
         break;
     }
 
-    auto support = panel.GetSupport();
     support.SetGrid( refPlaneN.getAttribute("id").GetString());
     support.SetCoordinate( refPlaneN.getAttribute("name").GetString());
     support.SetIsPlanar(true);
     support.SetNormal( shipxml::Convert( refPlaneW.normal));
+    panel.GetProperties().Add("support.gridRef.normal", shipxml::ToString( support.GetNormal() ).c_str());
     support.SetTP1( shipxml::Convert( refPlaneW.p1));
     support.SetTP2( shipxml::Convert( refPlaneW.p2));
     support.SetTP3( shipxml::Convert( refPlaneW.p3));
 
+    supportNormal = refPlaneW.normal;
+
+    // TODO: GetSupport gibt immer ein neues Objekt ??
     OCX_DEBUG("       Support grid {}, coordinates {}",
               support.GetGrid(), support.GetCoordinate());
-
-    support = panel.GetSupport();
-    OCX_DEBUG("       Support' grid {}, coordinates {}",
-              support.GetGrid(), support.GetCoordinate());
-
 
 
   } else if (LDOM_Element surfaceRefN =
@@ -226,6 +226,23 @@ bool PanelReader::ReadSupport(const LDOM_Element &panelN, Panel &panel) {
         "Try reading directly from UnboundedGeometry.",
         meta->id, meta->guid)
   }
+
+  // currently we only support panels with a planar support
+  // TODO: check if a support surface in the limits of the boundary is planar
+  if ( ! panel.IsPlanar()) {
+    OCX_DEBUG("Do not read OuterContour for none planar panels");
+    return true;
+  }
+
+  auto outerContourN = ocx::helper::GetFirstChild(panelN, "OuterContour");
+  if (outerContourN.isNull()) {
+    SHIPXML_WARN("No OuterContour found in Panel id={} guid={}", meta->id, meta->guid)
+    return false;
+  }
+
+  auto curveN= shipxml::ReadCurve( outerContourN, support.GetMajorPlane(), supportNormal);
+  panel.SetGeometry( curveN);
+
 
   return true;
   // Read from GridRef or SurfaceRef

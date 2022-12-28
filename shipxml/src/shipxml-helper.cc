@@ -14,89 +14,99 @@
 
 #include "shipxml/internal/shipxml-helper.h"
 
-namespace  shipxml {
+#include <math.h>
 
+namespace shipxml {
 
-  std::vector<shipxml::ArcSegment> ReadCurve(const LDOM_Element &curveRootN) {
-    auto segments = std::vector<shipxml::ArcSegment>();
+shipxml::AMSystem ToAMSystem(gp_Dir normal) {
+  OCX_INFO("ToAMSystem [{} {} {}]", normal.X(), normal.Y(), normal.Z());
 
+  if (gp_Dir(1, 0, 0).IsParallel(normal, 45.0 / 180.0 * M_PI)) {
+    return YZ;
+  } else if (gp_Dir(0, 1, 0).IsParallel(normal, 45.0 / 180.0 * M_PI)) {
+    return XZ;
+  } else {
+    return XZ;
+  }
+}
 
+shipxml::CartesianPoint Convert(gp_Pnt point) {
+  return shipxml::CartesianPoint(point.X(), point.Y(), point.Z());
+}
 
-    return segments;
+shipxml::Vector Convert(gp_Dir vec) {
+  return shipxml::Vector(vec.X(), vec.Y(), vec.Z());
+}
+
+std::string ToString(shipxml::CartesianPoint p) {
+  std::ostringstream strs;
+  strs << "(" << p.GetX() << ", " << p.GetY() << ", " << p.GetZ() << ")";
+  return strs.str();
+}
+
+std::string ToString(shipxml::Vector v) {
+  std::ostringstream strs;
+  strs << "(" << v.GetX() << ", " << v.GetY() << ", " << v.GetZ() << ")";
+  return strs.str();
+}
+
+std::string ToString(shipxml::Orientation o) {
+  switch (o) {
+    case FORE:
+      return "FORE";
+    case AFT:
+      return "AFT";
+    case PS:
+      return "PS";
+    case SB:
+      return "SB";
+    case TOP:
+      return "TOP";
+    case BOTTOM:
+      return "BOTTOM";
   }
 
-  shipxml::CartesianPoint Convert(gp_Pnt point) {
-    return shipxml::CartesianPoint(point.X(), point.Y(), point.Z());
+  return "UNDEFINED";
+}
+
+std::string ToString(shipxml::LocationType l) {
+  switch (l) {
+    case X_L:
+      return "X";
+    case Y_L:
+      return "Y";
+    case Z_L:
+      return "Z";
   }
 
+  return "TP";
+}
 
-  shipxml::Vector Convert(gp_Dir vec) {
-    return shipxml::Vector(vec.X(), vec.Y(), vec.Z());
+std::string ToString(shipxml::MajorPlane p) {
+  switch (p) {
+    case X_M:
+      return "X";
+    case Y_M:
+      return "Y";
+    case Z_M:
+      return "Z";
   }
 
-  std::string ToString(shipxml::CartesianPoint p) {
+  return "UNDEFINED";
+}
 
-    std::ostringstream strs;
-    strs << "(" << p.GetX() << ", " << p.GetY() << ", " << p.GetZ() << ")";
-    return strs.str();
-
+std::string ToString(shipxml::AMSystem p) {
+  switch (p) {
+    case XZ:
+      return "XZ";
+    case YZ:
+      return "YZ";
+    case XY:
+      return "XY";
   }
 
-  std::string ToString(shipxml::Vector v) {
-
-    std::ostringstream strs;
-    strs << "(" << v.GetX() << ", " << v.GetY() << ", " << v.GetZ() << ")";
-    return strs.str();
-
-  }
-
-  std::string ToString(shipxml::Orientation o) {
-    switch (o) {
-      case FORE:
-        return "FORE";
-      case AFT:
-        return "AFT";
-      case PS:
-        return "PS";
-      case SB:
-        return "SB";
-      case TOP:
-        return "TOP";
-      case BOTTOM:
-        return "BOTTOM";
-    }
-
-    return "UNDEFINED";
-  }
-
-  std::string ToString(shipxml::LocationType l) {
-    switch (l) {
-      case X_L:
-        return "X";
-      case Y_L:
-        return "Y";
-      case Z_L:
-        return "Z";
-    }
-
-    return "TP";
-  }
-
-  std::string ToString(shipxml::MajorPlane p) {
-    switch (p) {
-      case X_M:
-        return "X";
-      case Y_M:
-        return "Y";
-      case Z_M:
-        return "Z";
-    }
-
-    return "UNDEFINED";
-  }
-
-
-
+  return "UNDEFINED";
 }
 
 
+}  // namespace shipxml

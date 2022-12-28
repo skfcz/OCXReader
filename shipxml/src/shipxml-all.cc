@@ -22,6 +22,7 @@
 #include "src/reader/shipxml-panel-reader.cpp"
 #include "src/shipxml-driver.cc"
 #include "src/shipxml-helper.cc"
+#include "src/shipxml-curve-reader.cc"
 #include "src/shipxml-log.cc"
 #include "src/shipxml-ship-steel-transfer.cpp"
 #include "src/xml_entities/shipxml-am-curve.cpp"

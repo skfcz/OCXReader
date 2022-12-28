@@ -44,7 +44,7 @@ class PanelReader {
   std::shared_ptr<ShipSteelTransfer> m_sst;
   LDOM_Element m_ocxVesselEL;
 
-  [[nodiscard]] static bool ReadSupport(LDOM_Element const &panelN, Panel &panel);
+  [[nodiscard]] static bool ReadSupportAndOuterContour(LDOM_Element const &panelN, Panel &panel);
 };
 
 }  // namespace shipxml

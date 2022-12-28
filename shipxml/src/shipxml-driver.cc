@@ -128,6 +128,8 @@ void ShipXMLDriver::WritePanels() {
 
       WriteSupport( panel, sxPanelEL);
 
+      WriteGeometry( panel, sxPanelEL);
+
     }
 }
 
@@ -169,7 +171,42 @@ void ShipXMLDriver::WriteSupport(Panel panel, LDOM_Element panelEL) {
  sxSuppEL.setAttribute("tp2", shipxml::ToString(support.GetTP2()).c_str());
  sxSuppEL.setAttribute("tp3", shipxml::ToString(support.GetTP3()).c_str());
 
+}
+
+void ShipXMLDriver::WriteGeometry(Panel panel, LDOM_Element panelEL) {
+  auto sxGeometryEL = sxDoc.createElement("Geometry");
+  panelEL.appendChild(sxGeometryEL);
+
+  auto crv = panel.GetGeometry();
+
+  auto sxAMCrvEL = sxDoc.createElement("AMCurve");
+  sxGeometryEL.appendChild(sxAMCrvEL);
+
+  sxAMCrvEL.setAttribute("system", ToString(crv.GetSystem()).c_str());
+
+  auto segments = crv.GetSegments();
+  for (int i = 0; i < segments.size(); i++) {
+    ArcSegment segment = segments.at(i);
+
+    auto sxSegEL = sxDoc.createElement("ArcSegment");
+    sxAMCrvEL.appendChild(sxSegEL);
+
+
+    sxSegEL.setAttribute("isLine",segment.IsLine() ? "true" :"false");
+    sxSegEL.setAttribute("startPoint", ToString(segment.GetStartPoint()).c_str());
+    sxSegEL.setAttribute("endPoint", ToString(segment.GetEndPoint()).c_str());
+
+    if ( ! segment.IsLine()) {
+      sxSegEL.setAttribute("middlePoint", ToString(segment.GetPointOnCircle()).c_str());
+    }
+  }
+
+
+
+
+
 
 }
+
 
 }  // namespace shipxml
