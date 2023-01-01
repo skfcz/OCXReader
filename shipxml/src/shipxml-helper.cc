@@ -37,6 +37,15 @@ shipxml::CartesianPoint Convert(gp_Pnt point) {
 shipxml::Vector Convert(gp_Dir vec) {
   return shipxml::Vector(vec.X(), vec.Y(), vec.Z());
 }
+gp_Dir Convert(shipxml::Vector v) {
+  return gp_Dir( v.GetX(), v.GetY(), v.GetZ());
+}
+
+std::string ToString(double d) {
+  std::ostringstream strs;
+  strs <<  d;
+  return strs.str();
+}
 
 std::string ToString(shipxml::CartesianPoint p) {
   std::ostringstream strs;

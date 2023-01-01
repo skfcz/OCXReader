@@ -17,12 +17,14 @@
 
 #include <list>
 #include <string>
+#include <vector>
 
 #include "shipxml/internal/shipxml-am-curve.h"
 #include "shipxml/internal/shipxml-entity-with-properties.h"
 #include "shipxml/internal/shipxml-enums.h"
 #include "shipxml/internal/shipxml-extrusion.h"
 #include "shipxml/internal/shipxml-limit.h"
+#include "shipxml/internal/shipxml-plate.h"
 #include "shipxml/internal/shipxml-support.h"
 
 namespace shipxml {
@@ -47,11 +49,11 @@ class Panel : public EntityWithProperties {
 
   [[nodiscard]] std::string GetCategoryDescription() const;
 
-  void SetIsPlanar(bool isPlanar);
+  void SetPlanar(bool isPlanar);
 
   [[nodiscard]] bool IsPlanar() const;
 
-  void SetIsPillar(bool isPillar);
+  void SetPillar(bool isPillar);
 
   [[nodiscard]] bool IsPillar() const;
 
@@ -75,7 +77,13 @@ class Panel : public EntityWithProperties {
   /**
    * Get the Support
    */
-  [[nodiscard]] shipxml::Support &GetSupport();
+  [[nodiscard]] shipxml::Support GetSupport() const;
+
+
+  /**
+   * Set the Support
+   */
+  void SetSupport(shipxml::Support const& support);
 
   /**
    * Set the list of Limits
@@ -99,6 +107,14 @@ class Panel : public EntityWithProperties {
    */
   [[nodiscard]] shipxml::AMCurve GetGeometry() const;
 
+  /**
+   * Get the list of Plates
+   * @return the list of Plates
+   */
+  [[nodiscard]] std::vector<shipxml::Plate>&   GetPlates();
+
+
+
  private:
   std::string m_blockName;
   std::string m_category;
@@ -113,6 +129,7 @@ class Panel : public EntityWithProperties {
   shipxml::Support m_support;
   std::list<shipxml::Limit> m_limits;
   shipxml::AMCurve m_geometry;
+  std::vector<shipxml::Plate> m_plates;
 };
 
 }  // namespace shipxml

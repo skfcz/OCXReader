@@ -30,6 +30,7 @@ class ShipSteelTransfer {
 
  private:
   std::shared_ptr<Structure> m_structure;
+
 };
 
 }  // namespace shipxml

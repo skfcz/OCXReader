@@ -14,8 +14,9 @@
 
 #include "shipxml/internal/shipxml-panel-reader.h"
 
-#include <shipxml/internal/shipxml-helper.h>
 #include <shipxml/internal/shipxml-curve-reader.h>
+#include <shipxml/internal/shipxml-helper.h>
+#include <shipxml/internal/shipxml-plate-reader.h>
 
 #include <utility>
 
@@ -49,14 +50,13 @@ void PanelReader::ReadPanels() const {
     }
     aChildNode = aChildNode.getNextSibling();
   }
-  std::cout << "transferred #" << m_sst->GetStructure()->GetPanels().size() << " panels" << std::endl;
-
+  std::cout << "transferred #" << m_sst->GetStructure()->GetPanels().size()
+            << " panels" << std::endl;
 }
 
 //-----------------------------------------------------------------------------
 
 shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
-
   OCX_INFO("ReadPanel {}", panelN.getAttribute("name").GetString());
 
   auto meta = ocx::helper::GetOCXMeta(panelN);
@@ -72,17 +72,16 @@ shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
 
   auto descN = ocx::helper::GetFirstChild(panelN, "Description");
   if (!descN.isNull()) {
-    panel.GetProperties().Add("description", descN.getFirstChild().getNodeValue().GetString());
-    panel.SetCategoryDescription(descN.getFirstChild().getNodeValue().GetString());
+    panel.GetProperties().Add("description",
+                              descN.getFirstChild().getNodeValue().GetString());
+    panel.SetCategoryDescription(
+        descN.getFirstChild().getNodeValue().GetString());
   } else {
     OCX_INFO("    no Description child found");
   }
 
   // the support and outer contour
   ReadSupportAndOuterContour(panelN, panel);
-
-  // the outer contour
-
 
   // the limits
   auto limitedByN = ocx::helper::GetFirstChild(panelN, "LimitedBy");
@@ -92,6 +91,9 @@ shipxml::Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
     SHIPXML_WARN("No LimitedBy found in Panel id={} guid={}", meta->id,
                  meta->guid)
   }
+
+  // the plates
+  ReadComposedOf( panelN, panel);
 
   return panel;
 }
@@ -139,13 +141,12 @@ void PanelReader::ReadLimits(LDOM_Element const &limitedByN, Panel &panel) {
   }
   panel.SetLimits(limits);
 }
-bool PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN, Panel &panel) {
-
+bool PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
+                                             Panel &panel) {
   auto meta = ocx::helper::GetOCXMeta(panelN);
 
-
-  OCX_DEBUG("ReadSupport {} ", panel.GetName() );
-  auto support = panel.GetSupport();
+  OCX_DEBUG("ReadSupport {} ", panel.GetName());
+  auto support = Support();
 
   auto unboundedGeometryN =
       ocx::helper::GetFirstChild(panelN, "UnboundedGeometry");
@@ -154,7 +155,6 @@ bool PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN, Panel &
                  meta->guid)
     return false;
   }
-
 
   // UnboundedGeometry is either a shell, a shell reference, or a grid reference
   gp_Dir supportNormal;
@@ -165,54 +165,57 @@ bool PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN, Panel &
       !gridRefN.isNull()) {
     refN = gridRefN;
 
-    panel.SetIsPlanar(true);
+    panel.SetPlanar(true);
 
-    auto guid= refN.getAttribute("ocx:GUIDRef").GetString();
+    auto guid = refN.getAttribute("ocx:GUIDRef").GetString();
     OCX_DEBUG("    Using GridRef guid={} as UnboundedGeometry", guid)
 
     panel.GetProperties().Add("support.gridRef.GUID", guid);
 
-    auto refPlaneW = ocx::OCXContext::GetInstance()->LookupRefPlane(guid );
+    auto refPlaneW = ocx::OCXContext::GetInstance()->LookupRefPlane(guid);
     if (refPlaneW.refPlaneN.isNull()) {
-      SHIPXML_WARN("Failed to lookup an RefPlane for guid={}",guid);
+      SHIPXML_WARN("Failed to lookup an RefPlane for guid={}", guid);
       return false;
     }
     auto refPlaneN = refPlaneW.refPlaneN;
     auto refPlaneType = refPlaneW.type;
 
-    OCX_DEBUG("       RefPlane {} id={}, name={}, guid={}",
-              refPlaneType,
-                  refPlaneN.getAttribute("id").GetString(),
-                  refPlaneN.getAttribute("name").GetString(),
+    OCX_DEBUG("       RefPlane {} id={}, name={}, guid={}", refPlaneType,
+              refPlaneN.getAttribute("id").GetString(),
+              refPlaneN.getAttribute("name").GetString(),
               ocx::helper::GetAttrValue(refPlaneN, "GUIDRef"));
 
-
-    panel.GetProperties().Add("support.gridRef.id", refPlaneN.getAttribute("id").GetString());
-    panel.GetProperties().Add("support.gridRef.name", refPlaneN.getAttribute("name").GetString());
+    panel.GetProperties().Add("support.gridRef.id",
+                              refPlaneN.getAttribute("id").GetString());
+    panel.GetProperties().Add("support.gridRef.name",
+                              refPlaneN.getAttribute("name").GetString());
     switch (refPlaneType) {
-      case ocx::X : panel.GetProperties().Add("support.gridRef.type", "X");
+      case ocx::X:
+        panel.GetProperties().Add("support.gridRef.type", "X");
         break;
-      case ocx::Y : panel.GetProperties().Add("support.gridRef.type", "Y");
+      case ocx::Y:
+        panel.GetProperties().Add("support.gridRef.type", "Y");
         break;
-      case ocx::Z : panel.GetProperties().Add("support.gridRef.type", "Z");
+      case ocx::Z:
+        panel.GetProperties().Add("support.gridRef.type", "Z");
         break;
     }
 
-    support.SetGrid( refPlaneN.getAttribute("id").GetString());
-    support.SetCoordinate( refPlaneN.getAttribute("name").GetString());
+    support.SetGrid(refPlaneN.getAttribute("id").GetString());
+    support.SetCoordinate(refPlaneN.getAttribute("name").GetString());
     support.SetIsPlanar(true);
-    support.SetNormal( shipxml::Convert( refPlaneW.normal));
-    panel.GetProperties().Add("support.gridRef.normal", shipxml::ToString( support.GetNormal() ).c_str());
-    support.SetTP1( shipxml::Convert( refPlaneW.p1));
-    support.SetTP2( shipxml::Convert( refPlaneW.p2));
-    support.SetTP3( shipxml::Convert( refPlaneW.p3));
+    support.SetNormal(shipxml::Convert(refPlaneW.normal));
+    panel.GetProperties().Add("support.gridRef.normal",
+                              shipxml::ToString(support.GetNormal()).c_str());
+    support.SetTP1(shipxml::Convert(refPlaneW.p1));
+    support.SetTP2(shipxml::Convert(refPlaneW.p2));
+    support.SetTP3(shipxml::Convert(refPlaneW.p3));
 
     supportNormal = refPlaneW.normal;
 
     // TODO: GetSupport gibt immer ein neues Objekt ??
-    OCX_DEBUG("       Support grid {}, coordinates {}",
-              support.GetGrid(), support.GetCoordinate());
-
+    OCX_DEBUG("       Support grid {}, coordinates {}", support.GetGrid(),
+              support.GetCoordinate());
 
   } else if (LDOM_Element surfaceRefN =
                  ocx::helper::GetFirstChild(unboundedGeometryN, "SurfaceRef");
@@ -227,22 +230,25 @@ bool PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN, Panel &
         meta->id, meta->guid)
   }
 
+  panel.SetSupport(support);
+
   // currently we only support panels with a planar support
   // TODO: check if a support surface in the limits of the boundary is planar
-  if ( ! panel.IsPlanar()) {
+  if (!panel.IsPlanar()) {
     OCX_DEBUG("Do not read OuterContour for none planar panels");
     return true;
   }
 
   auto outerContourN = ocx::helper::GetFirstChild(panelN, "OuterContour");
   if (outerContourN.isNull()) {
-    SHIPXML_WARN("No OuterContour found in Panel id={} guid={}", meta->id, meta->guid)
+    SHIPXML_WARN("No OuterContour found in Panel id={} guid={}", meta->id,
+                 meta->guid)
     return false;
   }
 
-  auto curveN= shipxml::ReadCurve( outerContourN, support.GetMajorPlane(), supportNormal);
-  panel.SetGeometry( curveN);
-
+  auto curveN =
+      shipxml::ReadCurve(outerContourN, support.GetMajorPlane(), supportNormal);
+  panel.SetGeometry(curveN);
 
   return true;
   // Read from GridRef or SurfaceRef
@@ -285,11 +291,15 @@ bool PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN, Panel &
       meta->id, meta->guid)
   return {};
 */
+}
+
+void PanelReader::ReadComposedOf(  LDOM_Element const &panelN, Panel &panel) {
 
 
+  auto plateReader = PlateReader();
+  plateReader.ReadPlates(panelN, panel);
 
 
-
-  }
+}
 
 }  // namespace shipxml

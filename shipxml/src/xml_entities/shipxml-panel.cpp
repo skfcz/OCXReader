@@ -53,13 +53,13 @@ std::string Panel::GetCategoryDescription() const {
 
 //-----------------------------------------------------------------------------
 
-void Panel::SetIsPlanar(bool isPlanar) { m_planar = isPlanar; }
+void Panel::SetPlanar(bool isPlanar) { m_planar = isPlanar; }
 
 bool Panel::IsPlanar() const { return m_planar; }
 
 //-----------------------------------------------------------------------------
 
-void Panel::SetIsPillar(bool isPillar) { m_pillar = isPillar; }
+void Panel::SetPillar(bool isPillar) { m_pillar = isPillar; }
 
 bool Panel::IsPillar() const { return m_pillar; }
 
@@ -91,9 +91,12 @@ shipxml::Extrusion Panel::GetExtrusion() const { return m_extrusion; }
 
 //-----------------------------------------------------------------------------
 
-shipxml::Support & Panel::GetSupport() {
-  return m_support;
+shipxml::Support Panel::GetSupport() const {  return m_support;}
+
+void Panel::SetSupport(shipxml::Support const& support) {
+  m_support = support;
 }
+
 
 //-----------------------------------------------------------------------------
 
@@ -110,5 +113,8 @@ void Panel::SetGeometry(shipxml::AMCurve const& geometry) {
 }
 
 shipxml::AMCurve Panel::GetGeometry() const { return m_geometry; }
+std::vector<shipxml::Plate>& Panel::GetPlates()  {
+  return m_plates;
+}
 
 }  // namespace shipxml

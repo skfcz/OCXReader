@@ -26,6 +26,10 @@ namespace  shipxml {
 
 [[nodiscard]] shipxml::Vector Convert( gp_Dir d);
 
+[[nodiscard]] gp_Dir Convert( shipxml::Vector v);
+
+[[nodiscard]] std::string ToString( double d);
+
 [[nodiscard]] std::string ToString( shipxml::CartesianPoint p);
 
 [[nodiscard]] std::string ToString( shipxml::Vector v);

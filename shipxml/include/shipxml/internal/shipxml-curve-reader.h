@@ -16,6 +16,7 @@
 #define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_CURVE_READER_H_
 
 #include <LDOM_Element.hxx>
+#include <gp_Dir.hxx>
 #include <memory>
 
 #include "shipxml/internal/shipxml-panel.h"

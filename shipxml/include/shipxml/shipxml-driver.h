@@ -68,11 +68,14 @@ class ShipXMLDriver {
   void AddAttribute(LDOM_Element parentEL, std::string attrName,
                     bool attrValue);
   void WritePanels();
+
   void WriteProperties(EntityWithProperties ewp, LDOM_Element entityEL);
-  void WriteSupport(Panel panel, LDOM_Element element);
-  void WriteGeometry(Panel panel, LDOM_Element element);
+  void WriteSupport(Panel panel, LDOM_Element panelEL);
+  void WriteGeometry(AMCurve crv, LDOM_Element panelEL);
+  void WritePlates(Panel panel, LDOM_Element panelEL);
 };
 
 }  // namespace shipxml
 
 #endif  // SHIPXML_INCLUDE_SHIPXML_SHIPXML_DRIVER_H_
+

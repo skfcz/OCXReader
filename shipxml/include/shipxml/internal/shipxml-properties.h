@@ -33,8 +33,31 @@ class Properties {
 
   [[nodiscard]] std::vector<shipxml::KeyValue> GetValues() const;
 
+  double GetWeight() const;
+  void SetWeight(double weight);
+  double GetArea() const;
+  void SetArea(double area);
+
+  const std::string &GetCog() const;
+  void SetCog(const CartesianPoint cp);
+  void SetCog(const std::string &mCog);
+  const std::string &GetBbox0() const;
+  void SetBbox0(const CartesianPoint cp);
+  void SetBbox0(const std::string &mBbox0);
+  const std::string &GetBbox1() const;
+
+  void SetBbox1(const CartesianPoint cp);
+  void SetBbox1(const std::string &mBbox1);
+
  private:
   std::vector<shipxml::KeyValue> m_values;
+  std::string m_cog;
+  std::string m_bbox0;
+  std::string m_bbox1;
+  double weight;
+  double area;
+
+
 };
 
 }  // namespace shipxml

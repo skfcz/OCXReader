@@ -57,7 +57,6 @@ bool ShipXMLDriver::Transfer() const {
 //-----------------------------------------------------------------------------
 
 bool ShipXMLDriver::Write(std::string const& filepath) {
-
   std::cout << "Write ShipXML -> XML" << std::endl;
   // Create DOM
   sxDoc = LDOM_Document::createDocument("ShipSteelTransfer");
@@ -107,48 +106,49 @@ void ShipXMLDriver::WritePanels() {
   auto sxPanelsEL = sxDoc.createElement("Panels");
   sxStructureEL.appendChild(sxPanelsEL);
 
-   auto panels = sst->GetStructure()->GetPanels();
+  auto panels = sst->GetStructure()->GetPanels();
 
-   for ( int i = 0; i < panels.size();i++) {
+  for (int i = 0; i < panels.size(); i++) {
+    Panel panel = panels.at(i);
 
-     Panel panel = panels.at(i);
+    auto sxPanelEL = sxDoc.createElement("Panel");
+    sxPanelsEL.appendChild(sxPanelEL);
 
-      auto sxPanelEL = sxDoc.createElement("Panel");
-      sxPanelsEL.appendChild(sxPanelEL);
+    sxPanelEL.setAttribute("name", panel.GetName().c_str());
+    sxPanelEL.setAttribute("blockName", panel.GetBlockName().c_str());
+    sxPanelEL.setAttribute("category", panel.GetCategory().c_str());
+    sxPanelEL.setAttribute("categoryDes",
+                           panel.GetCategoryDescription().c_str());
+    sxPanelEL.setAttribute("planar", panel.IsPlanar() ? "true" : "false");
+    sxPanelEL.setAttribute("pillar", panel.IsPillar() ? "true" : "false");
+    sxPanelEL.setAttribute("defaultMaterial",
+                           panel.GetDefaultMaterial().c_str());
 
-      sxPanelEL.setAttribute( "name", panel.GetName().c_str());
-      sxPanelEL.setAttribute( "blockName", panel.GetBlockName().c_str());
-      sxPanelEL.setAttribute( "category", panel.GetCategory().c_str());
-      sxPanelEL.setAttribute( "categoryDes", panel.GetCategoryDescription().c_str());
-      sxPanelEL.setAttribute( "planar", panel.IsPlanar() ?  "true" : "false");
-      sxPanelEL.setAttribute( "pillar", panel.IsPillar() ? "true":"false");
-      sxPanelEL.setAttribute( "defaultMaterial", panel.GetDefaultMaterial().c_str());
+    WriteProperties(panel, sxPanelEL);
 
-      WriteProperties( panel, sxPanelEL);
+    WriteSupport(panel, sxPanelEL);
 
-      WriteSupport( panel, sxPanelEL);
+    WriteGeometry(panel.GetGeometry(), sxPanelEL);
 
-      WriteGeometry( panel, sxPanelEL);
-
-    }
+    WritePlates(panel, sxPanelEL);
+  }
 }
 
-void ShipXMLDriver::WriteProperties(EntityWithProperties ewp, LDOM_Element entityEL) {
+void ShipXMLDriver::WriteProperties(EntityWithProperties ewp,
+                                    LDOM_Element entityEL) {
   auto sxPropsEL = sxDoc.createElement("Properties");
   entityEL.appendChild(sxPropsEL);
 
   auto kvs = ewp.GetProperties().GetValues();
-  for ( int i = 0; i < kvs.size();i++) {
-    KeyValue kv  = kvs.at(i);
+  for (int i = 0; i < kvs.size(); i++) {
+    KeyValue kv = kvs.at(i);
     auto sxKvEL = sxDoc.createElement("KeyValue");
     sxPropsEL.appendChild(sxKvEL);
 
-    sxKvEL.setAttribute( "key", kv.GetKey().c_str());
-    sxKvEL.setAttribute( "value", kv.GetValue().c_str());
+    sxKvEL.setAttribute("key", kv.GetKey().c_str());
+    sxKvEL.setAttribute("value", kv.GetValue().c_str());
     // TODO: support Unit
-
   }
-
 }
 void ShipXMLDriver::WriteSupport(Panel panel, LDOM_Element panelEL) {
   auto support = panel.GetSupport();
@@ -159,25 +159,24 @@ void ShipXMLDriver::WriteSupport(Panel panel, LDOM_Element panelEL) {
   sxSuppEL.setAttribute("grid", support.GetGrid().c_str());
   sxSuppEL.setAttribute("coordinate", support.GetCoordinate().c_str());
 
-
-  sxSuppEL.setAttribute("orientation", shipxml::ToString(support.GetOrientation()).c_str());
+  sxSuppEL.setAttribute("orientation",
+                        shipxml::ToString(support.GetOrientation()).c_str());
   sxSuppEL.setAttribute("planar", support.IsPlanar() ? "true" : "false");
-  sxSuppEL.setAttribute("locationType", shipxml::ToString(support.GetLocationType()).c_str());
-  sxSuppEL.setAttribute("majorPlane", shipxml::ToString(support.GetMajorPlane()).c_str());
+  sxSuppEL.setAttribute("locationType",
+                        shipxml::ToString(support.GetLocationType()).c_str());
+  sxSuppEL.setAttribute("majorPlane",
+                        shipxml::ToString(support.GetMajorPlane()).c_str());
 
-
- sxSuppEL.setAttribute("normal", shipxml::ToString(support.GetNormal()).c_str());
- sxSuppEL.setAttribute("tp1", shipxml::ToString(support.GetTP1()).c_str());
- sxSuppEL.setAttribute("tp2", shipxml::ToString(support.GetTP2()).c_str());
- sxSuppEL.setAttribute("tp3", shipxml::ToString(support.GetTP3()).c_str());
-
+  sxSuppEL.setAttribute("normal",
+                        shipxml::ToString(support.GetNormal()).c_str());
+  sxSuppEL.setAttribute("tp1", shipxml::ToString(support.GetTP1()).c_str());
+  sxSuppEL.setAttribute("tp2", shipxml::ToString(support.GetTP2()).c_str());
+  sxSuppEL.setAttribute("tp3", shipxml::ToString(support.GetTP3()).c_str());
 }
 
-void ShipXMLDriver::WriteGeometry(Panel panel, LDOM_Element panelEL) {
+void ShipXMLDriver::WriteGeometry(AMCurve crv, LDOM_Element panelEL) {
   auto sxGeometryEL = sxDoc.createElement("Geometry");
   panelEL.appendChild(sxGeometryEL);
-
-  auto crv = panel.GetGeometry();
 
   auto sxAMCrvEL = sxDoc.createElement("AMCurve");
   sxGeometryEL.appendChild(sxAMCrvEL);
@@ -191,22 +190,50 @@ void ShipXMLDriver::WriteGeometry(Panel panel, LDOM_Element panelEL) {
     auto sxSegEL = sxDoc.createElement("ArcSegment");
     sxAMCrvEL.appendChild(sxSegEL);
 
-
-    sxSegEL.setAttribute("isLine",segment.IsLine() ? "true" :"false");
-    sxSegEL.setAttribute("startPoint", ToString(segment.GetStartPoint()).c_str());
+    sxSegEL.setAttribute("isLine", segment.IsLine() ? "true" : "false");
+    sxSegEL.setAttribute("startPoint",
+                         ToString(segment.GetStartPoint()).c_str());
     sxSegEL.setAttribute("endPoint", ToString(segment.GetEndPoint()).c_str());
 
-    if ( ! segment.IsLine()) {
-      sxSegEL.setAttribute("middlePoint", ToString(segment.GetPointOnCircle()).c_str());
+    if (!segment.IsLine()) {
+      sxSegEL.setAttribute("middlePoint",
+                           ToString(segment.GetPointOnCircle()).c_str());
     }
   }
-
-
-
-
-
-
 }
 
+void ShipXMLDriver::WritePlates(Panel panel, LDOM_Element panelEL) {
+  auto plates = panel.GetPlates();
+  if (plates.size() == 0) {
+    return;
+  }
+
+  auto sxPlatesEL = sxDoc.createElement("Plates");
+  panelEL.appendChild(sxPlatesEL);
+
+  for (int i = 0; i < plates.size(); i++) {
+    Plate plate = plates.at(i);
+
+    auto sxPlateEL = sxDoc.createElement("Plate");
+    sxPlatesEL.appendChild(sxPlateEL);
+
+    sxPlateEL.setAttribute("name", plate.GetName().c_str());
+    sxPlateEL.setAttribute("category", plate.GetCategory().c_str());
+    sxPlateEL.setAttribute("categoryDes",
+                           plate.GetCategoryDescription().c_str());
+    sxPlateEL.setAttribute("material", plate.GetMaterial().c_str());
+    sxPlateEL.setAttribute("material", plate.GetMaterial().c_str());
+    sxPlateEL.setAttribute("thickness",
+                           shipxml::ToString(plate.GetThickness()).c_str());
+    sxPlateEL.setAttribute("offset",
+                           shipxml::ToString(plate.GetOffset()).c_str());
+    sxPlateEL.setAttribute("orientation",
+                           shipxml::ToString(plate.GetOrientation()).c_str());
+
+    WriteProperties(plate, sxPlateEL);
+
+    WriteGeometry(plate.GetGeometry(), sxPlateEL);
+  }
+}
 
 }  // namespace shipxml

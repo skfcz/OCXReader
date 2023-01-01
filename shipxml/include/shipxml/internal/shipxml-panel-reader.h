@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "shipxml/internal/shipxml-panel.h"
+#include "shipxml/internal/shipxml-plate.h"
 #include "shipxml/internal/shipxml-ship-steel-transfer.h"
 
 namespace shipxml {
@@ -34,8 +35,6 @@ class PanelReader {
 
   [[nodiscard]] static shipxml::Panel ReadPanel(LDOM_Element const &panelN);
 
-
-
   static void  ReadLimits(LDOM_Element const &limitedByN, Panel &panel);
 
 
@@ -45,6 +44,8 @@ class PanelReader {
   LDOM_Element m_ocxVesselEL;
 
   [[nodiscard]] static bool ReadSupportAndOuterContour(LDOM_Element const &panelN, Panel &panel);
+  [[nodiscard]] static void ReadComposedOf(LDOM_Element const &panelN, Panel &panel);
+
 };
 
 }  // namespace shipxml

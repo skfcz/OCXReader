@@ -28,6 +28,11 @@ CoordinateSystemReader::CoordinateSystemReader(
 
 //-----------------------------------------------------------------------------
 
-void CoordinateSystemReader::ReadCoordinateSystem() const {}
+void CoordinateSystemReader::ReadCoordinateSystem() const {
+
+
+
+
+}
 
 }  // namespace shipxml
