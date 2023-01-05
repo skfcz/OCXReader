@@ -51,6 +51,18 @@ ${vesselname}
 
 ### Prerequisites
 
+In order to build OCXReader you need to have the prerequisites set up:
+
+#### Compiler
+
+The project uses C++17 features and therefore requires a compiler that supports
+this standard.
+
+#### CMake
+
+The project uses CMake as build system. CMake version 3.24 or higher is
+required.
+
 #### vcpkg
 
 This project is build with CMake and uses the
@@ -62,23 +74,18 @@ system [here](https://vcpkg.io/en/getting-started.html).
 > permission for all users. Otherwise, you will get an error when trying to
 > access and install vcpkg packages through a non-root user.
 
-### Build
+#### Python
 
-The project uses vcpkg to install the dependencies, in most cases you need to
-provide the path to the vcpkg installation directory. This can be done by
-passing `DCMAKE_TOOLCHAIN_FILE` in your CMake options.
+In order to build the project OpenCascade requires python with a version of at
+least 3.7. However, this is only needed when building on Linux.
 
-#### Windows
+#### OpenCascade
 
-```shell
-# CMake options
-cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
-```
+The project uses OpenCascade as geometry kernel. To build OpenCascade on UNIX
+systems you need to install the following packages:
 
-#### Linux
-
-Before you can build the project you need to install the following third party
-dependencies to build OpenCascade:
+<details><summary>Ubuntu</summary>
+<p>
 
 ```shell
 sudo apt-get install software-properties-common
@@ -96,30 +103,99 @@ sudo apt-get install libfreetype6 libfreetype6-dev
 sudo apt-get install tcl tcl-dev tk tk-dev
 ```
 
-In order to build shared libraries on non-Windows systems, vcpkg requires you to
-provide a custom triplet file in `DVCPKG_TARGET_TRIPLET` configuration option.
-You can find community provided triplet files under `vcpkg/triplets/community`
-directory.
+</p>
+</details>
+
+<details><summary>openSUSE</summary>
+<p>
+
+> Note: The documentation is not complete yet. Feel free to contribute.
 
 ```shell
-# CMake options
-cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic
+sudo zypper install libX11-devel Mesa-libHL-devel libXmu-devel libXi-devel
+sudo zypper install bison fontconfig-devel 
 ```
 
-#### OSX
+The minimum requirements for third party dependencies to run OpenCascade itself
+is Freetype 2.5 and Tcl/TK 8.6:
+
+```shell
+sudo apt-get install libfreetype6 libfreetype6-devel
+sudo apt-get install tcl tcl-devel tk tk-devel
+```
+
+</p>
+</details>
+
+<details><summary>OSX</summary>
+<p>
+
+> Note: The documentation is not complete yet. Feel free to contribute.
+
+</p>
+</details>
+
+### Build
+
+OCXReader comes with a `cli` to make the setup and build step, when using the
+command line, as easy as possible. The project uses vcpkg to install the
+dependencies, in most cases all you need to do is to provide the path to your
+vcpkg installation directory. A typical setup using the cli looks like this:
+
+```shell
+# Generate the build files (use cli.bat on Windows)
+$ ./cli.sh gensln --vcpkg /path/to/vcpkg
+
+# Build the project (use cli.bat on Windows)
+$ ./cli.sh buildsln --build-type Release --build-dir ./build
+```
+
+The cli also provides functionality to combine the mentioned steps into one:
+
+```shell
+# Generate the build files and build the project (use cli.bat on Windows)
+$ ./cli.sh gensln --vcpkg /path/to/vcpkg buildsln
+#                                                ^ no need to specify --build-type and --build-dir as they get inherited from the previous gensln command
+```
+
+> Note: The cli is only recommended for use with the command line. When setting
+> up the project in an IDE, you should use the IDE's functionality to generate
+> the build files and build the project. To set up the project with vcpkg in an
+> IDE, pass the `DCMAKE_TOOLCHAIN_FILE` variable to the CMake configuration
+> options.
+
+```shell
+# CMake option to set the path to the vcpkg toolchain file
+-DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
+
+#### Building on UNIX systems
 
 In order to build shared libraries on non-Windows systems, vcpkg requires you to
 provide a custom triplet file in `DVCPKG_TARGET_TRIPLET` configuration option.
 You can find community provided triplet files under `vcpkg/triplets/community`
 directory.
 
-> For building on OSX, vcpkg currently has no support official for building
-> `opencascade` library. This can be overridden by passing `--allow-unsupported`
-> to the `DVCPKG_INSTALL_OPTIONS` in the CMake options.
+To specify a custom triplet using the cli, you can use make use of the
+`--cmake-options` option in the `gensln` command:
 
 ```shell
-# CMake options
-cmake -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-osx-dynamic -DVCPKG_INSTALL_OPTIONS=--allow-unsupported
+# Generate the build files
+$ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=x64-linux-shared
+```
+
+> Similarly pass the `DVCPKG_TARGET_TRIPLET` variable to the CMake configuration
+> options when setting up the project in an IDE.
+
+##### OSX
+
+For building on OSX, vcpkg currently has no support official for building
+`opencascade` library. This can be overridden by passing `--allow-unsupported`
+to the `DVCPKG_INSTALL_OPTIONS` in the CMake options.
+
+```shell
+# Generate the build files
+$ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=arm64-osx-dynamic -DVCPKG_INSTALL_OPTIONS=--allow-unsupported
 ```
 
 ## Usage
