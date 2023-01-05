@@ -13,22 +13,34 @@ set "help_line.11=                            for a list of available options, s
 
 for %%a in (%*) do (
   set arg=%%a
+  if not defined option (
+    @REM Send help.
+    if "!arg!" equ "--help" ( 
+      %print{[% help_line %]}%
+      EXIT /B 0
+    )
+    if "!arg!" equ "-h" (
+      %print{[% help_line %]}%
+      EXIT /B 0
+    )
 
-  @REM Send help.
-  if "!arg!" equ "--help" ( 
-    %print{[% help_line %]}%
-    EXIT /B 0
+    @REM Assign passed arguments
+    if "!arg!" equ "--build-type" (
+      set "option=!arg!"
+    )
+    if "!arg!" equ "--build-dir" (
+      set "option=!arg!"
+    )
+    if "!arg!" neq "--build-type" (
+      if "!arg!" neq "--build-dir" (
+        set "rest=!rest! %%a"
+      )
+    )
+) else (
+    if "!option!" equ "--build-type" set "build_type=!arg!"
+    if "!option!" equ "--build-dir" set "build_dir=!arg!"
+    set "option="
   )
-  if "!arg!" equ "-h" (
-    %print{[% help_line %]}%
-    EXIT /B 0
-  )
-
-  @REM Assign passed arguments
-  if "!arg!" equ "--build-type" set "build_type=!arg!" && continue
-  if "!arg!" equ "--build-dir" set "build_dir=!arg!" && continue
-
-  set "rest=!rest! %%a"
 )
 
 if defined build_type (
@@ -58,6 +70,6 @@ if defined build_dir (
 )
 
 @REM Run cmake build
-set "cmd=cmake --build ./!build_dir!/!build_type! --target ocxreader !rest!"
+set "cmd=cmake --build !build_dir!/!build_type! --target ocxreader !rest!"
 echo %cmd%
 call %cmd%

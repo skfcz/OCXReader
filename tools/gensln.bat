@@ -19,9 +19,8 @@ set "option="
 set "cmake_options="
 set "found_cmake_options=false"
 for %%a in (%*) do (
+  set arg=%%a
   if not defined option (
-    set arg=%%a
-
     @REM Send help.
     if "!arg!" equ "--help" ( 
       %print{[% help_line %]}%
@@ -90,7 +89,7 @@ if defined option--build-dir (
   set "build_dir=!option--build-dir!"
   echo -- Build directory is set to: !build_dir!
   ) else (
-  set "build_dir=build"
+  set "build_dir=./build"
   echo -- No build directory specified. Defaulting to: ./!build_dir!
 )
 
