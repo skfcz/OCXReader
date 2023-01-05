@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Define help message
+print_help() {
+  echo "Allowed options:"
+  echo ""
+  echo "    -h [ --help ]     produce help message"
+  echo "    gensln <args>     generate a solution. For a list of available options, see gensln --help"
+  echo "    buildsln <args>   build a solution. For a list of available options, see buildsln --help"
+}
+
 # Parse command line arguments
 found_gensln=false
 found_gensln_parse_help=false
@@ -12,6 +21,10 @@ while [[ $# -gt 0 ]]; do
   key="$1"
 
   case $key in
+  -h | --help)
+    print_help
+    exit 0
+    ;;
   gensln)
     found_gensln=true
     found_gensln_parse_help=true

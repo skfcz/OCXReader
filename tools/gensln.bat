@@ -1,9 +1,3 @@
-@echo off
-
-@REM https://stackoverflow.com/a/64809327
-@REM Print utility
-set "print{[=for /f "tokens=1* delims==" %%a in ('set " & set "]}=') do (if "%%b" equ " " (echo.) else (echo %%b))"
-
 @REM Define help message
 set "help_line.01=Allowed options:"
 set "help_line.02= "

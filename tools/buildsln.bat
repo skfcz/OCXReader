@@ -1,11 +1,3 @@
-@echo off
-setlocal EnableDelayedExpansion
-set ERRORLEVEL=0
-
-@REM https://stackoverflow.com/a/64809327
-@REM Print utility
-set "print{[=for /f "tokens=1* delims==" %%a in ('set " & set "]}=') do (if "%%b" equ " " (echo.) else (echo %%b))"
-
 @REM Define help message
 set "help_line.01=Allowed options:"
 set "help_line.02= "
@@ -15,9 +7,9 @@ set "help_line.05=                            can be one of the following: Debug
 set "help_line.06=    --build-dir <arg>       set build directory, pass this argument when running as a standalone command (without gensln)"
 set "help_line.07= "
 set "help_line.08=optional arguments:"
-set "help_line.09=    -h [ --help ]   produce help message"
-set "help_line.10=    <args>          define additional cmake options you want to pass to the build"
-set "help_line.11=                    for a list of available options, see https://cmake.org/cmake/help/latest/manual/cmake.1.html#build-a-project"
+set "help_line.09=    -h [ --help ]           produce help message"
+set "help_line.10=    <args>                  define additional cmake options you want to pass to the build"
+set "help_line.11=                            for a list of available options, see https://cmake.org/cmake/help/latest/manual/cmake.1.html#build-a-project"
 
 for %%a in (%*) do (
   set arg=%%a
