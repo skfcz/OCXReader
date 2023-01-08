@@ -181,15 +181,15 @@ To specify a custom triplet using the cli, you can use make use of the
 
 ```shell
 # Generate the build files
-$ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=x64-linux-shared
+$ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic
 ```
 
 > Similarly pass the `DVCPKG_TARGET_TRIPLET` variable to the CMake configuration
 > options when setting up the project in an IDE.
 
-##### OSX
+##### macOS
 
-For building on OSX, vcpkg currently has no support official for building
+For building on macOS, vcpkg currently has no support official for building
 `opencascade` library. This can be overridden by passing `--allow-unsupported`
 to the `DVCPKG_INSTALL_OPTIONS` in the CMake options.
 
