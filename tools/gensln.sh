@@ -99,6 +99,6 @@ echo "-- Checking arguments: done"
 
 # Generate project
 echo "-- Start build"
-cmd="cmake -S . -B $build_dir -DCMAKE_BUILD_TYPE=$build_type -DCMAKE_TOOLCHAIN_FILE=$vcpkg_dir/scripts/buildsystems/vcpkg.cmake $cmake_options"
+cmd="cmake -S . -B $build_dir/$build_type -DCMAKE_BUILD_TYPE=$build_type -DCMAKE_TOOLCHAIN_FILE=$vcpkg_dir/scripts/buildsystems/vcpkg.cmake $cmake_options"
 echo $cmd
 eval $cmd
