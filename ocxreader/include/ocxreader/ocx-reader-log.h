@@ -62,12 +62,12 @@ constexpr char OCXREADER_DEFAULT_LOGGER_NAME[] = "OCXREADER";
   }
 #else
 // Disable logging in release build
-#define OCXREADER_TRACE(...) (void)0
-#define OCXREADER_DEBUG(...) (void)0
-#define OCXREADER_INFO(...) (void)0
-#define OCXREADER_WARN(...) (void)0
-#define OCXREADER_ERROR(...) (void)0
-#define OCXREADER_FATAL(...) (void)0
+#define OCXREADER_TRACE(...) (void)0;
+#define OCXREADER_DEBUG(...) (void)0;
+#define OCXREADER_INFO(...) (void)0;
+#define OCXREADER_WARN(...) (void)0;
+#define OCXREADER_ERROR(...) (void)0;
+#define OCXREADER_FATAL(...) (void)0;
 #endif
 
 #endif  // OCXREADER_INCLUDE_OCXREADER_OCX_READER_LOG_H_

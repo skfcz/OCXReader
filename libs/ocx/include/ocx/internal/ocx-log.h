@@ -62,12 +62,12 @@ constexpr char OCX_DEFAULT_LOGGER_NAME[] = "OCX";
   }
 #else
 // Disable logging in release build
-#define OCX_TRACE(...) (void)0
-#define OCX_DEBUG(...) (void)0
-#define OCX_INFO(...) (void)0
-#define OCX_WARN(...) (void)0
-#define OCX_ERROR(...) (void)0
-#define OCX_FATAL(...) (void)0
+#define OCX_TRACE(...) (void)0;
+#define OCX_DEBUG(...) (void)0;
+#define OCX_INFO(...) (void)0;
+#define OCX_WARN(...) (void)0;
+#define OCX_ERROR(...) (void)0;
+#define OCX_FATAL(...) (void)0;
 #endif
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_

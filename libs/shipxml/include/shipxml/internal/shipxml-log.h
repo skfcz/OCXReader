@@ -61,12 +61,12 @@ constexpr char SHIPXML_DEFAULT_LOGGER_NAME[] = "SHIPXML";
   }
 #else
 // Disable logging in release build
-#define SHIPXML_TRACE(...) (void)0
-#define SHIPXML_DEBUG(...) (void)0
-#define SHIPXML_INFO(...) (void)0
-#define SHIPXML_WARN(...) (void)0
-#define SHIPXML_ERROR(...) (void)0
-#define SHIPXML_FATAL(...) (void)0
+#define SHIPXML_TRACE(...) (void)0;
+#define SHIPXML_DEBUG(...) (void)0;
+#define SHIPXML_INFO(...) (void)0;
+#define SHIPXML_WARN(...) (void)0;
+#define SHIPXML_ERROR(...) (void)0;
+#define SHIPXML_FATAL(...) (void)0;
 #endif
 
 #endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_LOG_H_
