@@ -22,16 +22,8 @@ while [[ $# -gt 0 ]]; do
 
   case $key in
   -h | --help)
-    if [[ "$found_gensln" = true ]]; then
-      gensln_options="$gensln_options $key"
-      shift # past key
-    elif [[ "$found_buildsln" = true ]]; then
-      buildsln_options="$buildsln_options $key"
-      shift # past key
-    else
-      print_help
-      exit 0
-    fi
+    print_help
+    exit 0
     ;;
   gensln)
     found_gensln=true
