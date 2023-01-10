@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
       ("input-file,i", po::value<std::string>(), "The OCX file to read")  //
       ("export-format", po::value<std::vector<std::string>>()->multitoken(),
        "The export format(s) to use. This can be one or more of the following: "
-       "STEP, XML, XBF, SHIPXML")  //
+       "STEP, SHIPXML, XCAF-XML, XCAF-XBF")  //
       ("save-to,s", po::value<std::string>(),
        "The output-file path. Defines were to write the exported file(s) to. "
        "If not defined files get saved relative to the program working "
@@ -115,29 +115,30 @@ int main(int argc, char** argv) {
   }
 
   // Validate export formats, also cache OCAF export type if present (XML, XBF)
-  bool exportXbf = false;
-  bool exportXml = false;
+  bool exportXCAFXBF = false;
+  bool exportXCAFXML = false;
   std::vector<std::string> exportFormats;
   if (vm.count("export-format")) {
     exportFormats = vm["export-format"].as<std::vector<std::string>>();
-    for (auto& format : exportFormats) {
+    for (auto const& format : exportFormats) {
       if (format == "STEP") {
         // ...
-      } else if (format == "XML") {
-        exportXml = true;
-      } else if (format == "XBF") {
-        exportXbf = true;
       } else if (format == "SHIPXML") {
         // ...
+      } else if (format == "XCAF-XML") {
+        exportXCAFXML = true;
+      } else if (format == "XCAF-XBF") {
+        exportXCAFXBF = true;
       } else {
         std::cerr << "Invalid export format: " << format << std::endl;
         return 33;
       }
     }
-    if (exportXbf && exportXml) {
-      std::cerr << "XBF and XML export formats are mutually exclusive. Please "
-                   "choose only one."
-                << std::endl;
+    if (exportXCAFXBF && exportXCAFXML) {
+      std::cerr
+          << "XCAF-XBF and XCAF-XML export formats are mutually exclusive. "
+             "Please choose only one."
+          << std::endl;
       return 33;
     }
   } else {
@@ -198,7 +199,7 @@ int main(int argc, char** argv) {
 
   // Initialize the document
   Handle(TDocStd_Document) doc;
-  if (exportXml) {
+  if (exportXCAFXML) {
     app->NewDocument("XmlOcaf", doc);
   } else {
     app->NewDocument("BinXCAF", doc);  // default to XBF
@@ -211,10 +212,8 @@ int main(int argc, char** argv) {
 
   // Read and parse the OCX file
   std::shared_ptr<ocx::OCXContext> ctx = nullptr;
-  auto reader = std::make_unique<ocx::OCXReader>();
-
   std::cout << "Read from " << ocxFileInput << std::endl;
-  if (!reader->Perform(ocxFileInput.c_str(), doc, ctx)) {
+  if (!ocx::OCXReader::Perform(ocxFileInput.c_str(), doc, ctx)) {
     std::cerr << "Failed to read OCX document" << std::endl;
     app->Close(doc);
     return 33;

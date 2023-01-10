@@ -11,9 +11,6 @@ set(ocx_reader_include_dirs
     "${ocxreader_SOURCE_DIR}")
 include_directories(SYSTEM ${ocx_reader_include_dirs})
 
-# Boost
-find_package(Boost COMPONENTS REQUIRED program_options)
-
 # Define helper functions and macros used by ocxreader
 include(cmake/internal_utils.cmake)
 
@@ -40,4 +37,4 @@ target_link_libraries(${PROJECT_NAME}
                       Boost::boost
                       Boost::program_options)
 
-target_link_occt_libraries(${PROJECT_NAME})
+target_link_occt_libraries_vcpkg(${PROJECT_NAME})

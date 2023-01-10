@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/master/docs/vcpkg.schema.json",
+  "name": "ocxreader",
+  "version": "0.0.1",
+  "license": "LGPL-2.1",
+  "description": [
+    "OCXReader is a tool to read and parse data from OCX files and export them",
+    "to different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB."
+  ],
+  "dependencies": [
+    {
+      "name": "spdlog",
+      "version>=": "1.11.0"
+    },
+    {
+      "name": "magic-enum",
+      "version>=": "0.8.2"
+    },
+    {
+      "name": "opencascade",
+      "version>=": "7.6.2#1"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.12.1"
+    },
+    {
+      "name": "boost-system",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-filesystem",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-program-options",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-property-tree",
+      "version>=": "1.80.0#1"
+    }
+  ]
+}
