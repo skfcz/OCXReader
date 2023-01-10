@@ -14,6 +14,9 @@
 
 #include "shipxml/internal/shipxml-cartesian-point.h"
 
+#include <gp_Pnt.hxx>
+#include <string>
+
 namespace shipxml {
 
 CartesianPoint::CartesianPoint() = default;
@@ -22,6 +25,11 @@ CartesianPoint::CartesianPoint() = default;
 
 CartesianPoint::CartesianPoint(double x, double y, double z)
     : m_x(x), m_y(y), m_z(z) {}
+
+//-----------------------------------------------------------------------------
+
+CartesianPoint::CartesianPoint(gp_Pnt const &p)
+    : m_x(p.X()), m_y(p.Y()), m_z(p.Z()) {}
 
 //-----------------------------------------------------------------------------
 
@@ -40,5 +48,16 @@ double CartesianPoint::GetY() const { return m_y; }
 void CartesianPoint::SetZ(double value) { m_z = value; }
 
 double CartesianPoint::GetZ() const { return m_z; }
+
+//-----------------------------------------------------------------------------
+
+gp_Pnt CartesianPoint::ToPnt() const { return {m_x, m_y, m_z}; }
+
+//-----------------------------------------------------------------------------
+
+std::string CartesianPoint::ToString() const {
+  return "(" + std::to_string(m_x) + ", " + std::to_string(m_y) + ", " +
+         std::to_string(m_z) + ")";
+}
 
 }  // namespace shipxml

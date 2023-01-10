@@ -32,13 +32,18 @@ class PanelReader {
 
   void ReadPanels() const;
 
-  [[nodiscard]] static shipxml::Panel ReadPanel(LDOM_Element const &panelN);
+  [[nodiscard]] static Panel ReadPanel(LDOM_Element const &panelN);
 
   static void ReadLimits(LDOM_Element const &limitedByN, Panel &panel);
 
  private:
   std::shared_ptr<ShipSteelTransfer> m_sst;
   LDOM_Element m_ocxVesselEL;
+
+  static void ReadSupportAndOuterContour(LDOM_Element const &panelN,
+                                         Panel &panel);
+
+  static void ReadComposedOf(LDOM_Element const &panelN, Panel const &panel);
 };
 
 }  // namespace shipxml

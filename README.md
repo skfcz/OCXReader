@@ -150,6 +150,9 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg
 $ ./cli.sh buildsln --build-type Release --build-dir ./build
 ```
 
+> Note: See [Building on UNIX systems](#building-on-unix-systems) for more
+> information on how to use the cli on UNIX systems.
+
 The cli also provides functionality to combine the mentioned steps into one:
 
 ```shell

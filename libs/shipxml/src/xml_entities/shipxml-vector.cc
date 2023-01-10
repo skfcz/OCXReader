@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 01 Dec 2022                                               *
+ *   Created on: 09 Jan 2023                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,40 +12,50 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "shipxml/internal/shipxml-arc-segment.h"
+#include "shipxml/internal/shipxml-vector.h"
 
-#include "shipxml/internal/shipxml-cartesian-point.h"
+#include <gp_Dir.hxx>
+#include <string>
 
 namespace shipxml {
 
-ArcSegment::ArcSegment(CartesianPoint pS, CartesianPoint pE)
-    : m_p0(pS), m_p1(pE), m_witherShins(false), m_isLine(true) {}
+Vector::Vector() = default;
 
 //-----------------------------------------------------------------------------
 
-ArcSegment::ArcSegment(CartesianPoint pS, CartesianPoint pE,
-                       CartesianPoint pOnCircle, CartesianPoint pCenter,
-                       bool counterClockWise)
-    : m_p0(pS),
-      m_p1(pE),
-      m_pM(pOnCircle),
-      m_pC(pCenter),
-      m_witherShins(counterClockWise),
-      m_isLine(false) {}
+Vector::Vector(double x, double y, double z) : m_x(x), m_y(y), m_z(z) {}
 
 //-----------------------------------------------------------------------------
 
-bool ArcSegment::IsLine() const { return m_isLine; }
+Vector::Vector(gp_Dir const& dir) : m_x(dir.X()), m_y(dir.Y()), m_z(dir.Z()) {}
 
 //-----------------------------------------------------------------------------
 
-bool ArcSegment::IsWithershins() const { return m_witherShins; }
+void Vector::SetX(double value) { m_x = value; }
+
+double Vector::GetX() const { return m_x; }
 
 //-----------------------------------------------------------------------------
 
-CartesianPoint ArcSegment::GetStartPoint() const { return m_p0; }
-CartesianPoint ArcSegment::GetEndPoint() const { return m_p0; }
-CartesianPoint ArcSegment::GetCenterPoint() const { return m_pC; }
-CartesianPoint ArcSegment::GetPointOnCircle() const { return m_pM; }
+void Vector::SetY(double value) { m_y = value; }
+
+double Vector::GetY() const { return m_y; }
+
+//-----------------------------------------------------------------------------
+
+void Vector::SetZ(double value) { m_z = value; }
+
+double Vector::GetZ() const { return m_z; }
+
+//-----------------------------------------------------------------------------
+
+gp_Dir Vector::ToDir() const { return {m_x, m_y, m_z}; }
+
+//-----------------------------------------------------------------------------
+
+std::string Vector::ToString() const {
+  return "(" + std::to_string(m_x) + ", " + std::to_string(m_y) + ", " +
+         std::to_string(m_z) + ")";
+}
 
 }  // namespace shipxml

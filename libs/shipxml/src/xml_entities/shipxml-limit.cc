@@ -26,9 +26,9 @@ Limit::Limit(std::string_view name) : NamedEntity(name) {}
 
 //-----------------------------------------------------------------------------
 
-void Limit::SetContour(shipxml::AMCurve const& contour) { m_contour = contour; }
+void Limit::SetContour(AMCurve const& contour) { m_contour = contour; }
 
-shipxml::AMCurve Limit::GetContour() const { return m_contour; }
+AMCurve Limit::GetContour() const { return m_contour; }
 
 //-----------------------------------------------------------------------------
 
@@ -38,11 +38,9 @@ std::string Limit::GetFeature() const { return m_feature; }
 
 //-----------------------------------------------------------------------------
 
-void Limit::SetLimitType(shipxml::LimitType limitType) {
-  m_limitType = limitType;
-}
+void Limit::SetLimitType(LimitType limitType) { m_limitType = limitType; }
 
-shipxml::LimitType Limit::GetLimitType() const { return m_limitType; }
+LimitType Limit::GetLimitType() const { return m_limitType; }
 
 //-----------------------------------------------------------------------------
 
@@ -54,12 +52,12 @@ double Limit::GetOffset() const { return m_offset; }
 
 void Limit::SetP0(const CartesianPoint& p0) { m_p0 = p0; }
 
-shipxml::CartesianPoint Limit::GetP0() const { return m_p0; }
+CartesianPoint Limit::GetP0() const { return m_p0; }
 
 //-----------------------------------------------------------------------------
 
 void Limit::SetP1(const CartesianPoint& p1) { m_p1 = p1; }
 
-shipxml::CartesianPoint Limit::GetP1() const { return m_p1; }
+CartesianPoint Limit::GetP1() const { return m_p1; }
 
 }  // namespace shipxml

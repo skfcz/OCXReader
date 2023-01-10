@@ -25,47 +25,36 @@ class GeneralData {
   ~GeneralData() = default;
 
   void SetShipName(std::string_view shipName);
-
   [[nodiscard]] std::string GetShipName() const;
 
   void SetYardNumber(std::string_view yardNumber);
-
   [[nodiscard]] std::string GetYardNumber() const;
 
   void SetAftEnd(double value);
-
   [[nodiscard]] double GetAftEnd() const;
 
   void SetAftPerpendicular(double value);
-
   [[nodiscard]] double GetAftPerpendicular() const;
 
   void SetForwardEnd(double value);
-
   [[nodiscard]] double GetForwardEnd() const;
 
   void SetForwardPerpendicular(double value);
-
   [[nodiscard]] double GetForwardPerpendicular() const;
 
   void SetLengthOverall(double value);
-
   [[nodiscard]] double GetLengthOverall() const;
 
   void SetMaxDraught(double value);
-
   [[nodiscard]] double GetMaxDraught() const;
 
   void SetMaxBreadth(double value);
-
   [[nodiscard]] double GetMaxBreadth() const;
 
   void SetMaxHeight(double value);
-
   [[nodiscard]] double GetMaxHeight() const;
 
   void SetHeightOfMainDeck(double value);
-
   [[nodiscard]] double GetHeightOfMainDeck() const;
 
  private:

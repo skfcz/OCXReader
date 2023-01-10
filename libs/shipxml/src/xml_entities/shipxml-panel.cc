@@ -24,8 +24,7 @@
 
 namespace shipxml {
 
-Panel::Panel(std::string const& name)
-    : EntityWithProperties(name), m_geometry(AMSystem::XY) {}
+Panel::Panel(std::string_view name) : EntityWithProperties(name) {}
 
 //-----------------------------------------------------------------------------
 
@@ -87,26 +86,28 @@ std::string Panel::GetTightness() const { return m_tightness; }
 
 //-----------------------------------------------------------------------------
 
-shipxml::Extrusion Panel::GetExtrusion() const { return m_extrusion; }
+Extrusion Panel::GetExtrusion() const { return m_extrusion; }
 
 //-----------------------------------------------------------------------------
 
-shipxml::Support Panel::GetSupport() const { return m_support; }
+void Panel::SetSupport(const Support& support) { m_support = support; }
+
+Support Panel::GetSupport() const { return m_support; }
 
 //-----------------------------------------------------------------------------
 
-void Panel::SetLimits(std::list<shipxml::Limit> const& limits) {
-  m_limits = limits;
-}
+void Panel::SetLimits(std::list<Limit> const& limits) { m_limits = limits; }
 
-std::list<shipxml::Limit> Panel::GetLimits() const { return m_limits; }
+std::list<Limit> Panel::GetLimits() const { return m_limits; }
 
 //-----------------------------------------------------------------------------
 
-void Panel::SetGeometry(shipxml::AMCurve const& geometry) {
-  m_geometry = geometry;
-}
+void Panel::SetGeometry(AMCurve const& geometry) { m_geometry = geometry; }
 
-shipxml::AMCurve Panel::GetGeometry() const { return m_geometry; }
+AMCurve Panel::GetGeometry() const { return m_geometry; }
+
+//-----------------------------------------------------------------------------
+
+std::vector<shipxml::Plate> Panel::GetPlates() const { return m_plates; }
 
 }  // namespace shipxml

@@ -26,21 +26,18 @@ class Extrusion : public EntityWithProperties {
   ~Extrusion() = default;
 
   void SetThickness(double thickness);
-
   [[nodiscard]] double GetThickness() const;
 
   void SetOffset(double offset);
-
   [[nodiscard]] double GetOffset() const;
 
   void SetOrientation(shipxml::Orientation orientation);
-
   [[nodiscard]] shipxml::Orientation GetOrientation() const;
 
  private:
   double m_thickness{};
   double m_offset{};
-  shipxml::Orientation m_orientation = UNDEFINED_O;
+  shipxml::Orientation m_orientation = Orientation::UNDEFINED_O;
 };
 
 }  // namespace shipxml

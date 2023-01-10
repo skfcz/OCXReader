@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 01 Dec 2022                                               *
+ *   Created on: 09 Jan 2023                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,29 +12,32 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_
-#define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_
+#ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PLATE_READER_H_
+#define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PLATE_READER_H_
 
-#include <vector>
+#include <LDOM_Element.hxx>
 
-#include "shipxml/internal/shipxml-arc-segment.h"
-#include "shipxml/internal/shipxml-enums.h"
+#include "shipxml/internal/shipxml-panel.h"
+#include "shipxml/internal/shipxml-plate.h"
+#include "shipxml/internal/shipxml-ship-steel-transfer.h"
 
 namespace shipxml {
 
-class AMCurve {
+class PlateReader {
  public:
-  explicit AMCurve(AMSystem system);
+  PlateReader() = default;
 
-  [[nodiscard]] std::vector<ArcSegment> GetSegments() const;
+  ~PlateReader() = default;
 
-  [[nodiscard]] AMSystem GetSystem() const;
+  void ReadPlates(LDOM_Element const &ocxPanelN, Panel const &panel) const;
 
  private:
-  std::vector<ArcSegment> m_segments;
-  AMSystem m_system;
+  [[nodiscard]] static Plate ReadPlate(LDOM_Element const &plateN,
+                                       Panel const &panel);
+
+  [[nodiscard]] static bool ReadOuterContour(LDOM_Element const &plateN);
 };
 
 }  // namespace shipxml
 
-#endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_
+#endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_PLATE_READER_H_

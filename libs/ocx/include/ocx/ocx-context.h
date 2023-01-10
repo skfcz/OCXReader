@@ -33,6 +33,42 @@
 namespace ocx {
 
 /**
+ * RefPlaneType is used to identify the type of a reference plane.
+ */
+enum class RefPlaneType { X, Y, Z, UNDEF };
+
+/**
+ * RefPlaneWrapper is used to store the information of a reference plane.
+ */
+struct RefPlaneWrapper {
+  RefPlaneType type;
+  LDOM_Element refPlaneN;
+  gp_Dir normal;
+  gp_Pnt p1;
+  gp_Pnt p2;
+  gp_Pnt p3;
+
+  /**
+   * Construct a default RefPlaneWrapper object with type UNDEF.
+   */
+  RefPlaneWrapper();
+
+  /**
+   * Construct a RefPlaneWrapper object from given parameters.
+   *
+   * @param type the type of the reference plane
+   * @param refPlaneN the reference plane element
+   * @param normal the normal of the reference plane
+   * @param p1 the first point of the reference plane
+   * @param p2 the second point of the reference plane
+   * @param p3 the third point of the reference plane
+   */
+  RefPlaneWrapper(RefPlaneType const &type, LDOM_Element const &refPlaneN,
+                  gp_Dir const &normal, gp_Pnt const &p1, gp_Pnt const &p2,
+                  gp_Pnt const &p3);
+};
+
+/**
  * Comparator to handle LDOM_Element as key in std::map
  */
 struct LDOMCompare {
@@ -116,6 +152,29 @@ class OCXContext {
   [[nodiscard]] TopoDS_Shape LookupShape(LDOM_Element const &element);
 
   /**
+   * Register an X/Y/ZRefPlane element by its GUID
+   *
+   * @param guid
+   * @param type
+   * @param element
+   * @param normal
+   * @param p0
+   * @param p1
+   * @param p2
+   */
+  void RegisterRefPlane(std::string const &guid, RefPlaneType const &type,
+                        LDOM_Element const &element, gp_Dir const &normal,
+                        gp_Pnt const &p0, gp_Pnt const &p1, gp_Pnt const &p2);
+
+  /**
+   * @brief Get a previously registered X/Y/Z Refplane LDOM_Element by its GUID
+   *
+   * @param guid the guid
+   * @return the LDOM_Element to lookup
+   */
+  [[nodiscard]] RefPlaneWrapper LookupRefPlane(std::string_view const &guid);
+
+  /**
    * Register a BarSection by its LDOM_Element (matched by given GUID or ID)
    *
    * @param shape the BarSection to register (one of TopoDS_Face or
@@ -162,6 +221,7 @@ class OCXContext {
 
   std::map<LDOM_Element, TopoDS_Shape, LDOMCompare> LDOM2TopoDS_Shape;
   std::map<LDOM_Element, BarSection, LDOMCompare> LDOM2BarSection;
+  std::map<std::string, RefPlaneWrapper, std::less<>> GUID2RefPlane;
 
   opencascade::handle<TDocStd_Document> ocafDoc;
   opencascade::handle<XCAFDoc_ShapeTool> ocafShapeTool;

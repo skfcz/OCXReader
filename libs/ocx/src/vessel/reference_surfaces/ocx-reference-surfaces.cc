@@ -21,7 +21,7 @@
 #include <TopoDS_Compound.hxx>
 #include <list>
 
-#include "ocx/internal/ocx-surface-reader.h"
+#include "ocx/internal/ocx-surface.h"
 #include "ocx/ocx-helper.h"
 
 namespace ocx::vessel::reference_surfaces {

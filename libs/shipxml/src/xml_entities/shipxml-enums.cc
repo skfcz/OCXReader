@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 01 Dec 2022                                               *
+ *   Created on: 09 Jan 2023                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,29 +12,26 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_
-#define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_
-
-#include <vector>
-
-#include "shipxml/internal/shipxml-arc-segment.h"
 #include "shipxml/internal/shipxml-enums.h"
+
+#include <gp_Dir.hxx>
+
+#include "shipxml/internal/shipxml-log.h"
 
 namespace shipxml {
 
-class AMCurve {
- public:
-  explicit AMCurve(AMSystem system);
+Standard_Real const AMSystemIsParallelTolerance = 45.0 / 180.0 * M_PI;
 
-  [[nodiscard]] std::vector<ArcSegment> GetSegments() const;
+AMSystem ToAMSystem(gp_Dir const& normal) {
+  SHIPXML_INFO("ToAMSystem [{} {} {}]", normal.X(), normal.Y(), normal.Z())
 
-  [[nodiscard]] AMSystem GetSystem() const;
-
- private:
-  std::vector<ArcSegment> m_segments;
-  AMSystem m_system;
-};
+  if (gp_Dir(1, 0, 0).IsParallel(normal, AMSystemIsParallelTolerance)) {
+    return AMSystem::YZ;
+  } else if (gp_Dir(0, 1, 0).IsParallel(normal, AMSystemIsParallelTolerance)) {
+    return AMSystem::XZ;
+  } else {
+    return AMSystem::XZ;
+  }
+}
 
 }  // namespace shipxml
-
-#endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_AM_CURVE_H_

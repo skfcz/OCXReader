@@ -26,7 +26,6 @@ class NamedEntity {
   ~NamedEntity() = default;
 
   void SetName(std::string_view name);
-
   [[nodiscard]] std::string GetName() const;
 
  private:

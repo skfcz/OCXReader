@@ -28,37 +28,31 @@ class Limit : public NamedEntity {
  public:
   explicit Limit(std::string_view name);
 
-  void SetContour(shipxml::AMCurve const& contour);
-
-  [[nodiscard]] shipxml::AMCurve GetContour() const;
+  void SetContour(AMCurve const& contour);
+  [[nodiscard]] AMCurve GetContour() const;
 
   void SetFeature(std::string_view feature);
-
   [[nodiscard]] std::string GetFeature() const;
 
-  void SetLimitType(shipxml::LimitType limitType);
-
-  [[nodiscard]] shipxml::LimitType GetLimitType() const;
+  void SetLimitType(LimitType limitType);
+  [[nodiscard]] LimitType GetLimitType() const;
 
   void SetOffset(double offset);
-
   [[nodiscard]] double GetOffset() const;
 
-  void SetP0(shipxml::CartesianPoint const& p0);
+  void SetP0(CartesianPoint const& p0);
+  [[nodiscard]] CartesianPoint GetP0() const;
 
-  [[nodiscard]] shipxml::CartesianPoint GetP0() const;
-
-  void SetP1(shipxml::CartesianPoint const& p1);
-
-  [[nodiscard]] shipxml::CartesianPoint GetP1() const;
+  void SetP1(CartesianPoint const& p1);
+  [[nodiscard]] CartesianPoint GetP1() const;
 
  private:
-  shipxml::AMCurve m_contour = shipxml::AMCurve(XY);
+  AMCurve m_contour = AMCurve(AMSystem::XY);
   std::string m_feature;
-  shipxml::LimitType m_limitType = UNKNOWN;
+  LimitType m_limitType = LimitType::UNKNOWN;
   double m_offset{};
-  shipxml::CartesianPoint m_p0;
-  shipxml::CartesianPoint m_p1;
+  CartesianPoint m_p0;
+  CartesianPoint m_p1;
 };
 }  // namespace shipxml
 

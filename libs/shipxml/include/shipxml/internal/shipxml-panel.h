@@ -18,6 +18,7 @@
 #include <list>
 #include <string>
 
+#include "shipxml-plate.h"
 #include "shipxml/internal/shipxml-am-curve.h"
 #include "shipxml/internal/shipxml-entity-with-properties.h"
 #include "shipxml/internal/shipxml-enums.h"
@@ -33,38 +34,30 @@ class Panel : public EntityWithProperties {
    * Create new Panel Objects
    * @param name the name of the panel
    */
-  explicit Panel(std::string const& name);
+  explicit Panel(std::string_view name);
 
   void SetBlockName(std::string_view blockName);
-
   [[nodiscard]] std::string GetBlockName() const;
 
   void SetCategory(std::string_view category);
-
   [[nodiscard]] std::string GetCategory() const;
 
   void SetCategoryDescription(std::string_view categoryDescription);
-
   [[nodiscard]] std::string GetCategoryDescription() const;
 
   void SetIsPlanar(bool isPlanar);
-
   [[nodiscard]] bool IsPlanar() const;
 
   void SetIsPillar(bool isPillar);
-
   [[nodiscard]] bool IsPillar() const;
 
   void SetOwner(std::string_view owner);
-
   [[nodiscard]] std::string GetOwner() const;
 
   void SetDefaultMaterial(std::string_view defaultMaterial);
-
   [[nodiscard]] std::string GetDefaultMaterial() const;
 
   void SetTightness(std::string_view tightness);
-
   [[nodiscard]] std::string GetTightness() const;
 
   /**
@@ -72,6 +65,11 @@ class Panel : public EntityWithProperties {
    */
   [[nodiscard]] Extrusion GetExtrusion() const;
 
+  /**
+   * Set the Support
+   */
+  void SetSupport(shipxml::Support const& support);
+  
   /**
    * Get the Support
    */
@@ -81,23 +79,30 @@ class Panel : public EntityWithProperties {
    * Set the list of Limits
    * @param list the list of Limits
    */
-  void SetLimits(std::list<shipxml::Limit> const& limits);
+  void SetLimits(std::list<Limit> const& limits);
 
   /**
    * Get the list of Limits
    * @return the list of Limits
    */
-  [[nodiscard]] std::list<shipxml::Limit> GetLimits() const;
+  [[nodiscard]] std::list<Limit> GetLimits() const;
 
   /**
    * Set the boundary curve
    */
-  void SetGeometry(shipxml::AMCurve const& geometry);
+  void SetGeometry(AMCurve const& geometry);
 
   /**
    * Get the boundary curve (may be null)
    */
-  [[nodiscard]] shipxml::AMCurve GetGeometry() const;
+  [[nodiscard]] AMCurve GetGeometry() const;
+
+  /**
+   * Get a vector of Plates
+   *
+   * @return the vector of Plates
+   */
+  [[nodiscard]] std::vector<Plate> GetPlates() const;
 
  private:
   std::string m_blockName;
@@ -108,10 +113,12 @@ class Panel : public EntityWithProperties {
   std::string m_owner;
   std::string m_defaultMaterial;
   std::string m_tightness;
-  shipxml::Extrusion m_extrusion;
-  shipxml::Support m_support;
-  std::list<shipxml::Limit> m_limits;
-  shipxml::AMCurve m_geometry;
+  Extrusion m_extrusion;
+
+  Support m_support;
+  std::list<Limit> m_limits;
+  AMCurve m_geometry{AMSystem::XY};
+  std::vector<Plate> m_plates;
 };
 
 }  // namespace shipxml

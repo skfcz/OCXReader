@@ -15,10 +15,21 @@
 #ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_ENUMS_H_
 #define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_ENUMS_H_
 
+#include <gp_Dir.hxx>
+
 namespace shipxml {
 
-enum AMSystem { XY, XZ, YZ };
-enum LimitType {
+enum class AMSystem { XY, XZ, YZ };
+
+/**
+ * Get the AMSystem from a normal vector.
+ *
+ * @param normal the normal vector of the plane
+ * @return the AMSystem that is perpendicular or closest to the given normal
+ */
+AMSystem ToAMSystem(gp_Dir const& normal);
+
+enum class LimitType {
   UNKNOWN,
   CURVE,
   TRACE,
@@ -32,10 +43,14 @@ enum LimitType {
   HOLE,
   PLANE
 };
-enum PanelType { PLANAR, KNUCKLED, SHELL_PANEL };
-enum Orientation { UNDEFINED_O, FORE, AFT, PS, SB, TOP, BOTTOM };
-enum LocationType { UNKNOWN_L, X_L, Y_L, Z_L, TP_L };
-enum MajorPlane { UNDEFINED_M, X_M, Y_M, Z_M };
+
+enum class PanelType { PLANAR, KNUCKLED, SHELL_PANEL };
+
+enum class Orientation { UNDEFINED_O, FORE, AFT, PS, SB, TOP, BOTTOM };
+
+enum class LocationType { UNKNOWN_L, X_L, Y_L, Z_L, TP_L };
+
+enum class MajorPlane { UNDEFINED_M, X_M, Y_M, Z_M };
 
 }  // namespace shipxml
 

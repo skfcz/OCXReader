@@ -18,9 +18,15 @@
 #include <LDOM_Document.hxx>
 #include <LDOM_Element.hxx>
 #include <string>
+#include <vector>
 
 #include "ocx/ocx-context.h"
+#include "shipxml/internal/shipxml-am-curve.h"
+#include "shipxml/internal/shipxml-entity-with-properties.h"
+#include "shipxml/internal/shipxml-panel.h"
+#include "shipxml/internal/shipxml-plate.h"
 #include "shipxml/internal/shipxml-ship-steel-transfer.h"
+#include "shipxml/internal/shipxml-support.h"
 
 namespace shipxml {
 
@@ -39,7 +45,7 @@ class ShipXMLDriver {
    * @param ctx the OCX context holding the described information
    * @return true if the transfer was successfully
    */
-  bool Transfer() const;
+  [[nodiscard]] bool Transfer() const;
 
   /**
    * Write the ShipSteelTransfer into an XML file at the given path.
@@ -47,7 +53,7 @@ class ShipXMLDriver {
    * @param filepath the filepath to write to
    * @return true if writing was successfully
    */
-  bool Write(std::string const& filepath);
+  [[nodiscard]] bool Write(std::string const &filepath);
 
   /**
    * Access the ShipSteelTransfer created in the Transfer method
@@ -57,17 +63,23 @@ class ShipXMLDriver {
   GetShipSteelTransfer() const;
 
  private:
-  std::shared_ptr<shipxml::ShipSteelTransfer> sst;
+  std::shared_ptr<shipxml::ShipSteelTransfer> m_sst;
 
-  LDOM_Document sxDoc;
-  LDOM_Element sxRootEL;
-  LDOM_Element sxStructureEL;
+  LDOM_Document m_sxDoc;
+  LDOM_Element m_sxRootEL;
+  LDOM_Element m_sxStructureEL;
 
-  void AddAttribute(LDOM_Element parentEL, std::string attrName,
-                    std::string attrValue);
-  void AddAttribute(LDOM_Element parentEL, std::string attrName,
-                    bool attrValue);
+  // void AddAttribute(LDOM_Element parentEL, std::string attrName,
+  //                   std::string attrValue);
+  // void AddAttribute(LDOM_Element parentEL, std::string attrName,
+  //                   bool attrValue);
+
   void WritePanels();
+
+  void WriteProperties(EntityWithProperties &ewp, LDOM_Element &entityEL);
+  void WriteSupport(Support const &support, LDOM_Element &panelEL);
+  void WriteGeometry(AMCurve const &crv, LDOM_Element &panelEL);
+  void WritePlates(std::vector<Plate> const &plates, LDOM_Element &panelEL);
 };
 
 }  // namespace shipxml

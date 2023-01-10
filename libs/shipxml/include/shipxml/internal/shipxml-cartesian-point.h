@@ -15,13 +15,17 @@
 #ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_CARTESIAN_POINT_H_
 #define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_CARTESIAN_POINT_H_
 
+#include <gp_Pnt.hxx>
+#include <string>
+
 namespace shipxml {
 
 class CartesianPoint {
  public:
   CartesianPoint();
   CartesianPoint(double x, double y, double z);
-  
+  CartesianPoint(gp_Pnt const &p);
+
   ~CartesianPoint() = default;
 
   void SetX(double value);
@@ -32,6 +36,10 @@ class CartesianPoint {
 
   void SetZ(double value);
   [[nodiscard]] double GetZ() const;
+
+  [[nodiscard]] gp_Pnt ToPnt() const;
+
+  [[nodiscard]] std::string ToString() const;
 
  private:
   double m_x{};

@@ -27,6 +27,21 @@
 
 namespace ocx {
 
+RefPlaneWrapper::RefPlaneWrapper() : type(RefPlaneType::UNDEF) {}
+
+RefPlaneWrapper::RefPlaneWrapper(const RefPlaneType &type,
+                                 const LDOM_Element &refPlaneN,
+                                 const gp_Dir &normal, const gp_Pnt &p1,
+                                 const gp_Pnt &p2, const gp_Pnt &p3)
+    : type(type),
+      refPlaneN(refPlaneN),
+      normal(normal),
+      p1(p1),
+      p2(p2),
+      p3(p3) {}
+
+//-----------------------------------------------------------------------------
+
 bool LDOMCompare::operator()(LDOM_Element const &lhs,
                              LDOM_Element const &rhs) const {
   auto metaLhs = ocx::helper::GetOCXMeta(lhs);
@@ -178,6 +193,24 @@ TopoDS_Shape OCXContext::LookupShape(LDOM_Element const &element) {
       res != LDOM2TopoDS_Shape.end()) {
     return res->second;
   }
+  return {};
+}
+
+//-----------------------------------------------------------------------------
+
+void OCXContext::RegisterRefPlane(std::string const &guid,
+                                  RefPlaneType const &type,
+                                  LDOM_Element const &element,
+                                  gp_Dir const &normal, gp_Pnt const &p0,
+                                  gp_Pnt const &p1, gp_Pnt const &p2) {
+  GUID2RefPlane[guid] = RefPlaneWrapper(type, element, normal, p0, p1, p2);
+}
+
+RefPlaneWrapper OCXContext::LookupRefPlane(std::string_view const &guid) {
+  if (auto res = GUID2RefPlane.find(guid); res != GUID2RefPlane.end()) {
+    return res->second;
+  }
+  OCX_ERROR("No RefPlane found for given guid {}", guid)
   return {};
 }
 

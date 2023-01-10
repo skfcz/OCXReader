@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 01 Dec 2022                                               *
+ *   Created on: 10 Jan 2023                                                *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,68 +12,63 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "shipxml/internal/shipxml-properties.h"
+#include "shipxml/internal/shipxml-plate.h"
 
 #include <string>
-#include <vector>
 
-#include "shipxml/internal/shipxml-cartesian-point.h"
-#include "shipxml/internal/shipxml-key-value.h"
+#include "shipxml/internal/shipxml-am-curve.h"
+#include "shipxml/internal/shipxml-entity-with-properties.h"
+#include "shipxml/internal/shipxml-enums.h"
 
 namespace shipxml {
 
-KeyValue Properties::Add(std::string const &key, std::string const &value) {
-  return m_values.emplace_back(key, value);
+Plate::Plate(std::string_view name) : EntityWithProperties(name) {}
+
+//-----------------------------------------------------------------------------
+
+void Plate::SetCategory(std::string_view category) { m_category = category; }
+std::string Plate::GetCategory() const { return m_category; }
+
+//-----------------------------------------------------------------------------
+
+void Plate::SetCategoryDescription(std::string_view categoryDescription) {
+  m_categoryDescription = categoryDescription;
 }
 
-KeyValue Properties::Add(std::string const &key, double value) {
-  return Add(key, std::to_string(value));
-}
-
-KeyValue Properties::Add(std::string const &key, int value) {
-  return Add(key, std::to_string(value));
+std::string Plate::GetCategoryDescription() const {
+  return m_categoryDescription;
 }
 
 //-----------------------------------------------------------------------------
 
-std::vector<KeyValue> Properties::GetValues() const { return m_values; }
+void Plate::SetMaterial(std::string_view defaultMaterial) {
+  m_material = defaultMaterial;
+}
+
+std::string Plate::GetMaterial() const { return m_material; }
 
 //-----------------------------------------------------------------------------
 
-void Properties::SetWeight(double const &weight) { m_weight = weight; }
+void Plate::SetThickness(double t) { m_thickness = t; }
 
-double Properties::GetWeight() const { return m_weight; }
-
-//-----------------------------------------------------------------------------
-
-void Properties::SetArea(double const &area) { m_area = area; }
-
-double Properties::GetArea() const { return m_area; }
+double Plate::GetThickness() const { return m_thickness; }
 
 //-----------------------------------------------------------------------------
 
-void Properties::SetCog(std::string_view mCog) { m_cog = mCog; }
+Orientation Plate::GetOrientation() const { return m_orientation; }
 
-void Properties::SetCog(CartesianPoint const &cp) { SetCog(cp.ToString()); }
-
-std::string Properties::GetCog() const { return m_cog; }
+void Plate::SetOrientation(Orientation o) { m_orientation = o; }
 
 //-----------------------------------------------------------------------------
 
-void Properties::SetBbox0(std::string_view mBbox0) { m_bbox0 = mBbox0; }
+double Plate::GetOffset() const { return m_offset; }
 
-void Properties::SetBbox0(CartesianPoint const &cp) { SetBbox0(cp.ToString()); }
-
-std::string Properties::GetBbox0() const { return m_bbox0; }
+void Plate::SetOffset(double t) { m_offset = t; }
 
 //-----------------------------------------------------------------------------
 
-void Properties::SetBbox1(std::string_view mBbox1) { m_bbox1 = mBbox1; }
+void Plate::SetGeometry(AMCurve const& geometry) { m_geometry = geometry; }
 
-void Properties::SetBbox1(CartesianPoint const &cp) { SetBbox1(cp.ToString()); }
-
-std::string Properties::GetBbox1() const { return m_bbox1; }
-
-//-----------------------------------------------------------------------------
+AMCurve Plate::GetGeometry() const { return m_geometry; }
 
 }  // namespace shipxml

@@ -17,6 +17,7 @@
 
 #include <string>
 
+#include "shipxml-vector.h"
 #include "shipxml/internal/shipxml-cartesian-point.h"
 #include "shipxml/internal/shipxml-enums.h"
 
@@ -28,52 +29,48 @@ class Support {
   ~Support() = default;
 
   void SetGrid(std::string_view grid);
-
   [[nodiscard]] std::string GetGrid() const;
 
   void SetCoordinate(std::string_view coordinate);
-
   [[nodiscard]] std::string GetCoordinate() const;
 
-  void SetOrientation(shipxml::Orientation orientation);
-
-  [[nodiscard]] shipxml::Orientation GetOrientation() const;
+  void SetOrientation(Orientation orientation);
+  [[nodiscard]] Orientation GetOrientation() const;
 
   void SetIsPlanar(bool isPlanar);
-
   [[nodiscard]] bool IsPlanar() const;
 
-  void SetLocationType(shipxml::LocationType locationType);
+  void SetLocationType(LocationType locationType);
+  [[nodiscard]] LocationType GetLocationType() const;
 
-  [[nodiscard]] shipxml::LocationType GetLocationType() const;
+  void SetMajorPlane(MajorPlane majorPlane);
+  [[nodiscard]] MajorPlane GetMajorPlane() const;
 
-  void SetMajorPlane(shipxml::MajorPlane majorPlane);
-
-  [[nodiscard]] shipxml::MajorPlane GetMajorPlane() const;
-
-  void SetTP1(shipxml::CartesianPoint cartesianPoint);
-
+  void SetTP1(CartesianPoint cartesianPoint);
   [[nodiscard]] CartesianPoint GetTP1() const;
 
-  void SetTP2(shipxml::CartesianPoint cartesianPoint);
-
+  void SetTP2(CartesianPoint cartesianPoint);
   [[nodiscard]] CartesianPoint GetTP2() const;
 
-  void SetTP3(shipxml::CartesianPoint cartesianPoint);
-
+  void SetTP3(CartesianPoint cartesianPoint);
   [[nodiscard]] CartesianPoint GetTP3() const;
+  
+  void SetNormal(Vector n);
+  [[nodiscard]] Vector GetNormal() const;
 
  private:
   std::string m_grid;
   std::string m_coordinate;
-  shipxml::Orientation m_orientation = UNDEFINED_O;
+  Orientation m_orientation = Orientation::UNDEFINED_O;
   bool m_planar = false;
-  shipxml::LocationType m_locationType = UNKNOWN_L;
-  shipxml::MajorPlane m_majorPlane = UNDEFINED_M;
-  shipxml::CartesianPoint m_tp1;
-  shipxml::CartesianPoint m_tp2;
-  shipxml::CartesianPoint m_tp3;
+  LocationType m_locationType = LocationType::UNKNOWN_L;
+  MajorPlane m_majorPlane = MajorPlane::UNDEFINED_M;
+  CartesianPoint m_tp1;
+  CartesianPoint m_tp2;
+  CartesianPoint m_tp3;
+  Vector m_normal;
 };
+
 }  // namespace shipxml
 
 #endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_SUPPORT_H_

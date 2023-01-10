@@ -32,11 +32,11 @@ std::string Support::GetCoordinate() const { return m_coordinate; }
 
 //-----------------------------------------------------------------------------
 
-void Support::SetOrientation(shipxml::Orientation orientation) {
+void Support::SetOrientation(Orientation orientation) {
   m_orientation = orientation;
 }
 
-shipxml::Orientation Support::GetOrientation() const { return m_orientation; }
+Orientation Support::GetOrientation() const { return m_orientation; }
 
 //-----------------------------------------------------------------------------
 
@@ -46,44 +46,42 @@ bool Support::IsPlanar() const { return m_planar; }
 
 //-----------------------------------------------------------------------------
 
-void Support::SetLocationType(shipxml::LocationType locationType) {
+void Support::SetLocationType(LocationType locationType) {
   m_locationType = locationType;
 }
 
-shipxml::LocationType Support::GetLocationType() const {
-  return m_locationType;
-}
+LocationType Support::GetLocationType() const { return m_locationType; }
 
 //-----------------------------------------------------------------------------
 
-void Support::SetMajorPlane(shipxml::MajorPlane majorPlane) {
+void Support::SetMajorPlane(MajorPlane majorPlane) {
   m_majorPlane = majorPlane;
 }
 
-shipxml::MajorPlane Support::GetMajorPlane() const { return m_majorPlane; }
+MajorPlane Support::GetMajorPlane() const { return m_majorPlane; }
 
 //-----------------------------------------------------------------------------
 
-void Support::SetTP1(shipxml::CartesianPoint cartesianPoint) {
-  m_tp1 = cartesianPoint;
-}
+void Support::SetTP1(CartesianPoint cartesianPoint) { m_tp1 = cartesianPoint; }
 
 CartesianPoint Support::GetTP1() const { return m_tp1; }
 
 //-----------------------------------------------------------------------------
 
-void Support::SetTP2(shipxml::CartesianPoint cartesianPoint) {
-  m_tp2 = cartesianPoint;
-}
+void Support::SetTP2(CartesianPoint cartesianPoint) { m_tp2 = cartesianPoint; }
 
 CartesianPoint Support::GetTP2() const { return m_tp2; }
 
 //-----------------------------------------------------------------------------
 
-void Support::SetTP3(shipxml::CartesianPoint cartesianPoint) {
-  m_tp3 = cartesianPoint;
-}
+void Support::SetTP3(CartesianPoint cartesianPoint) { m_tp3 = cartesianPoint; }
 
 CartesianPoint Support::GetTP3() const { return m_tp3; }
+
+//-----------------------------------------------------------------------------
+
+void Support::SetNormal(Vector n) { m_normal = n; }
+
+Vector Support::GetNormal() const { return m_normal; }
 
 }  // namespace shipxml

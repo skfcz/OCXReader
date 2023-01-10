@@ -13,6 +13,10 @@
       "version>=": "1.11.0"
     },
     {
+      "name": "magic-enum",
+      "version>=": "0.8.2"
+    },
+    {
       "name": "opencascade",
       "version>=": "7.6.2#1"
     },

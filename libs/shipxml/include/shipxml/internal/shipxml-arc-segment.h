@@ -21,10 +21,18 @@ namespace shipxml {
 
 class ArcSegment {
  public:
-  ArcSegment(shipxml::CartesianPoint pS, shipxml::CartesianPoint pE);
-  ArcSegment(shipxml::CartesianPoint p0, shipxml::CartesianPoint p1,
-             shipxml::CartesianPoint pM, shipxml::CartesianPoint pC,
-             bool counterClockWise);
+  ArcSegment(CartesianPoint pS, CartesianPoint pE);
+  ArcSegment(CartesianPoint p0, CartesianPoint p1, CartesianPoint pM,
+             CartesianPoint pC, bool counterClockWise);
+
+  [[nodiscard]] bool IsLine() const;
+
+  [[nodiscard]] bool IsWithershins() const;
+
+  [[nodiscard]] CartesianPoint GetStartPoint() const;
+  [[nodiscard]] CartesianPoint GetEndPoint() const;
+  [[nodiscard]] CartesianPoint GetCenterPoint() const;
+  [[nodiscard]] CartesianPoint GetPointOnCircle() const;
 
  private:
   CartesianPoint m_p0;

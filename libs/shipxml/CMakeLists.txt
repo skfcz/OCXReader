@@ -33,6 +33,7 @@ cxx_library(${PROJECT_NAME} src/shipxml-all.cc)
 target_link_libraries(${PROJECT_NAME}
                       ocx
                       occutils
+                      magic_enum::magic_enum
                       spdlog::spdlog)
 
 # Adjust runtime environment for Visual Studio

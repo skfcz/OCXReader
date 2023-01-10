@@ -12,6 +12,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "ocx/internal/ocx-surface.h"
+
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeShell.hxx>
@@ -26,7 +28,6 @@
 
 #include "occutils/occutils-wire.h"
 #include "ocx/internal/ocx-curve.h"
-#include "ocx/internal/ocx-surface-reader.h"
 #include "ocx/internal/ocx-utils.h"
 #include "ocx/ocx-helper.h"
 
