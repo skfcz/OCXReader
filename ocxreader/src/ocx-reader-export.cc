@@ -51,7 +51,7 @@ int HandleExport(Handle(TDocStd_Document) const& doc,
       }
     }
 
-    else if (format == "XML") {
+    else if (format == "XCAF-XML") {
       XmlDrivers::DefineFormat(app);
       if (app->SaveAs(doc, (std::string(outputFilePath) + ".xml").c_str()) !=
           PCDM_SS_OK) {
@@ -60,7 +60,7 @@ int HandleExport(Handle(TDocStd_Document) const& doc,
       }
     }
 
-    else if (format == "XBF") {
+    else if (format == "XCAF-XBF") {
       BinXCAFDrivers::DefineFormat(app);
       if (app->SaveAs(doc, (std::string(outputFilePath) + ".xbf").c_str()) !=
           PCDM_SS_OK) {
