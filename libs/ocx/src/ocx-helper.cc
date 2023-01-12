@@ -355,6 +355,8 @@ PolesWeightsSurface ParseControlPointsSurface(
 //-----------------------------------------------------------------------------
 
 // TODO: Prototype, if solution is proven to work goes to -> OCCUtils::Surface
+// TODO: Should support SewedShape shape type (face, a shell, a solid or a
+// TODO: compound.)
 TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
                             std::string_view id, std::string_view guid) {
   // Check if given TopoDS_Shape is one of TopoDS_Face or TopoDS_Shell

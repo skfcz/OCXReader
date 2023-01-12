@@ -65,7 +65,7 @@ namespace {
 TopoDS_Shape ReadSurfaceCollection(LDOM_Element const &surfaceColN) {
   auto meta = ocx::helper::GetOCXMeta(surfaceColN);
 
-  BRepBuilderAPI_Sewing shellMaker;
+  BRepBuilderAPI_Sewing sew;
 
   LDOM_Node childN = surfaceColN.getFirstChild();
   auto face = TopoDS_Face();
@@ -106,7 +106,7 @@ TopoDS_Shape ReadSurfaceCollection(LDOM_Element const &surfaceColN) {
         childN = childN.getNextSibling();
         continue;
       }
-      shellMaker.Add(face);
+      sew.Add(face);
       numSurfaces++;
     }
     childN = childN.getNextSibling();
@@ -123,9 +123,9 @@ TopoDS_Shape ReadSurfaceCollection(LDOM_Element const &surfaceColN) {
     return face;
   }
 
-  shellMaker.Perform();
+  sew.Perform();
 
-  TopoDS_Shape sewedShape = shellMaker.SewedShape();
+  TopoDS_Shape sewedShape = sew.SewedShape();
   if (sewedShape.IsNull()) {
     OCX_ERROR(
         "Failed to sew faces in SurfaceCollection with surface id={} guid={}",
@@ -134,10 +134,10 @@ TopoDS_Shape ReadSurfaceCollection(LDOM_Element const &surfaceColN) {
   }
 
   if (sewedShape.ShapeType() == TopAbs_COMPOUND) {
-    OCX_ERROR(
-        "Sewed shape is of type TopAbs_COMPOUND, which is currently not "
+    OCX_WARN(
+        "Sewed shape is of type TopAbs_COMPOUND, which is currently not fully"
         "supported")
-    return {};
+    return sewedShape;
   }
 
   int numShells = 0;
