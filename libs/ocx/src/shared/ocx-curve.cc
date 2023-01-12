@@ -168,6 +168,13 @@ TopoDS_Shape ReadCompositeCurve3D(LDOM_Element const &curveColN) {
     childN = childN.getNextSibling();
   }
 
+  wireBuilder.Build();
+  if (!wireBuilder.IsDone()) {
+    OCX_ERROR("Failed to build wire for CompositeCurve3D {} id={} guid={}",
+              meta->name, meta->id, meta->guid)
+    return {};
+  }
+
   return wireBuilder.Wire();
 }
 
@@ -463,10 +470,6 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
   if (curve->IsClosed()) {
     res = BRepBuilderAPI_MakeWire(TopoDS::Edge(res));
   }
-
-  // if (IsEqual(meta->id, "ID53")) {
-  //   OCCUtils::STEP::ExportSTEP(res, "test.stp");
-  // }
 
   return res;
 }
