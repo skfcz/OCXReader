@@ -1,4 +1,4 @@
-<h1 >OCXReader</h1>
+<h1 align="center">OCXReader</h1>
 
 OCXReader is a tool to read and parse data from OCX files and export them to
 different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB for
@@ -41,10 +41,10 @@ ${vesselname}
          |__ Limit 1 ... Limit N
 ````
 
-Currently, major items like reference planes, panels, and plates are already implemented.
-Stiffener traces are shown, but no stiffener representation. 
+Currently, major items like reference planes, panels, and plates are already
+implemented. Stiffener traces are shown, but no stiffener representation.
 
-### Export
+### Supported Export Formats
 
 - [x] STEP
 - [ ] SHIPXML
@@ -62,6 +62,14 @@ To build OCXReader you need to have the prerequisites set up:
 
 The project uses C++17 features and therefore requires a compiler that supports
 this standard.
+
+Compiler compatibility:
+
+- Clang/LLVM >= 6
+- MSVC++ >= 14.11 / Visual Studio >= 2017
+- Xcode >= 10
+- GCC >= 9
+- MinGW >= 9
 
 #### CMake
 
@@ -81,22 +89,22 @@ system [here](https://vcpkg.io/en/getting-started.html).
 
 #### Python
 
-The OpenCascade build requires python with a version of at
-least 3.7. However, this is only needed when building on Linux.
+The OpenCascade build requires python with a version of at least 3.7. However,
+this is only needed when building on Linux.
 
-In case you get error messages from Python about futures, then a too-old Python version is used.
-Ensure that your python3 command points to the correct version
+To ensure your python3 points to the correct version run:
 
 ```shell
 $ ls -l /usr/bin/python3
-lrwxrwxrwx 1 root root 9  7. Jan 15:51 /usr/bin/python3 -> python3.9
+lrwxrwxrwx 1 root root 9  7. Jan 15:51 /usr/bin/python3 -> python3.7 # required python version >= 3.7
 ```
 
 #### OpenCascade
 
-The project uses OpenCascade as a geometry kernel. It is automatically downloaded and build by the package system.
+The project uses OpenCascade as a geometry kernel. It is automatically
+downloaded and build by `vcpkg` package manager.
 
-To build OpenCascade on UNIX systems, you need to install the following packages:
+To build OpenCascade on UNIX systems, you install the following packages:
 
 <details><summary>Ubuntu</summary>
 <p>
@@ -154,7 +162,7 @@ sudo apt-get install tcl tcl-devel tk tk-devel
 OCXReader comes with a `cli` to make the setup and build step on the
 command line as easy as possible. The project uses vcpkg to install the
 dependencies, in most cases all you need to do is to provide the path to your
-vcpkg installation directory. 
+vcpkg installation directory.
 
 A typical setup using the cli looks like this:
 
@@ -190,43 +198,52 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg buildsln
 
 #### Building on UNIX systems
 
-To ensure the right c++ compiler is used, set the CXX environment variable to point to the correct compiler, e.g.
-```shell
-# use the correct compiler
-export CC=gcc-11
-export CXX=g++-11`
-```
-The vcpkg tool needs a custom triplet to identify the build type. The triple is provided in the in `DVCPKG_TARGET_TRIPLET` configuration option.
-You can find all valid triplet files in your vcpkg installation under `vcpkg/triplets/community`
-directory.
+In order to build shared libraries on UNIX systems, vcpkg requires you to
+provide a custom triplet file in the `DVCPKG_TARGET_TRIPLET` configuration
+option. You can find custom, community provided triplets,
+under `vcpkg/triplets/community`
 
-To specify a custom triplet using the cli, you can use make use of the
-`--cmake-options` option in the `gensln` command:
+To specify a custom triplet using the cli, make use of the `--cmake-options`
+option in the `gensln` command:
 
 ```shell
 # Generate the build files
 $ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic
 ```
 
-#### Using an IDE
-When using an IDE to compile the project, you need to provide the triplet and vcpkg installation to CMAKE.
-E.g. in clion, open the CMake options (e.g &lt;File&gt;&lt;Settings&gt; Select node Build, Execution, Deployment/CMake)
-and set CMake Options to contain the target triplet and your vcpkg installation like
-`-DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic`
-
-
-![CMake Settings](docu/clion_cmake.png)
-
+> Similarly pass the `DVCPKG_TARGET_TRIPLET` variable to the CMake configuration
+> options when setting up the project in an IDE.
 
 ##### macOS
 
-There is currently no official support in vcpkg to build the `opencascade` library. This can be overridden by passing `--allow-unsupported`
+There is currently no official support in vcpkg to build the `opencascade`
+library. This can be overridden by passing `--allow-unsupported`
 to the `DVCPKG_INSTALL_OPTIONS` in the CMake options.
 
 ```shell
 # Generate the build files
 $ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=arm64-osx-dynamic -DVCPKG_INSTALL_OPTIONS=--allow-unsupported
 ```
+
+#### Using an IDE
+
+When setting up the project in an IDE, make sure to configure it by passing the
+mentioned variables to the CMake configuration options:
+
+##### CLion
+
+Follow these steps to configure CMake options in CLion:
+
+1. Open the project in CLion.
+2. Go to File > Settings > Build, Execution, Deployment > CMake.
+3. In the CMake options field, provide the necessary options to configure the
+   project:
+
+```shell
+-DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=custom-triplet
+```
+
+4. Click Apply and then OK to save changes.
 
 ## Usage
 
@@ -267,8 +284,8 @@ A sample configuration file can be found [here](ocxreader/config.example.json).
 <table>
   <tbody>
     <tr>
-      <td><a href="https://github.com/skfcz"><img src="https://avatars.githubusercontent.com/u/1381962?v=4?s=64" width="64px;" alt="Carsten Zerbst"/><br /><sub><b>Carsten Zerbst</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Code">💻</a> <a href="#maintenance-skfcz" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Documentation">📖</a> <a href="#ideas-skfcz" title="Ideas, Planning, & Feedback">🤔</a></td>
-      <td><a href="https://github.com/paulbuechner"><img src="https://avatars.githubusercontent.com/u/45827409?s=400&u=a62152a15513e36652b045b5879f39f124120254&v=4?s=64" width="64px;" alt="Paul Büchner"/><br /><sub><b>Paul Büchner</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Code">💻</a> <a href="#maintenance-paulbuechner" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Documentation">📖</a> <a href="#ideas-paulbuechner" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center"><a href="https://github.com/skfcz"><img src="https://avatars.githubusercontent.com/u/1381962?v=4?s=64" width="64px;" alt="Carsten Zerbst"/><br /><sub><b>Carsten Zerbst</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Code">💻</a> <a href="#maintenance-skfcz" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Documentation">📖</a> <a href="#ideas-skfcz" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center"><a href="https://github.com/paulbuechner"><img src="https://avatars.githubusercontent.com/u/45827409?s=400&u=a62152a15513e36652b045b5879f39f124120254&v=4?s=64" width="64px;" alt="Paul Büchner"/><br /><sub><b>Paul Büchner</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Code">💻</a> <a href="#maintenance-paulbuechner" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Documentation">📖</a> <a href="#ideas-paulbuechner" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
