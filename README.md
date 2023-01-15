@@ -1,14 +1,16 @@
-<h1 align="center">OCXReader</h1>
+<h1 >OCXReader</h1>
 
 OCXReader is a tool to read and parse data from OCX files and export them to
 different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB for
 visualization.
 
+![OCX Model](docu/napa-d-bulker.png)
+
 ## Roadmap
 
 ### Read OCX
 
-In the long term a product structure like this is planned:
+In the long term, the OCXReader shall create a product structure like this is:
 
 ````shell
 ${vesselname}
@@ -38,6 +40,8 @@ ${vesselname}
       |__ LimitedBy
          |__ Limit 1 ... Limit N
 ````
+
+Currently major items like reference planes, panels, plates are already implemented. 
 
 ### Export
 
@@ -79,10 +83,19 @@ system [here](https://vcpkg.io/en/getting-started.html).
 In order to build the project OpenCascade requires python with a version of at
 least 3.7. However, this is only needed when building on Linux.
 
+In case you get error messages from Python about futures, then a too old Python version is used.
+Ensure that your python3 command points to the correct version
+
+```shell
+$ ls -l /usr/bin/python3
+lrwxrwxrwx 1 root root 9  7. Jan 15:51 /usr/bin/python3 -> python3.9
+```
+
 #### OpenCascade
 
-The project uses OpenCascade as geometry kernel. To build OpenCascade on UNIX
-systems you need to install the following packages:
+The project uses OpenCascade as geometry kernel. It is automatically downloaded and build by the package system.
+
+To build OpenCascade on UNIX systems, you need to install the following packages:
 
 <details><summary>Ubuntu</summary>
 <p>
@@ -140,7 +153,9 @@ sudo apt-get install tcl tcl-devel tk tk-devel
 OCXReader comes with a `cli` to make the setup and build step, when using the
 command line, as easy as possible. The project uses vcpkg to install the
 dependencies, in most cases all you need to do is to provide the path to your
-vcpkg installation directory. A typical setup using the cli looks like this:
+vcpkg installation directory. 
+
+A typical setup using the cli looks like this:
 
 ```shell
 # Generate the build files (use cli.bat on Windows)
@@ -174,6 +189,12 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg buildsln
 
 #### Building on UNIX systems
 
+To ensure the right c++ compiler is used, set the CXX environment variable, e.g.
+```shell
+# use the correct compiler
+export CC=gcc-11
+export CXX=g++-11`
+```
 In order to build shared libraries on non-Windows systems, vcpkg requires you to
 provide a custom triplet file in `DVCPKG_TARGET_TRIPLET` configuration option.
 You can find community provided triplet files under `vcpkg/triplets/community`
@@ -187,8 +208,12 @@ To specify a custom triplet using the cli, you can use make use of the
 $ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic
 ```
 
-> Similarly pass the `DVCPKG_TARGET_TRIPLET` variable to the CMake configuration
-> options when setting up the project in an IDE.
+#### Using an IDE
+If you are using IDE, you also need to provided the triplet and vcpkg installation to CMAKE.
+E.g. in clion, ppen the CMake options (e.g &lt;File&gt;&lt;Settings&gt; Select node Build, Execution, Deployment/CMake)
+and set CMake Options to contain the target triplet and your vcpkg installation.
+![CMake Settings](docu/clion_cmake.png)
+
 
 ##### macOS
 
@@ -241,8 +266,8 @@ A sample configuration file can be found [here](ocxreader/config.example.json).
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="https://github.com/skfcz"><img src="https://avatars.githubusercontent.com/u/1381962?v=4?s=64" width="64px;" alt="Carsten Zerbst"/><br /><sub><b>Carsten Zerbst</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Code">💻</a> <a href="#maintenance-skfcz" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Documentation">📖</a> <a href="#ideas-skfcz" title="Ideas, Planning, & Feedback">🤔</a></td>
-      <td align="center"><a href="https://github.com/paulbuechner"><img src="https://avatars.githubusercontent.com/u/45827409?s=400&u=a62152a15513e36652b045b5879f39f124120254&v=4?s=64" width="64px;" alt="Paul Büchner"/><br /><sub><b>Paul Büchner</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Code">💻</a> <a href="#maintenance-paulbuechner" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Documentation">📖</a> <a href="#ideas-paulbuechner" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td><a href="https://github.com/skfcz"><img src="https://avatars.githubusercontent.com/u/1381962?v=4?s=64" width="64px;" alt="Carsten Zerbst"/><br /><sub><b>Carsten Zerbst</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Code">💻</a> <a href="#maintenance-skfcz" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Documentation">📖</a> <a href="#ideas-skfcz" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td><a href="https://github.com/paulbuechner"><img src="https://avatars.githubusercontent.com/u/45827409?s=400&u=a62152a15513e36652b045b5879f39f124120254&v=4?s=64" width="64px;" alt="Paul Büchner"/><br /><sub><b>Paul Büchner</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Code">💻</a> <a href="#maintenance-paulbuechner" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Documentation">📖</a> <a href="#ideas-paulbuechner" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
