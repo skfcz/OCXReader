@@ -43,3 +43,6 @@ config.json
 
 # VSCode
 .vscode/
+/build/
+/cmake-build-*
+

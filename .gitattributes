@@ -1,0 +1,2 @@
+# Do not count the example files into github language statistics
+ocxreader/data/** linguist-vendored
