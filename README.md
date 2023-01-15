@@ -41,7 +41,8 @@ ${vesselname}
          |__ Limit 1 ... Limit N
 ````
 
-Currently major items like reference planes, panels, plates are already implemented. 
+Currently, major items like reference planes, panels, and plates are already implemented.
+Stiffener traces are shown, but no stiffener representation. 
 
 ### Export
 
@@ -55,7 +56,7 @@ Currently major items like reference planes, panels, plates are already implemen
 
 ### Prerequisites
 
-In order to build OCXReader you need to have the prerequisites set up:
+To build OCXReader you need to have the prerequisites set up:
 
 #### Compiler
 
@@ -64,7 +65,7 @@ this standard.
 
 #### CMake
 
-The project uses CMake as build system. CMake version 3.24 or higher is
+The project uses CMake as a build system. CMake version 3.24 or higher is
 required.
 
 #### vcpkg
@@ -80,10 +81,10 @@ system [here](https://vcpkg.io/en/getting-started.html).
 
 #### Python
 
-In order to build the project OpenCascade requires python with a version of at
+The OpenCascade build requires python with a version of at
 least 3.7. However, this is only needed when building on Linux.
 
-In case you get error messages from Python about futures, then a too old Python version is used.
+In case you get error messages from Python about futures, then a too-old Python version is used.
 Ensure that your python3 command points to the correct version
 
 ```shell
@@ -93,7 +94,7 @@ lrwxrwxrwx 1 root root 9  7. Jan 15:51 /usr/bin/python3 -> python3.9
 
 #### OpenCascade
 
-The project uses OpenCascade as geometry kernel. It is automatically downloaded and build by the package system.
+The project uses OpenCascade as a geometry kernel. It is automatically downloaded and build by the package system.
 
 To build OpenCascade on UNIX systems, you need to install the following packages:
 
@@ -150,8 +151,8 @@ sudo apt-get install tcl tcl-devel tk tk-devel
 
 ### Build
 
-OCXReader comes with a `cli` to make the setup and build step, when using the
-command line, as easy as possible. The project uses vcpkg to install the
+OCXReader comes with a `cli` to make the setup and build step on the
+command line as easy as possible. The project uses vcpkg to install the
 dependencies, in most cases all you need to do is to provide the path to your
 vcpkg installation directory. 
 
@@ -189,15 +190,14 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg buildsln
 
 #### Building on UNIX systems
 
-To ensure the right c++ compiler is used, set the CXX environment variable, e.g.
+To ensure the right c++ compiler is used, set the CXX environment variable to point to the correct compiler, e.g.
 ```shell
 # use the correct compiler
 export CC=gcc-11
 export CXX=g++-11`
 ```
-In order to build shared libraries on non-Windows systems, vcpkg requires you to
-provide a custom triplet file in `DVCPKG_TARGET_TRIPLET` configuration option.
-You can find community provided triplet files under `vcpkg/triplets/community`
+The vcpkg tool needs a custom triplet to identify the build type. The triple is provided in the in `DVCPKG_TARGET_TRIPLET` configuration option.
+You can find all valid triplet files in your vcpkg installation under `vcpkg/triplets/community`
 directory.
 
 To specify a custom triplet using the cli, you can use make use of the
@@ -209,16 +209,18 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=
 ```
 
 #### Using an IDE
-If you are using IDE, you also need to provided the triplet and vcpkg installation to CMAKE.
-E.g. in clion, ppen the CMake options (e.g &lt;File&gt;&lt;Settings&gt; Select node Build, Execution, Deployment/CMake)
-and set CMake Options to contain the target triplet and your vcpkg installation.
+When using an IDE to compile the project, you need to provide the triplet and vcpkg installation to CMAKE.
+E.g. in clion, open the CMake options (e.g &lt;File&gt;&lt;Settings&gt; Select node Build, Execution, Deployment/CMake)
+and set CMake Options to contain the target triplet and your vcpkg installation like
+`-DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic`
+
+
 ![CMake Settings](docu/clion_cmake.png)
 
 
 ##### macOS
 
-For building on macOS, vcpkg currently has no support official for building
-`opencascade` library. This can be overridden by passing `--allow-unsupported`
+There is currently no official support in vcpkg to build the `opencascade` library. This can be overridden by passing `--allow-unsupported`
 to the `DVCPKG_INSTALL_OPTIONS` in the CMake options.
 
 ```shell
@@ -228,8 +230,7 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=
 
 ## Usage
 
-OCXReader should be used as a command line tool. The following options are
-available:
+OCXReader is a command line tool with the following options:
 
 ```shell
 $ ocxreader --help
