@@ -61,6 +61,6 @@ else
 fi
 
 # Run cmake build
-cmd="cmake --build ./$build_dir/$build_type --target ocxreader $rest"
+cmd="cmake --build $build_dir/$build_type --target ocxreader $rest"
 echo $cmd
 eval $cmd
