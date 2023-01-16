@@ -4,7 +4,7 @@ OCXReader is a tool to read and parse data from OCX files and export them to
 different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB for
 visualization.
 
-![OCX Model](docu/napa-d-bulker.png)
+![ocx_model](https://user-images.githubusercontent.com/45827409/212651322-0cb6eb6e-dfb1-4203-afab-ca703fd21a08.png)
 
 ## Roadmap
 
