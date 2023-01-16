@@ -104,7 +104,7 @@ lrwxrwxrwx 1 root root 9  7. Jan 15:51 /usr/bin/python3 -> python3.7 # required 
 The project uses OpenCascade as a geometry kernel. It is automatically
 downloaded and build by `vcpkg` package manager.
 
-To build OpenCascade on UNIX systems, you install the following packages:
+To build OpenCascade on UNIX systems, install the following packages:
 
 <details><summary>Ubuntu</summary>
 <p>
