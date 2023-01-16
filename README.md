@@ -228,9 +228,13 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=
 #### Using an IDE
 
 When setting up the project in an IDE, make sure to configure it by passing the
-mentioned variables to the CMake configuration options:
+mentioned variables to the CMake configuration options.
 
-##### CLion
+Feel free to take a look at the following IDE specific configuration examples,
+to get your IDE up and running:
+
+<details><summary>CLion</summary>
+<p>
 
 Follow these steps to configure CMake options in CLion:
 
@@ -244,6 +248,25 @@ Follow these steps to configure CMake options in CLion:
 ```
 
 4. Click Apply and then OK to save changes.
+
+</p>
+</details>
+
+<details><summary>Visual Studio</summary>
+<p>
+
+> Note: The documentation is not complete yet. Feel free to contribute.
+
+</p>
+</details>
+
+<details><summary>VS Code</summary>
+<p>
+
+> Note: The documentation is not complete yet. Feel free to contribute.
+
+</p>
+</details>
 
 ## Usage
 
