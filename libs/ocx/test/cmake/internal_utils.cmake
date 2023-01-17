@@ -1,44 +1,31 @@
-# Configure OCCT libraries to link with
-macro (target_link_occt_libraries target)
-  foreach (LIB ${OpenCASCADE_LIBRARIES})
-    if (WIN32)
-      if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-        set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/${LIB}.lib)
-        # message(STATUS "Adding ${occt_lib_dir}")
+########################################################################
+#
+# Helper functions for creating build targets.
 
-        target_link_libraries(${target} debug ${occt_lib_dir})
-        target_link_libraries(${target} optimized ${occt_lib_dir})
-      else ()
-        message(FATAL_ERROR "Library ${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
-      endif ()
-    elseif (APPLE)
-      if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-        set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-        # message(STATUS "Adding ${occt_lib_dir}")
-
-        target_link_libraries(${target} debug ${occt_lib_dir})
-        target_link_libraries(${target} optimized ${occt_lib_dir})
-      else ()
-        message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
-      endif ()
-    elseif (UNIX)
-      if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-        set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-        # message(STATUS "Adding ${occt_lib_dir}")
-
-        target_link_libraries(${target} debug ${occt_lib_dir})
-        target_link_libraries(${target} optimized ${occt_lib_dir})
-      else ()
-        message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
-      endif ()
-    endif ()
+# cxx_executable_with_flags(name cxx_flags libs srcs...)
+#
+# creates a named C++ executable that depends on the given libraries and
+# is built from the given source files with the given compiler flags.
+function (cxx_executable_with_flags name cxx_flags libs)
+  add_executable(${name} ${ARGN})
+  if (cxx_flags)
+    set_target_properties(${name}
+                          PROPERTIES
+                          COMPILE_FLAGS "${cxx_flags}")
+  endif ()
+  # To support mixing linking in static and dynamic libraries, link each
+  # library in with an extra call to target_link_libraries.
+  foreach (lib ${libs})
+    target_link_libraries(${name} ${lib})
   endforeach ()
-endmacro ()
+endfunction ()
 
-# Configure OCCT libraries to link with (vcpkg)
-macro (target_link_occt_libraries_vcpkg target)
-  foreach (LIB ${OpenCASCADE_LIBRARIES})
-    target_link_libraries(${target} debug ${LIB})
-    target_link_libraries(${target} optimized ${LIB})
-  endforeach ()
-endmacro ()
+# cxx_executable(name dir lib srcs...)
+#
+# creates a named target that depends on the given libs and is built
+# from the given source files.  dir/name.cc is implicitly included in
+# the source file list.
+function (cxx_executable name dir libs)
+  cxx_executable_with_flags(
+    ${name} "${cxx_default}" "${libs}" "${dir}/${name}.cc" ${ARGN})
+endfunction ()

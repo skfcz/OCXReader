@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 15 Nov 2022                                               *
+ *   Created on: 03 Nov 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,13 +12,10 @@
  *                                                                         *
  ***************************************************************************/
 
-// This file #includes all ocx-reader implementation .cc files. The
-// purpose is to allow a user to build ocx by compiling this
+// This file #includes all ocx-test implementation .cc files. The
+// purpose is to allow a user to build ocx-test by compiling this
 // file alone.
 
-// The following lines pull in the real ocx-reader*.cc files.
+// The following lines pull in the real ocx-*-test.cc files.
 
-#include "src/main.cc"
-#include "src/ocx-reader-cli.cc"
-#include "src/ocx-reader-export.cc"
-#include "src/ocx-reader-log.cc"
+#include "test/src/ocx-helper-test.cc"

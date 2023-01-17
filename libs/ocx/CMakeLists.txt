@@ -30,13 +30,11 @@ endif ()
 
 cxx_library(${PROJECT_NAME} src/ocx-all.cc)
 
-if (${ocx_build_tests})
-  add_subdirectory(test)
-endif ()
+add_library(ocxreader::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 # Set target link libraries
 target_link_libraries(${PROJECT_NAME}
-                      occutils
+                      ocxreader::occutils
                       spdlog::spdlog)
 
 # Adjust runtime environment for Visual Studio
@@ -46,3 +44,7 @@ set_property(
   VS_DEBUGGER_ENVIRONMENT
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
 )
+
+if (${ocx_build_tests})
+  add_subdirectory(test)
+endif ()

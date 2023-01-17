@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 project(ocxreader VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
 # Where ocxreader's .h files can be found
-set(ocx_reader_include_dirs
+set(ocxreader_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
     "${shipxml_SOURCE_DIR}/include"
     "${ocxreader_SOURCE_DIR}/include"
     "${ocxreader_SOURCE_DIR}")
-include_directories(SYSTEM ${ocx_reader_include_dirs})
+include_directories(SYSTEM ${ocxreader_include_dirs})
 
 # Define helper functions and macros used by ocxreader
 include(cmake/internal_utils.cmake)
@@ -27,14 +27,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
+# Set libs to link against
+list(APPEND ocxreader_libs
+     ocxreader::ocx
+     ocxreader::shipxml
+     spdlog::spdlog
+     Boost::boost
+     Boost::program_options
+     ${OpenCASCADE_LIBRARIES})
+
 # Add executable
-add_executable(${PROJECT_NAME} src/ocx-reader-all.cc)
-
-target_link_libraries(${PROJECT_NAME}
-                      ocx
-                      shipxml
-                      spdlog::spdlog
-                      Boost::boost
-                      Boost::program_options)
-
-target_link_occt_libraries_vcpkg(${PROJECT_NAME})
+cxx_executable(${PROJECT_NAME} src "${ocxreader_libs}")

@@ -12,7 +12,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocxreader/ocx-reader-cli.h"
+#include "ocxreader/ocxreader-cli.h"
 
 #include <boost/program_options.hpp>
 #include <boost/property_tree/json_parser.hpp>

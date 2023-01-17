@@ -12,7 +12,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocxreader/ocx-reader-log.h"
+#include "ocxreader/ocxreader-log.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 

@@ -24,6 +24,8 @@ endif ()
 
 cxx_library(${PROJECT_NAME} src/occutils-all.cc)
 
+add_library(ocxreader::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 # Set target link libraries
 target_link_libraries(${PROJECT_NAME}
                       Boost::boost
@@ -32,5 +34,5 @@ target_link_libraries(${PROJECT_NAME}
 
 # Testing
 if (${occutils_build_tests})
-    add_subdirectory(test)
+  add_subdirectory(test) # TODO: Add tests
 endif ()

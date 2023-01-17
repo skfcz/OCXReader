@@ -1,47 +1,3 @@
-# Configure OCCT libraries to link with
-macro (target_link_occt_libraries target)
-  # Set debug libraries on debug mode (WIN32 only)
-  if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(DEBUG_SUFFIX "d")
-  endif ()
-
-  foreach (LIB ${OpenCASCADE_LIBRARIES})
-    if (WIN32)
-      if (EXISTS "${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib")
-        set(occt_lib_dir "${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}/${LIB}.lib")
-        target_link_libraries(${target} debug ${occt_lib_dir})
-        target_link_libraries(${target} optimized ${occt_lib_dir})
-      else ()
-        message(FATAL_ERROR "Library ${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}${DEBUG_SUFFIX}")
-      endif ()
-    elseif (APPLE)
-      if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-        set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.dylib)
-        target_link_libraries(${target} debug ${occt_lib_dir})
-        target_link_libraries(${target} optimized ${occt_lib_dir})
-      else ()
-        message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
-      endif ()
-    elseif (UNIX)
-      if (EXISTS ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-        set(occt_lib_dir ${OpenCASCADE_LIBRARY_DIR}/lib${LIB}.so)
-        target_link_libraries(${target} debug ${occt_lib_dir})
-        target_link_libraries(${target} optimized ${occt_lib_dir})
-      else ()
-        message(FATAL_ERROR "Library lib${LIB} not found in ${OpenCASCADE_LIBRARY_DIR}")
-      endif ()
-    endif ()
-  endforeach ()
-endmacro ()
-
-# Configure OCCT libraries to link with (vcpkg)
-macro (target_link_occt_libraries_vcpkg target)
-  foreach (LIB ${OpenCASCADE_LIBRARIES})
-    target_link_libraries(${target} debug ${LIB})
-    target_link_libraries(${target} optimized ${LIB})
-  endforeach ()
-endmacro ()
-
 # Copy target runtime dlls to the build directory by manually specifying the dlls to copy
 macro (copy_runtime_dlls_manual target)
   message(STATUS "OpenCASCADE_BINARY_DIR: ${OpenCASCADE_BINARY_DIR}")
@@ -75,3 +31,35 @@ macro (copy_runtime_dlls_dynamic target)
     $<TARGET_FILE_DIR:${target}>
     COMMAND_EXPAND_LISTS)
 endmacro ()
+
+########################################################################
+#
+# Helper functions for creating build targets.
+
+# cxx_executable_with_flags(name cxx_flags libs srcs...)
+#
+# creates a named C++ executable that depends on the given libraries and
+# is built from the given source files with the given compiler flags.
+function (cxx_executable_with_flags name cxx_flags libs)
+  add_executable(${name} ${ARGN})
+  if (cxx_flags)
+    set_target_properties(${name}
+                          PROPERTIES
+                          COMPILE_FLAGS "${cxx_flags}")
+  endif ()
+  # To support mixing linking in static and dynamic libraries, link each
+  # library in with an extra call to target_link_libraries.
+  foreach (lib ${libs})
+    target_link_libraries(${name} ${lib})
+  endforeach ()
+endfunction ()
+
+# cxx_executable(name dir lib srcs...)
+#
+# creates a named target that depends on the given libs and is built
+# from the given source files.  dir/name.cc is implicitly included in
+# the source file list.
+function (cxx_executable name dir libs)
+  cxx_executable_with_flags(
+    ${name} "${cxx_default}" "${libs}" "${dir}/${name}.cc" ${ARGN})
+endfunction ()

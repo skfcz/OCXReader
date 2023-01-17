@@ -19,8 +19,8 @@
 #include <memory>
 
 #include "ocx/ocx-reader.h"
-#include "ocxreader/ocx-reader-cli.h"
-#include "ocxreader/ocx-reader-export.h"
+#include "ocxreader/ocxreader-cli.h"
+#include "ocxreader/ocxreader-export.h"
 
 int main(int argc, char** argv) {
   namespace po = boost::program_options;

@@ -29,10 +29,12 @@ endif ()
 
 cxx_library(${PROJECT_NAME} src/shipxml-all.cc)
 
+add_library(ocxreader::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 # Set target link libraries
 target_link_libraries(${PROJECT_NAME}
-                      ocx
-                      occutils
+                      ocxreader::occutils
+                      ocxreader::ocx
                       magic_enum::magic_enum
                       spdlog::spdlog)
 
