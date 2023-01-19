@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
-project(ocxreader VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
+project(OCXReader VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
 # Where ocxreader's .h files can be found
 set(ocxreader_include_dirs
     "${OpenCASCADE_INCLUDE_DIR}"
     "${ocx_SOURCE_DIR}/include"
     "${shipxml_SOURCE_DIR}/include"
-    "${ocxreader_SOURCE_DIR}/include"
-    "${ocxreader_SOURCE_DIR}")
+    "${OCXReader_SOURCE_DIR}/include"
+    "${OCXReader_SOURCE_DIR}")
 include_directories(SYSTEM ${ocxreader_include_dirs})
 
 # Define helper functions and macros used by ocxreader
@@ -38,3 +38,13 @@ list(APPEND ocxreader_libs
 
 # Add executable
 cxx_executable(${PROJECT_NAME} src "${ocxreader_libs}")
+
+# Install
+install(TARGETS ${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES ${CMAKE_SOURCE_DIR}/README.md ${CMAKE_SOURCE_DIR}/LICENSE
+        DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES ${CMAKE_BINARY_DIR}/LICENSE-3RD-PARTY.txt
+        DESTINATION ${CMAKE_INSTALL_DOCDIR})

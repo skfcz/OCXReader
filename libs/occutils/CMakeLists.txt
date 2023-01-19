@@ -1,5 +1,3 @@
-option(occutils_build_tests "Build all of occutils's own tests." OFF)
-
 cmake_minimum_required(VERSION 3.24)
 
 project(occutils VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
@@ -33,6 +31,6 @@ target_link_libraries(${PROJECT_NAME}
                       Boost::filesystem)
 
 # Testing
-if (${occutils_build_tests})
-  add_subdirectory(test) # TODO: Add tests
+if (${build_tests})
+  # add_subdirectory(test) # TODO: Add tests
 endif ()

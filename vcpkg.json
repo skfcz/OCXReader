@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/master/docs/vcpkg.schema.json",
   "name": "ocxreader",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "LGPL-2.1",
   "description": [
     "OCXReader is a tool to read and parse data from OCX files and export them",
@@ -21,10 +21,6 @@
       "version>=": "7.6.2#1"
     },
     {
-      "name": "gtest",
-      "version>=": "1.12.1"
-    },
-    {
       "name": "boost-system",
       "version>=": "1.80.0#1"
     },
@@ -39,6 +35,18 @@
     {
       "name": "boost-property-tree",
       "version>=": "1.80.0#1"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.12.1"
     }
-  ]
+  ],
+  "features": {
+    "tests": {
+      "description": "Build tests",
+      "dependencies": [
+        "gtest"
+      ]
+    }
+  }
 }

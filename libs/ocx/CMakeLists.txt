@@ -1,5 +1,3 @@
-option(ocx_build_tests "Build all of libocx's own tests." OFF)
-
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(ocx VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
@@ -45,6 +43,6 @@ set_property(
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
 )
 
-if (${ocx_build_tests})
+if (${build_tests})
   add_subdirectory(test)
 endif ()
