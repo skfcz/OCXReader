@@ -32,6 +32,29 @@ macro (copy_runtime_dlls_dynamic target)
     COMMAND_EXPAND_LISTS)
 endmacro ()
 
+# Install target runtime dependencies
+function (install_library_with_deps LIBRARY)
+  file(INSTALL
+       DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+       TYPE SHARED_LIBRARY
+       FOLLOW_SYMLINK_CHAIN
+       FILES "${LIBRARY}"
+       )
+  file(GET_RUNTIME_DEPENDENCIES
+       LIBRARIES ${LIBRARY}
+       RESOLVED_DEPENDENCIES_VAR RESOLVED_DEPS
+       UNRESOLVED_DEPENDENCIES_VAR UNRESOLVED_DEPS
+       )
+  foreach (FILE ${RESOLVED_DEPS})
+    if (NOT IS_SYMLINK ${FILE})
+      install_library_with_deps(${FILE})
+    endif ()
+  endforeach ()
+  foreach (FILE ${UNRESOLVED_DEPS})
+    message(STATUS "Unresolved from ${LIBRARY}: ${FILE}")
+  endforeach ()
+endfunction ()
+
 ########################################################################
 #
 # Helper functions for creating build targets.
