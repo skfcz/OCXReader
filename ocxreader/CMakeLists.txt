@@ -51,41 +51,5 @@ if (WIN32)
   install(FILES $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
           DESTINATION ${CMAKE_INSTALL_BINDIR})
 else ()
-  # Transfer the value of ${PROJECT_NAME} into the install script
-  install(CODE "set(PROJECT_NAME \"${PROJECT_NAME}\")")
-
-  install(CODE [[
-  function(install_with_deps LIBRARY)
-    file(INSTALL
-      DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-      TYPE SHARED_LIBRARY
-      FOLLOW_SYMLINK_CHAIN
-      FILES "${LIBRARY}"
-    )
-    file(GET_RUNTIME_DEPENDENCIES
-      LIBRARIES ${LIBRARY}
-      RESOLVED_DEPENDENCIES_VAR RESOLVED_DEPS
-      UNRESOLVED_DEPENDENCIES_VAR UNRESOLVED_DEPS
-    )
-    foreach(FILE ${RESOLVED_DEPS})
-      if(NOT IS_SYMLINK ${FILE})
-        install_with_deps(${FILE})
-      endif()
-    endforeach()
-    foreach(FILE ${UNRESOLVED_DEPS})
-      message(STATUS "Unresolved from ${LIBRARY}: ${FILE}")
-    endforeach()
-  endfunction()
-  file(GET_RUNTIME_DEPENDENCIES
-    EXECUTABLES $<TARGET_FILE:${PROJECT_NAME}>
-    RESOLVED_DEPENDENCIES_VAR RESOLVED_DEPS
-    UNRESOLVED_DEPENDENCIES_VAR UNRESOLVED_DEPS
-  )
-  foreach(FILE ${RESOLVED_DEPS})
-    install_with_deps(${FILE})
-  endforeach()
-  foreach(FILE ${UNRESOLVED_DEPS})
-    message(STATUS "Unresolved: ${FILE}")
-  endforeach()
-]])
+  install_target_deps()
 endif ()
