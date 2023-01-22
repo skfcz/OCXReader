@@ -11,10 +11,12 @@ print_help() {
   echo ""
   echo "optional arguments:"
   echo "    -h [ --help ]           produce help message"
-  echo "    <args>                  define additional cmake options you want to pass to the build"
+  echo "    --cmake-options <args>  define additional cmake options you want to pass to the build"
   echo "                            for a list of available options, see https://cmake.org/cmake/help/latest/manual/cmake.1.html#build-a-project"
 }
 
+# Parse command line arguments
+found_cmake_options=false
 while [[ $# -gt 0 ]]; do
   key="$1"
 
@@ -33,9 +35,20 @@ while [[ $# -gt 0 ]]; do
     shift # past argument
     shift # past value
     ;;
+  --cmake-options)
+    found_cmake_options=true
+    shift # past argument
+    ;;
   *) # unknown option
-    rest="$rest $key"
-    shift # past key
+    # if we found the --cmake-options argument, we assume that all the remaining arguments are cmake options
+    if [[ "$found_cmake_options" = true ]]; then
+      cmake_options="$cmake_options $key"
+      shift # past key
+    else
+      echo "Unknown option: $key"
+      print_help
+      exit 33
+    fi
     ;;
   esac
 done
@@ -61,6 +74,6 @@ else
 fi
 
 # Run cmake build
-cmd="cmake --build $build_dir/$build_type --target ocxreader $rest"
+cmd="cmake --build $build_dir/$build_type --target ocxreader $cmake_options"
 echo $cmd
 eval $cmd

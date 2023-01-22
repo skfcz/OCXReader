@@ -8,9 +8,15 @@ set "help_line.06=    --build-dir <arg>       set build directory, pass this arg
 set "help_line.07= "
 set "help_line.08=optional arguments:"
 set "help_line.09=    -h [ --help ]           produce help message"
-set "help_line.10=    <args>                  define additional cmake options you want to pass to the build"
+set "help_line.10=    --cmake-options <args>  define additional cmake options you want to pass to the build"
 set "help_line.11=                            for a list of available options, see https://cmake.org/cmake/help/latest/manual/cmake.1.html#build-a-project"
 
+@REM https://stackoverflow.com/a/28112521
+@REM Parse arguments that start with - and creates a series of variables that
+@REM start with "option" and the names and values of all options given.
+set "option="
+set "cmake_options="
+set "found_cmake_options=false"
 for %%a in (%*) do (
   set arg=%%a
   if not defined option (
@@ -25,31 +31,30 @@ for %%a in (%*) do (
     )
 
     @REM Assign passed arguments
-    if "!arg!" equ "--build-type" (
-      set "option=!arg!"
-    )
-    if "!arg!" equ "--build-dir" (
-      set "option=!arg!"
-    )
-    if "!arg!" neq "--build-type" (
-      if "!arg!" neq "--build-dir" (
-        set "rest=!rest! %%a"
+    if "!arg:~0,2!" equ "--" set "option=!arg!"
+  ) else (
+    if "!option!" equ "--cmake-options" (
+      set "cmake_options=!cmake_options! %%a"
+      set "found_cmake_options=true"
+    ) else (
+      if "!found_cmake_options!" equ "true" (
+        set "cmake_options=!cmake_options! %%a"
+      ) else (
+        set "option!option!=%%a"
+        set "option="
       )
     )
-) else (
-    if "!option!" equ "--build-type" set "build_type=!arg!"
-    if "!option!" equ "--build-dir" set "build_dir=!arg!"
-    set "option="
   )
 )
 
-if defined build_type (
+if defined option--build-type (
+  set "build_type=!option--build-type!"
   @REM Check for valid build type
   if "!build_type!" neq "Debug" (
     if "!build_type!" neq "Release" (
       if "!build_type!" neq "RelWithDebInfo" (
         if "!build_type!" neq "MinSizeRel" (
-          echo -- Invalid build type specified: !build_type!
+          echo -- Invalid build type: !build_type!
           EXIT /B 33
         )
       )
@@ -62,7 +67,8 @@ if defined build_type (
 )
 
 @REM Set build directory
-if defined build_dir (
+if defined option--build-dir (
+  set "build_dir=!option--build-dir!"
   echo -- Build directory is set to: !build_dir!
   ) else (
   echo -- No build directory specified. See -h, --help for more information.
@@ -70,6 +76,6 @@ if defined build_dir (
 )
 
 @REM Run cmake build
-set "cmd=cmake --build !build_dir!/!build_type! --target ocxreader !rest!"
+set "cmd=cmake --build !build_dir!/!build_type! --target ocxreader !cmake_options!"
 echo %cmd%
 call %cmd%

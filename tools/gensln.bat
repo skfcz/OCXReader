@@ -65,18 +65,17 @@ if defined option--vcpkg (
 )
 
 if defined option--build-type (
+  set "build_type=!option--build-type!"
   @REM Check for valid build type
-  if "!option--build-type!" equ "Debug" (
-    set "build_type=Debug"
-  ) else if "!option--build-type!" equ "Release" (
-    set "build_type=Release"
-  ) else if "!option--build-type!" equ "RelWithDebInfo" (
-    set "build_type=RelWithDebInfo"
-  ) else if "!option--build-type!" equ "MinSizeRel" (
-    set "build_type=MinSizeRel"
-  ) else (
-    echo -- Invalid build type: %option--build-type%
-    EXIT /B 33
+  if "!build_type!" neq "Debug" (
+    if "!build_type!" neq "Release" (
+      if "!build_type!" neq "RelWithDebInfo" (
+        if "!build_type!" neq "MinSizeRel" (
+          echo -- Invalid build type: !build_type!
+          EXIT /B 33
+        )
+      )
+    )
   )
   echo -- Build type is set to: !build_type!
   ) else (
