@@ -174,9 +174,6 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg
 $ ./cli.sh buildsln --build-type Release --build-dir ./build
 ```
 
-> Note: See [Building on UNIX systems](#building-on-unix-systems) for more
-> information on how to use the cli on UNIX systems.
-
 The cli also provides functionality to combine the mentioned steps into one:
 
 ```shell
@@ -185,36 +182,16 @@ $ ./cli.sh gensln --vcpkg /path/to/vcpkg buildsln
 #                                                ^ no need to specify --build-type and --build-dir as they get inherited from the previous gensln command
 ```
 
-> Note: The cli is only recommended for use with the command line. When setting
-> up the project in an IDE, you should use the IDE's functionality to generate
-> the build files and build the project. To set up the project with vcpkg in an
-> IDE, pass the `DCMAKE_TOOLCHAIN_FILE` variable to the CMake configuration
-> options.
-
-```shell
-# CMake option to set the path to the vcpkg toolchain file
--DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
-```
-
-#### Building on UNIX systems
-
-In order to build shared libraries on UNIX systems, vcpkg requires you to
-provide a custom triplet file in the `DVCPKG_TARGET_TRIPLET` configuration
-option. You can find custom, community provided triplets,
-under `vcpkg/triplets/community`
-
-To specify a custom triplet using the cli, make use of the `--cmake-options`
-option in the `gensln` command:
+The cli `gensln` and `buildsln` commands allow to pass additional cmake options.
+All options after the `--cmake-options` flag are directly passed to the cmake
+command. For example, to specify a custom triplet, use the following command:
 
 ```shell
 # Generate the build files
 $ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=x64-linux-dynamic
 ```
 
-> Similarly pass the `DVCPKG_TARGET_TRIPLET` variable to the CMake configuration
-> options when setting up the project in an IDE.
-
-##### macOS
+#### macOS
 
 There is currently no official support in vcpkg to build the `opencascade`
 library. This can be overridden by passing `--allow-unsupported`
@@ -222,7 +199,7 @@ to the `DVCPKG_INSTALL_OPTIONS` in the CMake options.
 
 ```shell
 # Generate the build files
-$ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_TARGET_TRIPLET=arm64-osx-dynamic -DVCPKG_INSTALL_OPTIONS=--allow-unsupported
+$ ./cli.sh gensln --vcpkg /path/to/vcpkg --cmake-options -DVCPKG_INSTALL_OPTIONS=--allow-unsupported
 ```
 
 #### Using an IDE
@@ -244,7 +221,7 @@ Follow these steps to configure CMake options in CLion:
    project:
 
 ```shell
--DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=custom-triplet
+-DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
 4. Click Apply and then OK to save changes.
