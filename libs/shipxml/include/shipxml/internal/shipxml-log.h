@@ -51,9 +51,9 @@ constexpr char SHIPXML_DEFAULT_LOGGER_NAME[] = "SHIPXML";
   if (spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME) != nullptr) {     \
     spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME)->warn(__VA_ARGS__); \
   }
-#define SHIPXML_ERROR(...)                                    \
-  if (spdlog::get(OCX_DEFAULT_LOGGER_NAME) != nullptr) {      \
-    spdlog::get(OCX_DEFAULT_LOGGER_NAME)->error(__VA_ARGS__); \
+#define SHIPXML_ERROR(...)                                        \
+  if (spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME) != nullptr) {      \
+    spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME)->error(__VA_ARGS__); \
   }
 #define SHIPXML_FATAL(...)                                           \
   if (spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME) != nullptr) {         \
