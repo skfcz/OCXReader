@@ -44,7 +44,7 @@ bool ArcSegment::IsWithershins() const { return m_witherShins; }
 //-----------------------------------------------------------------------------
 
 CartesianPoint ArcSegment::GetStartPoint() const { return m_p0; }
-CartesianPoint ArcSegment::GetEndPoint() const { return m_p0; }
+CartesianPoint ArcSegment::GetEndPoint() const { return m_p1; }
 CartesianPoint ArcSegment::GetCenterPoint() const { return m_pC; }
 CartesianPoint ArcSegment::GetPointOnCircle() const { return m_pM; }
 
