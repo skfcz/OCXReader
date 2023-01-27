@@ -62,8 +62,10 @@ if defined option--build-type (
   )
   echo -- Build type is set to: !build_type!
   ) else (
-  echo -- No build type specified. See -h, --help for more information.
-  EXIT /B 33
+  if not defined build_type (
+    echo -- No build type specified. See -h, --help for more information.
+    EXIT /B 33
+  )
 )
 
 @REM Set build directory
@@ -71,8 +73,10 @@ if defined option--build-dir (
   set "build_dir=!option--build-dir!"
   echo -- Build directory is set to: !build_dir!
   ) else (
-  echo -- No build directory specified. See -h, --help for more information.
-  EXIT /B 33
+  if not defined build_dir (
+    echo -- No build directory specified. See -h, --help for more information.
+    EXIT /B 33
+  )
 )
 
 @REM Run cmake build
