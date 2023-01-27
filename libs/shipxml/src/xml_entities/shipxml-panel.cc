@@ -108,6 +108,12 @@ AMCurve Panel::GetGeometry() const { return m_geometry; }
 
 //-----------------------------------------------------------------------------
 
+void Panel::AddPlate(shipxml::Plate const& plate) { m_plates.push_back(plate); }
+
+void Panel::AddPlates(std::vector<shipxml::Plate> const& plates) {
+  m_plates.insert(m_plates.end(), plates.begin(), plates.end());
+}
+
 std::vector<shipxml::Plate> Panel::GetPlates() const { return m_plates; }
 
 }  // namespace shipxml

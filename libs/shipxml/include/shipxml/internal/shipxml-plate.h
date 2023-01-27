@@ -68,7 +68,7 @@ class Plate : public EntityWithProperties {
   std::string m_material;
   double m_thickness{};
   double m_offset{};
-  Orientation m_orientation{Orientation::UNDEFINED_O};
+  Orientation m_orientation{Orientation::UNDEFINED};
   AMCurve m_geometry{AMSystem::XY};
 };
 

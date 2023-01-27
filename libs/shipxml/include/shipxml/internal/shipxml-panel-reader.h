@@ -43,7 +43,7 @@ class PanelReader {
   static void ReadSupportAndOuterContour(LDOM_Element const &panelN,
                                          Panel &panel);
 
-  static void ReadComposedOf(LDOM_Element const &panelN, Panel const &panel);
+  static void ReadComposedOf(LDOM_Element const &panelN, Panel &panel);
 };
 
 }  // namespace shipxml

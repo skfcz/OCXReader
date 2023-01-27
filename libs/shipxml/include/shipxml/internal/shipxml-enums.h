@@ -46,11 +46,11 @@ enum class LimitType {
 
 enum class PanelType { PLANAR, KNUCKLED, SHELL_PANEL };
 
-enum class Orientation { UNDEFINED_O, FORE, AFT, PS, SB, TOP, BOTTOM };
+enum class Orientation { UNDEFINED, FORE, AFT, PS, SB, TOP, BOTTOM };
 
-enum class LocationType { UNKNOWN_L, X_L, Y_L, Z_L, TP_L };
+enum class LocationType { UNKNOWN, X, Y, Z, TP };
 
-enum class MajorPlane { UNDEFINED_M, X_M, Y_M, Z_M };
+enum class MajorPlane { UNDEFINED, X, Y, Z };
 
 }  // namespace shipxml
 

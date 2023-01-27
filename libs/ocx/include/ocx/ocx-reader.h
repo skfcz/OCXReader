@@ -37,7 +37,7 @@ class OCXReader {
    * Combination of ReadFile and Transfer
    */
   static Standard_EXPORT Standard_Boolean
-  Perform(Standard_CString filename, Handle(TDocStd_Document) & doc,
+  Perform(Standard_CString filename, Handle(TDocStd_Document) doc,
           std::shared_ptr<OCXContext> &ctx,
           Message_ProgressRange const &theProgress = Message_ProgressRange());
 

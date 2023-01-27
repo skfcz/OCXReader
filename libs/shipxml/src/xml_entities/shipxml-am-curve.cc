@@ -25,9 +25,19 @@ AMCurve::AMCurve(AMSystem system) : m_system(system) {}
 
 //-----------------------------------------------------------------------------
 
+void AMCurve::AddSegment(ArcSegment const &segment) {
+  m_segments.push_back(segment);
+}
+
+void AMCurve::AddSegments(std::vector<ArcSegment> const &segments) {
+  m_segments.insert(m_segments.end(), segments.begin(), segments.end());
+}
+
 std::vector<ArcSegment> AMCurve::GetSegments() const { return m_segments; }
 
 //-----------------------------------------------------------------------------
+
+void AMCurve::SetSystem(AMSystem const &system) { m_system = system; }
 
 AMSystem AMCurve::GetSystem() const { return m_system; }
 

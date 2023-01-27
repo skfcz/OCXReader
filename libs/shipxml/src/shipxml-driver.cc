@@ -46,11 +46,17 @@
 namespace shipxml {
 
 ShipXMLDriver::ShipXMLDriver() {
+  Log::Initialize();
+
   if (ocx::OCXContext::GetInstance() == nullptr) {
     throw SHIPXMLNotFoundException("No OCX context available.");
   }
   m_sst = std::make_shared<shipxml::ShipSteelTransfer>();
 }
+
+//-----------------------------------------------------------------------------
+
+ShipXMLDriver::~ShipXMLDriver() { Log::Shutdown(); }
 
 //-----------------------------------------------------------------------------
 

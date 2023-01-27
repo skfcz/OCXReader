@@ -32,7 +32,7 @@
 namespace ocx {
 
 Standard_Boolean OCXReader::Perform(Standard_CString filename,
-                                    Handle(TDocStd_Document) & doc,
+                                    Handle(TDocStd_Document) doc,
                                     std::shared_ptr<OCXContext> &ctx,
                                     const Message_ProgressRange &theProgress) {
   Log::Initialize();
@@ -47,6 +47,7 @@ Standard_Boolean OCXReader::Perform(Standard_CString filename,
     return Standard_False;
   }
 
+  Log::Shutdown();
   return Standard_True;
 }
 

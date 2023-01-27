@@ -14,9 +14,15 @@
 
 #include "shipxml/internal/shipxml-panel-reader.h"
 
+#include <BRepAdaptor_Surface.hxx>
+#include <Geom_Plane.hxx>
+#include <chrono>
 #include <magic_enum.hpp>
+#include <random>
 #include <utility>
 
+#include "occutils/occutils-shape-components.h"
+#include "occutils/occutils-surface.h"
 #include "ocx/ocx-helper.h"
 #include "shipxml/internal/shipxml-enums.h"
 #include "shipxml/internal/shipxml-limit.h"
@@ -63,8 +69,8 @@ Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
     panel.GetProperties().Add(node.getNodeName().GetString(),
                               node.getNodeValue().GetString());
   }
-  auto descN = ocx::helper::GetFirstChild(panelN, "Description");
-  if (!descN.isNull()) {
+  if (auto descN = ocx::helper::GetFirstChild(panelN, "Description");
+      !descN.isNull()) {
     panel.GetProperties().Add("description",
                               descN.getFirstChild().getNodeValue().GetString());
     panel.SetCategoryDescription(
@@ -77,8 +83,8 @@ Panel PanelReader::ReadPanel(LDOM_Element const &panelN) {
   ReadSupportAndOuterContour(panelN, panel);
 
   // the limits
-  auto limitedByN = ocx::helper::GetFirstChild(panelN, "LimitedBy");
-  if (!limitedByN.isNull()) {
+  if (auto limitedByN = ocx::helper::GetFirstChild(panelN, "LimitedBy");
+      !limitedByN.isNull()) {
     ReadLimits(limitedByN, panel);
   } else {
     SHIPXML_WARN("No LimitedBy found in Panel id={} guid={}", meta->id,
@@ -198,11 +204,10 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
 
     support.SetGrid(refPlaneMeta->id);
     support.SetCoordinate(refPlaneMeta->name);
-    support.SetIsPlanar(true);
     support.SetNormal(refPlaneW.normal);
-    support.SetTP1(CartesianPoint(refPlaneW.p1));
-    support.SetTP2(CartesianPoint(refPlaneW.p2));
-    support.SetTP3(CartesianPoint(refPlaneW.p3));
+    support.SetTP1(refPlaneW.p1);
+    support.SetTP2(refPlaneW.p2);
+    support.SetTP3(refPlaneW.p3);
 
     panel.GetProperties().Add("support.gridRef.normal",
                               support.GetNormal().ToString().c_str());
@@ -220,11 +225,91 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
         "No GridRef or SurfaceRef child node found in element id={} guid={}. "
         "Try reading directly from UnboundedGeometry.",
         meta->id, meta->guid)
+
+    // TODO: check if a support surface in the limits of the boundary is planar
+    // Proposed solution get the panel shape from context and check its face
+    // geometry if it is planar
+    TopoDS_Shape panelShape =
+        ocx::OCXContext::GetInstance()->LookupShape(panelN);
+    if (!panelShape.IsNull()) {
+      if (std::vector<TopoDS_Face> faces =
+              OCCUtils::ShapeComponents::AllFacesWithin(panelShape);
+          faces.size() == 1) {
+        GeomAdaptor_Surface adaptor = OCCUtils::Surface::FromFace(faces.at(0));
+        if (adaptor.GetType() == GeomAbs_Plane) {
+          panel.SetIsPlanar(true);
+          support.SetIsPlanar(true);
+
+          Handle_Geom_Plane plane =
+              Handle_Geom_Plane::DownCast(adaptor.Surface());
+          gp_Pln pln = plane->Pln();
+          gp_Dir normal = pln.Axis().Direction();
+
+          // Set normal dir
+          support.SetNormal(Vector(normal));
+
+          // Get major plane and location type
+          if (abs(normal.Z()) < Precision::Confusion()) {
+            // The face is near XY plane
+            support.SetMajorPlane(MajorPlane::Z);
+            support.SetLocationType(LocationType::Z);
+          } else if (abs(normal.Y()) < Precision::Confusion()) {
+            // The face is near XZ plane
+            support.SetMajorPlane(MajorPlane::Y);
+            support.SetLocationType(LocationType::Y);
+          } else if (abs(normal.X()) < Precision::Confusion()) {
+            // The face is near YZ plane
+            support.SetMajorPlane(MajorPlane::X);
+            support.SetLocationType(LocationType::X);
+          } else {
+            // The face is not near any of the major planes
+            support.SetMajorPlane(MajorPlane::UNDEFINED);
+            support.SetLocationType(LocationType::TP);
+          }
+
+          // Handle tp1, tp2, tp3
+          BRepAdaptor_Surface brepAdaptor(faces.at(0));
+          double uMin = brepAdaptor.FirstUParameter();
+          double uMax = brepAdaptor.LastUParameter();
+          double vMin = brepAdaptor.FirstVParameter();
+          double vMax = brepAdaptor.LastVParameter();
+
+          // Get 3 random points on the surface
+          std::mt19937 gen(
+              std::chrono::system_clock::now().time_since_epoch().count());
+          std::uniform_real_distribution distU(uMin, uMax);
+          std::uniform_real_distribution distV(vMin, vMax);
+
+          for (int i = 0; i < 3; i++) {
+            double u = distU(gen);
+            double v = distV(gen);
+
+            if (i == 0)
+              support.SetTP1(brepAdaptor.Value(u, v));
+            else if (i == 1)
+              support.SetTP2(brepAdaptor.Value(u, v));
+            else if (i == 2)
+              support.SetTP3(brepAdaptor.Value(u, v));
+          }
+        } else {
+          support.SetIsPlanar(false);
+          panel.SetIsPlanar(false);
+        }
+
+      } else {
+        SHIPXML_WARN("Got {} faces from panel shape. Expected 1", faces.size())
+        support.SetIsPlanar(false);
+        panel.SetIsPlanar(false);
+      }
+    } else {
+      SHIPXML_WARN("No faces found in panel shape")
+      support.SetIsPlanar(false);
+      panel.SetIsPlanar(false);
+    }
   }
   panel.SetSupport(support);
 
-  // currently we only support panels with a planar support
-  // TODO: check if a support surface in the limits of the boundary is planar
+  // TODO: Currently we only support panels with a planar support
   if (!panel.IsPlanar()) {
     SHIPXML_DEBUG("Do not read OuterContour for none planar panels")
     return;
@@ -240,8 +325,6 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
   auto curveN = shipxml::ReadCurve(outerContourN, support.GetMajorPlane(),
                                    support.GetNormal().ToDir());
   panel.SetGeometry(curveN);
-
-  return;
   // Read from GridRef or SurfaceRef
 
   /*if (!refN.isNull()) {
@@ -286,8 +369,7 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
 
 //-----------------------------------------------------------------------------
 
-void PanelReader::ReadComposedOf(LDOM_Element const &panelN,
-                                 Panel const &panel) {
+void PanelReader::ReadComposedOf(LDOM_Element const &panelN, Panel &panel) {
   PlateReader plateReader;
   plateReader.ReadPlates(panelN, panel);
 }

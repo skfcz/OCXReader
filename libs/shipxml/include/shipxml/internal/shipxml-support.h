@@ -61,10 +61,10 @@ class Support {
  private:
   std::string m_grid;
   std::string m_coordinate;
-  Orientation m_orientation = Orientation::UNDEFINED_O;
+  Orientation m_orientation = Orientation::UNDEFINED;
   bool m_planar = false;
-  LocationType m_locationType = LocationType::UNKNOWN_L;
-  MajorPlane m_majorPlane = MajorPlane::UNDEFINED_M;
+  LocationType m_locationType = LocationType::UNKNOWN;
+  MajorPlane m_majorPlane = MajorPlane::UNDEFINED;
   CartesianPoint m_tp1;
   CartesianPoint m_tp2;
   CartesianPoint m_tp3;

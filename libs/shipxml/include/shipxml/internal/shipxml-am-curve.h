@@ -26,8 +26,11 @@ class AMCurve {
  public:
   explicit AMCurve(AMSystem system);
 
+  void AddSegment(ArcSegment const &segment);
+  void AddSegments(std::vector<ArcSegment> const &segments);
   [[nodiscard]] std::vector<ArcSegment> GetSegments() const;
 
+  void SetSystem(AMSystem const &system);
   [[nodiscard]] AMSystem GetSystem() const;
 
  private:

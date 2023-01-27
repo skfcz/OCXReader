@@ -37,7 +37,7 @@ class Extrusion : public EntityWithProperties {
  private:
   double m_thickness{};
   double m_offset{};
-  shipxml::Orientation m_orientation = Orientation::UNDEFINED_O;
+  Orientation m_orientation = Orientation::UNDEFINED;
 };
 
 }  // namespace shipxml

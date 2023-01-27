@@ -37,7 +37,7 @@ namespace shipxml {
 class ShipXMLDriver {
  public:
   ShipXMLDriver();
-  ~ShipXMLDriver() = default;
+  ~ShipXMLDriver();
 
   /**
    * Transfer the given OCX document and its parsed geometry into a

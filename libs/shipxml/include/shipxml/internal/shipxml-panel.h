@@ -98,6 +98,19 @@ class Panel : public EntityWithProperties {
   [[nodiscard]] AMCurve GetGeometry() const;
 
   /**
+   * Add a Plate to the vector of Plates
+   *
+   * @param plate the Plate to add
+   */
+  void AddPlate(Plate const& plate);
+  /**
+   * Add a vector of Plates to the vector of Plates
+   *
+   * @param plates the vector of Plates to add
+   */
+  void AddPlates(std::vector<Plate> const& plates);
+
+  /**
    * Get a vector of Plates
    *
    * @return the vector of Plates

@@ -71,24 +71,23 @@ int HandleExport(Handle(TDocStd_Document) const& doc,
 
     else if (format == "SHIPXML") {
       shipxml::ShipXMLDriver xmlDriver;
-      try {
-        if (!(xmlDriver.Transfer())) {
-          std::cerr << "Failed to transfer document to ShipXML model"
-                    << std::endl;
-          return 66;
-        }
-        if (bool ret =
-                xmlDriver.Write(std::string(outputFilePath) + ".shipxml");
-            ret != IFSelect_RetDone) {
-          std::cerr << "Failed to write ShipXML file, exited with status" << ret
-                    << std::endl;
-          return 66;
-        }
-      } catch (Standard_Failure const& exp) {
-        std::cerr << "Failed to write ShipXML file, exception: "
-                  << exp.GetMessageString() << std::endl;
+      // try {
+      if (!(xmlDriver.Transfer())) {
+        std::cerr << "Failed to transfer document to ShipXML model"
+                  << std::endl;
         return 66;
       }
+      if (bool ret = xmlDriver.Write(std::string(outputFilePath) + ".shipxml");
+          ret != IFSelect_RetDone) {
+        std::cerr << "Failed to write ShipXML file, exited with status" << ret
+                  << std::endl;
+        return 66;
+      }
+      // } catch (Standard_Failure const& exp) {
+      //   std::cerr << "Failed to write ShipXML file, exception: "
+      //             << exp.GetMessageString() << std::endl;
+      //   return 66;
+      // }
     }
   }
   return 0;

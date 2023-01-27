@@ -29,7 +29,7 @@ class PlateReader {
 
   ~PlateReader() = default;
 
-  void ReadPlates(LDOM_Element const &ocxPanelN, Panel const &panel) const;
+  void ReadPlates(LDOM_Element const &ocxPanelN, Panel &panel) const;
 
  private:
   [[nodiscard]] static Plate ReadPlate(LDOM_Element const &plateN,

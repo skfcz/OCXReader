@@ -27,12 +27,12 @@
 namespace shipxml {
 
 void PlateReader::ReadPlates(LDOM_Element const &ocxPanelN,
-                             Panel const &panel) const {
-  OCX_INFO("ReadPlates {}", panel.GetName());
+                             Panel &panel) const {
+  SHIPXML_INFO("ReadPlates {}", panel.GetName())
 
   auto composedOfEL = ocx::helper::GetFirstChild(ocxPanelN, "ComposedOf");
   if (composedOfEL.isNull()) {
-    OCX_INFO("    no ComposedOf found in {}", panel.GetName())
+    SHIPXML_INFO("    no ComposedOf found in {}", panel.GetName())
     return;
   }
 
@@ -45,13 +45,12 @@ void PlateReader::ReadPlates(LDOM_Element const &ocxPanelN,
       LDOM_Element aElement = (LDOM_Element &)aChildNode;
 
       if (ocx::helper::GetLocalTagName(aElement) == "Plate") {
-        Plate plate = ReadPlate(aElement, panel);
-        panel.GetPlates().push_back(plate);
+        panel.AddPlate(ReadPlate(aElement, panel));
       }
     }
     aChildNode = aChildNode.getNextSibling();
   }
-  OCX_INFO("    read #{} plates", panel.GetPlates().size())
+  SHIPXML_INFO("    read #{} plates", panel.GetPlates().size())
 }
 
 //-----------------------------------------------------------------------------
@@ -64,15 +63,16 @@ Plate PlateReader::ReadPlate(const LDOM_Element &plateN, Panel const &panel) {
   properties.Add("id", meta->id);
   properties.Add("guid", meta->guid);
 
-  LDOM_Element ppN = ocx::helper::GetFirstChild(plateN, "PhysicalProperties");
-  if (ppN.isNull()) {
-    OCX_ERROR("No PhysicalProperties in Plate id={} guid={}", meta->id,
-              meta->guid)
+  if (LDOM_Element ppN =
+          ocx::helper::GetFirstChild(plateN, "PhysicalProperties");
+      ppN.isNull()) {
+    SHIPXML_ERROR("No PhysicalProperties in Plate id={} guid={}", meta->id,
+                  meta->guid)
   } else {
-    LDOM_Element cogN = ocx::helper::GetFirstChild(ppN, "CenterOfGravity");
-    if (cogN.isNull()) {
-      OCX_ERROR("No CenterOfGravity found in Plate id={} guid={}", meta->id,
-                meta->guid)
+    if (LDOM_Element cogN = ocx::helper::GetFirstChild(ppN, "CenterOfGravity");
+        cogN.isNull()) {
+      SHIPXML_ERROR("No CenterOfGravity found in Plate id={} guid={}", meta->id,
+                    meta->guid)
     } else {
       gp_Pnt cog = ocx::helper::ReadPoint(cogN);
       properties.SetCog(cog);
@@ -80,8 +80,8 @@ Plate PlateReader::ReadPlate(const LDOM_Element &plateN, Panel const &panel) {
 
     LDOM_Element wghtN = ocx::helper::GetFirstChild(ppN, "DryWeight");
     if (wghtN.isNull()) {
-      OCX_ERROR("No DryWeight found in Plate id={} guid={}", meta->id,
-                meta->guid)
+      SHIPXML_ERROR("No DryWeight found in Plate id={} guid={}", meta->id,
+                    meta->guid)
     } else {
       double weight = ocx::helper::ReadDimension(wghtN);
       properties.SetWeight(weight);
@@ -92,7 +92,7 @@ Plate PlateReader::ReadPlate(const LDOM_Element &plateN, Panel const &panel) {
 
   // currently we only support plates on planar panels
   if (!panel.IsPlanar()) {
-    OCX_DEBUG("Do not read OuterContour for none planar panels")
+    SHIPXML_DEBUG("Do not read OuterContour for none planar panels")
   } else {
     auto outerContourN = ocx::helper::GetFirstChild(plateN, "OuterContour");
     if (outerContourN.isNull()) {

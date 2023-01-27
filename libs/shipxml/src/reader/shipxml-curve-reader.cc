@@ -81,8 +81,7 @@ shipxml::AMCurve ReadCurve(LDOM_Element const& curveRootN, MajorPlane const& mp,
 
       } else {
         SHIPXML_INFO("Add #{} arcs", curveSegments.size())
-        crv.GetSegments().insert(crv.GetSegments().end(), curveSegments.begin(),
-                                 curveSegments.end());
+        crv.AddSegments(curveSegments);
         SHIPXML_INFO("Added #{} arcs", crv.GetSegments().size())
       }
     }
@@ -171,7 +170,7 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
   SHIPXML_DEBUG("u [{}, {}], delta u {}, #{}", uStart, uEnd, deltaU, deltas);
 
   // precalculate the points for performance reasons
-  auto points = std::vector<gp_Pnt>();
+  std::vector<gp_Pnt> points;
   gp_Pnt firstPoint;
   curve->D0(uStart, firstPoint);
   points.push_back(firstPoint);
@@ -188,9 +187,12 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
     }
     u += deltaU;
   }
-  gp_Pnt lastPoint;
+  // Only push last point if not already contained
+  gp_Pnt lastPoint{};
   curve->D0(uEnd, lastPoint);
-  points.push_back(lastPoint);
+  if (points.back().Distance(lastPoint) > tolerance) {
+    points.push_back(lastPoint);
+  }
 
   SHIPXML_DEBUG("created #{} points", points.size());
 
@@ -198,7 +200,7 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
   //      SHIPXML_DEBUG( "#{} {}", i, ToString( Convert(points.at(i))))
   //    }
 
-  auto segments = std::vector<ArcSegment>();
+  std::vector<ArcSegment> segments;
 
   // now we want to find the arcs which span a maximal amount of points
   // we expect that a line from two points is always a valid solution
@@ -227,9 +229,12 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
 
     // we spare the effort of using GProp_PEquation and directly use
     // GC_MakeArcOfCircle to check and create
+    // FIXME: Fix circle fail: Issue is resulting Crossproduct of created DIR1
+    // FIXME: and DIR2 (gp_Dir Dir3 = Dir1.Crossed(Dir2);) results in solution
+    // FIXME: (0,0,0) which cannot get assigned as gp_Dir (cannot be 0,0,0)
     GC_MakeArcOfCircle mkacc(arcStart, arcEnd, arcItm);
     if (mkacc.IsDone()) {
-      Handle(Geom_TrimmedCurve) arc = mkacc.Value();
+      Handle(Geom_TrimmedCurve) const& arc = mkacc.Value();
       Handle(Geom_Curve) baseCurve = arc->BasisCurve();
       Handle(Geom_Circle) circle = Handle(Geom_Circle)::DownCast(baseCurve);
 
@@ -332,9 +337,7 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
 
       // TODO: check withershins
 
-      auto arcSegment =
-          ArcSegment(arcStart, arcEnd, arcItm, circle->Location(), true);
-      segments.push_back(arcSegment);
+      segments.emplace_back(arcStart, arcEnd, arcItm, circle->Location(), true);
 
     } else {
       segments.emplace_back(foundStart, end);
