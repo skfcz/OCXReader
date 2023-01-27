@@ -9,9 +9,22 @@ set "print{[=for /f "tokens=1* delims==" %%a in ('set " & set "]}=') do (if "%%b
 @REM Define help message
 set "help_line.01=Allowed options:"
 set "help_line.02= "
-set "help_line.03=    -h [ --help ]     produce help message"
-set "help_line.04=    gensln <args>     generate a solution. For a list of available options, see gensln --help"
-set "help_line.05=    buildsln <args>   build a solution. For a list of available options, see buildsln --help"
+set "help_line.03=Generic options:"
+set "help_line.04=    -h [ --help ]         produce help message"
+set "help_line.05= "
+set "help_line.06=Project setup options:"
+set "help_line.07=    gensln <args>         configure the project. Run gensln --help for a list of available options."
+set "help_line.08=    buildsln <args>       build the project. Run buildsln --help for a list of available options."
+set "help_line.09=    installsln <args>     install the project. Run installsln --help for a list of available options."
+set "help_line.10= "
+set "help_line.11=Project run options:"
+set "help_line.12=    run <args>            run the application. Run run --help for a list of available options."
+
+@REM Trigger help if no arguments are passed
+if "%~1" equ "" (
+  %print{[% help_line %]}%
+  EXIT /B 0
+)
 
 @REM https://stackoverflow.com/a/28112521
 @REM Parse arguments that start with - and creates a series of variables that
@@ -23,6 +36,10 @@ set "found_gensln_options=false"
 set "buildsln_options="
 set "found_buildsln=false"
 set "found_buildsln_options=false"
+
+set "install_options="
+set "found_install=false"
+set "found_install_options=false"
 
 set "run_options="
 set "found_run=false"
@@ -51,9 +68,23 @@ for %%a in (%*) do (
     @REM If encountered run, we assume that the rest of the arguments are for run
     set "found_gensln_options=false"
     set "found_buildsln_options=false"
+    set "found_install_options=false"
   ) else (
     if "!found_run_options!" equ "true" (
       set "run_options=!run_options! %%a"
+    )
+  )
+
+  @Rem Assign installsln arguments
+  if "!arg!" equ "installsln" (
+    set "found_install=true"
+    set "found_install_options=true"
+    @REM If encountered installsln, we assume that the rest of the arguments are for installsln
+    set "found_gensln_options=false"
+    set "found_buildsln_options=false"
+  ) else (
+      if "!found_install_options!" equ "true" (
+      set "install_options=!install_options! %%a"
     )
   )
 
@@ -99,6 +130,16 @@ if "!found_buildsln!" equ "true" (
   call ./tools/buildsln.bat !buildsln_options!
   if not "!ERRORLEVEL!" equ "0" (
     echo -- Failed to build solution
+    EXIT /B %ERRORLEVEL%
+  )
+)
+
+@REM Run installsln
+if "!found_install!" equ "true" (
+  echo -- Running installsln with options: !install_options!
+  call ./tools/installsln.bat !install_options!
+  if not "!ERRORLEVEL!" equ "0" (
+    echo -- Failed to install solution
     EXIT /B %ERRORLEVEL%
   )
 )

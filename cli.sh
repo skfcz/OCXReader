@@ -4,10 +4,23 @@
 print_help() {
   echo "Allowed options:"
   echo ""
-  echo "    -h [ --help ]     produce help message"
-  echo "    gensln <args>     generate a solution. For a list of available options, see gensln --help"
-  echo "    buildsln <args>   build a solution. For a list of available options, see buildsln --help"
+  echo "Generic options:"
+  echo "    -h [ --help ]         produce help message"
+  echo ""
+  echo "Project setup options:"
+  echo "    gensln <args>         configure the project. Run gensln --help for a list of available options."
+  echo "    buildsln <args>       build the project. Run buildsln --help for a list of available options."
+  echo "    installsln <args>     install the project. Run installsln --help for a list of available options."
+  echo ""
+  echo "Project run options:"
+  echo "    run <args>            run the application. Run run --help for a list of available options."
 }
+
+# Trigger help if no arguments are passed
+if [[ $# -eq 0 ]]; then
+  print_help
+  exit 0
+fi
 
 # Parse command line arguments
 found_gensln=false
@@ -15,6 +28,9 @@ found_gensln_parse_help=false
 
 found_buildsln=false
 found_buildsln_parse_help=false
+
+found_installsln=false
+found_installsln_parse_help=false
 
 found_run=false
 while [[ $# -gt 0 ]]; do
@@ -44,10 +60,18 @@ while [[ $# -gt 0 ]]; do
     found_gensln_parse_help=false
     shift # past argument
     ;;
+  installsln)
+    found_installsln=true
+    found_installsln_parse_help=true
+    found_gensln_parse_help=false
+    found_buildsln_parse_help=false
+    shift # past argument
+    ;;
   run)
     found_run=true
     found_gensln_parse_help=false
     found_buildsln_parse_help=false
+    found_installsln_parse_help=false
     shift # past argument
     ;;
   *) # unknown option
@@ -56,6 +80,9 @@ while [[ $# -gt 0 ]]; do
       shift # past key
     elif [[ "$found_buildsln_parse_help" = true ]]; then
       buildsln_options="$buildsln_options $key"
+      shift # past key
+    elif [[ "$found_installsln_parse_help" = true ]]; then
+      installsln_options="$installsln_options $key"
       shift # past key
     elif [[ "$found_run" = true ]]; then
       run_options="$run_options $key"
@@ -85,6 +112,16 @@ if [[ $found_buildsln = true ]]; then
   . ./tools/buildsln.sh $buildsln_options
   if [[ $? -ne 0 ]]; then
     echo "-- Failed to build solution"
+    exit 33
+  fi
+fi
+
+# Run installsln
+if [[ $found_installsln = true ]]; then
+  echo "-- Running installsln with options: $installsln_options"
+  . ./tools/installsln.sh $installsln_options
+  if [[ $? -ne 0 ]]; then
+    echo "-- Failed to install solution"
     exit 33
   fi
 fi

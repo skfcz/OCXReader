@@ -245,6 +245,28 @@ Follow these steps to configure CMake options in CLion:
 </p>
 </details>
 
+## Installation
+
+The projects `cli` provides a functionality to install the project to. A typical
+installation step looks like this:
+
+```shell
+# Install the project (use cli.bat on Windows)
+$ ./cli.sh installsln --build-type Release --build-dir ./build
+```
+
+Or use the `installsln` command along with the `gensln` and `buildsln` commands:
+
+```shell
+# Generate the build files, build and install the project (use cli.bat on Windows)
+$ ./cli.sh gensln --vcpkg /path/to/vcpkg buildsln installsln
+#                                                           ^ no need to specify --build-type and --build-dir as they get inherited from the previous gensln or buildsln command
+```
+
+> Note: To pass additional cmake options to the installation step, use
+> the `--cmake-options` flag. All options after the `--cmake-options` flag are
+> directly passed to the cmake command.
+
 ## Usage
 
 OCXReader is a command line tool with the following options:

@@ -5,14 +5,14 @@ print_help() {
   echo "Allowed options:"
   echo ""
   echo "required arguments:"
-  echo "    --build-type <arg>      set target build type, pass this argument when running as a standalone command (without gensln)"
+  echo "    --build-type <arg>      set target build type, pass this argument when running as a standalone command"
   echo "                            can be one of the following: Debug, Release, RelWithDebInfo, MinSizeRel"
-  echo "    --build-dir <arg>       set build directory, pass this argument when running as a standalone command (without gensln)"
+  echo "    --build-dir <arg>       set build directory, pass this argument when running as a standalone command"
   echo ""
   echo "optional arguments:"
   echo "    -h [ --help ]           produce help message"
   echo "    --cmake-options <args>  define additional cmake options you want to pass to the build"
-  echo "                            for a list of available options, see https://cmake.org/cmake/help/latest/manual/cmake.1.html#build-a-project"
+  echo "                            for a list of available options, see https://cmake.org/cmake/help/latest/manual/cmake.1.html#install-a-project"
 }
 
 # Parse command line arguments
@@ -75,6 +75,6 @@ else
 fi
 
 # Run cmake build
-cmd="cmake --build $build_dir/$build_type --config $build_type --target ocxreader $cmake_options"
+cmd="cmake --install $build_dir/$build_type $cmake_options"
 echo "$cmd"
 eval "$cmd"
