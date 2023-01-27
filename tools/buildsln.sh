@@ -16,6 +16,7 @@ print_help() {
 }
 
 # Parse command line arguments
+cmake_options=""
 found_cmake_options=false
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -74,6 +75,6 @@ else
 fi
 
 # Run cmake build
-cmd="cmake --build $build_dir/$build_type --target ocxreader $cmake_options"
+cmd="cmake --build $build_dir/$build_type --config $build_type --target ocxreader $cmake_options"
 echo $cmd
 eval $cmd

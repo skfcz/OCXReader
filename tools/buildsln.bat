@@ -76,6 +76,6 @@ if defined option--build-dir (
 )
 
 @REM Run cmake build
-set "cmd=cmake --build !build_dir!/!build_type! --target ocxreader !cmake_options!"
+set "cmd=cmake --build !build_dir!/!build_type! --config !build_type! --target ocxreader !cmake_options!"
 echo %cmd%
 call %cmd%
