@@ -89,8 +89,8 @@ fi
 
 # Set build directory
 if [[ -z $build_dir ]]; then
-  build_dir="build"
-  echo "-- No build directory specified. Defaulting to: ./$build_dir"
+  build_dir="./build"
+  echo "-- No build directory specified. Defaulting to: $build_dir"
 else
   echo "-- Build directory is set to: $build_dir"
 fi

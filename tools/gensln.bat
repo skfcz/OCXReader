@@ -89,7 +89,7 @@ if defined option--build-dir (
   echo -- Build directory is set to: !build_dir!
   ) else (
   set "build_dir=./build"
-  echo -- No build directory specified. Defaulting to: ./!build_dir!
+  echo -- No build directory specified. Defaulting to: !build_dir!
 )
 
 echo -- Checking arguments: done
