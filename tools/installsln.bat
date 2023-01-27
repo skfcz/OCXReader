@@ -16,33 +16,43 @@ set "help_line.11=                            for a list of available options, s
 @REM start with "option" and the names and values of all options given.
 set "option="
 set "cmake_options="
-set "found_cmake_options=false"
+set "cmake_options_cache="
 for %%a in (%*) do (
   set arg=%%a
-  if not defined option (
-    @REM Send help.
-    if "!arg!" equ "--help" (
-      %print{[% help_line %]}%
-      EXIT /B 0
-    )
-    if "!arg!" equ "-h" (
-      %print{[% help_line %]}%
-      EXIT /B 0
-    )
 
+  @REM Send help.
+  if "!arg!" equ "--help" (
+    %print{[% help_line %]}%
+    EXIT /B 0
+  )
+  if "!arg!" equ "-h" (
+    %print{[% help_line %]}%
+    EXIT /B 0
+  )
+
+  if not defined option (
     @REM Assign passed arguments
     if "!arg:~0,2!" equ "--" set "option=!arg!"
   ) else (
     if "!option!" equ "--cmake-options" (
-      set "cmake_options=!cmake_options! %%a"
-      set "found_cmake_options=true"
-    ) else (
-      if "!found_cmake_options!" equ "true" (
-        set "cmake_options=!cmake_options! %%a"
-      ) else (
-        set "option!option!=%%a"
-        set "option="
+      @REM Parse CMake cache options using -DCMAKE_*=* syntax -> Workaround for
+      @REM keeping "=" in the value of the option.
+      if "!arg:~0,7!" equ "-DCMAKE" (
+        set "cmake_options_cache=!arg!"
+        set "arg=
       )
+      if "!cmake_options_cache!" neq "" (
+        if "!arg!" neq "" (
+          set "arg=!cmake_options_cache!^=!arg!"
+          set "cmake_options_cache="
+        )
+      )
+      if "!arg!" neq "" (
+        set "cmake_options=!arg!"
+      )
+    ) else (
+      set "option!option!=!arg!"
+      set "option="
     )
   )
 )

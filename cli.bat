@@ -45,78 +45,95 @@ set "run_options="
 set "found_run=false"
 set "found_run_options=false"
 
+set "cmake_options_cache="
+
 set "argument_count=0"
 for %%a in (%*) do (
   set arg=%%a
 
-  @REM Send help.
-  if !argument_count! equ 0 (
-    if "!arg!" equ "--help" ( 
-      %print{[% help_line %]}%
-      EXIT /B 0
-    )
-    if "!arg!" equ "-h" (
-      %print{[% help_line %]}%
-      EXIT /B 0
+  @REM Parse CMake cache options using -DCMAKE_*=* syntax -> Workaround for
+  @REM keeping "=" in the value of the option.
+  if "!arg:~0,7!" equ "-DCMAKE" (
+    set "cmake_options_cache=!arg!"
+    set "arg="
+  )
+  if "!cmake_options_cache!" neq "" (
+    if "!arg!" neq "" (
+      set "arg=!cmake_options_cache!^=!arg!"
+      set "cmake_options_cache="
     )
   )
 
-  @REM Assign run arguments
-  if "!arg!" equ "run" (
-    set "found_run=true"
-    set "found_run_options=true"
-    @REM If encountered run, we assume that the rest of the arguments are for run
-    set "found_gensln_options=false"
-    set "found_buildsln_options=false"
-    set "found_install_options=false"
-  ) else (
-    if "!found_run_options!" equ "true" (
-      set "run_options=!run_options! %%a"
+  if "!arg!" neq "" (
+    @REM Send help.
+    if !argument_count! equ 0 (
+      if "!arg!" equ "--help" (
+        %print{[% help_line %]}%
+        EXIT /B 0
+      )
+      if "!arg!" equ "-h" (
+        %print{[% help_line %]}%
+        EXIT /B 0
+      )
     )
-  )
 
-  @Rem Assign installsln arguments
-  if "!arg!" equ "installsln" (
-    set "found_install=true"
-    set "found_install_options=true"
-    @REM If encountered installsln, we assume that the rest of the arguments are for installsln
-    set "found_gensln_options=false"
-    set "found_buildsln_options=false"
-  ) else (
-      if "!found_install_options!" equ "true" (
-      set "install_options=!install_options! %%a"
+    @REM Assign run arguments
+    if "!arg!" equ "run" (
+      set "found_run=true"
+      set "found_run_options=true"
+      @REM If encountered run, we assume that the rest of the arguments are for run
+      set "found_gensln_options=false"
+      set "found_buildsln_options=false"
+      set "found_install_options=false"
+    ) else (
+      if "!found_run_options!" equ "true" (
+        set "run_options=!run_options! !arg!"
+      )
     )
-  )
 
-  @REM Assign buildsln arguments
-  if "!arg!" equ "buildsln" (
-    set "found_buildsln=true"
-    set "found_buildsln_options=true"
-    @REM If encountered buildsln, we assume that the rest of the arguments are for buildsln
-    set "found_gensln_options=false"
-  ) else (
-    if "!found_buildsln_options!" equ "true" (
-      set "buildsln_options=!buildsln_options! %%a"
+    @Rem Assign installsln arguments
+    if "!arg!" equ "installsln" (
+      set "found_install=true"
+      set "found_install_options=true"
+      @REM If encountered installsln, we assume that the rest of the arguments are for installsln
+      set "found_gensln_options=false"
+      set "found_buildsln_options=false"
+    ) else (
+        if "!found_install_options!" equ "true" (
+        set "install_options=!install_options! !arg!"
+      )
     )
-  )
 
-  @REM Assign gensln arguments
-  if "!arg!" equ "gensln" (
-    set "found_gensln=true"
-    set "found_gensln_options=true"
-  ) else (
-    if "!found_gensln_options!" equ "true" (
-      set "gensln_options=!gensln_options! %%a"
+    @REM Assign buildsln arguments
+    if "!arg!" equ "buildsln" (
+      set "found_buildsln=true"
+      set "found_buildsln_options=true"
+      @REM If encountered buildsln, we assume that the rest of the arguments are for buildsln
+      set "found_gensln_options=false"
+    ) else (
+      if "!found_buildsln_options!" equ "true" (
+        set "buildsln_options=!buildsln_options! !arg!"
+      )
     )
-  )
 
-  @REM Increment argument count
-  set "argument_count=!argument_count! + 1"
+    @REM Assign gensln arguments
+    if "!arg!" equ "gensln" (
+      set "found_gensln=true"
+      set "found_gensln_options=true"
+    ) else (
+      if "!found_gensln_options!" equ "true" (
+        set "gensln_options=!gensln_options! !arg!"
+      )
+    )
+
+    @REM Increment argument count
+    set "argument_count=!argument_count! + 1"
+  )
 )
 
 @REM Run gensln
 if "!found_gensln!" equ "true" (
-  echo -- Running gensln with options: !gensln_options!
+  echo -- Running gensln with options:!gensln_options!
   call ./tools/gensln.bat !gensln_options!
   if not "!ERRORLEVEL!" equ "0" (
     echo -- Failed to generate solution
@@ -126,7 +143,7 @@ if "!found_gensln!" equ "true" (
 
 @REM Run buildsln
 if "!found_buildsln!" equ "true" (
-  echo -- Running buildsln with options: !buildsln_options!
+  echo -- Running buildsln with options:!buildsln_options!
   call ./tools/buildsln.bat !buildsln_options!
   if not "!ERRORLEVEL!" equ "0" (
     echo -- Failed to build solution
