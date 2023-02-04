@@ -41,6 +41,7 @@ enum class RefPlaneType { X, Y, Z, UNDEF };
  * RefPlaneWrapper is used to store the information of a reference plane.
  */
 struct RefPlaneWrapper {
+  std::string id;
   RefPlaneType type;
   LDOM_Element refPlaneN;
   gp_Dir normal;
@@ -63,7 +64,7 @@ struct RefPlaneWrapper {
    * @param p2 the second point of the reference plane
    * @param p3 the third point of the reference plane
    */
-  RefPlaneWrapper(RefPlaneType const &type, LDOM_Element const &refPlaneN,
+  RefPlaneWrapper(std::string const &id, RefPlaneType const &type, LDOM_Element const &refPlaneN,
                   gp_Dir const &normal, gp_Pnt const &p1, gp_Pnt const &p2,
                   gp_Pnt const &p3);
 };

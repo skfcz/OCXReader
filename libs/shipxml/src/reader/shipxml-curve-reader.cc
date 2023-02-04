@@ -14,6 +14,8 @@
 
 #include "shipxml/internal/shipxml-curve-reader.h"
 
+#include <shipxml/internal/shipxml-helper.h>
+
 #include <GC_MakeArcOfCircle.hxx>
 #include <GC_MakeCircle.hxx>
 #include <GC_MakeLine.hxx>
@@ -33,6 +35,10 @@ namespace shipxml {
 shipxml::AMCurve ReadCurve(LDOM_Element const& curveRootN, MajorPlane const& mp,
                            gp_Dir const& normal) {
   auto meta = ocx::helper::GetOCXMeta(curveRootN);
+
+  SHIPXML_DEBUG("ReadCurve on major plane {}, normal [{}, {}, {}]",
+                magic_enum::enum_name(mp).data(), normal.X(), normal.Y(),
+                normal.Z());
 
   auto crv = AMCurve(ToAMSystem(normal));
 
@@ -99,6 +105,9 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
                                     AMCurve const& amCurve) {
   auto meta = ocx::helper::GetOCXMeta(nurbs3DN);
 
+  SHIPXML_DEBUG("    ReadNURBS3D {} on  {}", meta->id,
+                magic_enum::enum_name(amCurve.GetSystem()).data());
+
   LDOM_Element propsN = ocx::helper::GetFirstChild(nurbs3DN, "NURBSproperties");
   if (propsN.isNull()) {
     SHIPXML_ERROR(
@@ -117,7 +126,7 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
       ocx::utils::stob(propsN.getAttribute("isRational").GetString());
 
   SHIPXML_DEBUG(
-      "Found NURBSproperties: degree={}, numCtrlPoints={}, numKnots={}, "
+      "    Found NURBSproperties: degree={}, numCtrlPoints={}, numKnots={}, "
       "form={}, isRational={}",
       degree, numCtrlPoints, numKnots, form.empty() ? "Unknown" : form,
       isRational)
@@ -167,7 +176,8 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
   int deltas = (numCtrlPoints * 3);
   double deltaU = (uEnd - uStart) / deltas;
 
-  SHIPXML_DEBUG("u [{}, {}], delta u {}, #{}", uStart, uEnd, deltaU, deltas);
+  SHIPXML_DEBUG("    u [{}, {}], delta u {}, #{}", uStart, uEnd, deltaU,
+                deltas);
 
   // precalculate the points for performance reasons
   std::vector<gp_Pnt> points;
@@ -194,35 +204,34 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
     points.push_back(lastPoint);
   }
 
-  SHIPXML_DEBUG("created #{} points", points.size());
+  SHIPXML_DEBUG("    created #{} points", points.size());
 
-  //    for ( int i = 0; i < points.size();i++) {
-  //      SHIPXML_DEBUG( "#{} {}", i, ToString( Convert(points.at(i))))
-  //    }
+  for (int i = 0; i < points.size(); i++) {
+    gp_Pnt pnt = points.at(i);
+    SHIPXML_TRACE("#{} [ {},  {}, {} ]", i, pnt.X(), pnt.Y(), pnt.Z());
+  }
 
   std::vector<ArcSegment> segments;
 
   // now we want to find the arcs which span a maximal amount of points
   // we expect that a line from two points is always a valid solution
-  int currentStart = 0;
-  int lastValidEnd = currentStart + 1;
+  int currentStartIdx = 0;
+  int lastValidEndIdx = currentStartIdx + 1;
   bool lastValidIsArc = false;
-  int currentEnd = lastValidEnd + 1;
+  int currentEndIdx = lastValidEndIdx + 1;
 
-  while (currentEnd < points.size()) {
-    // SHIPXML_DEBUG("check from #{} to #{}", currentStart, currentEnd)
+  while (currentEndIdx < points.size()) {
+    SHIPXML_TRACE("check from #{} to #{}", currentStartIdx, currentEndIdx)
     //  we build a circle from three points
-    auto arcStart = points.at(currentStart);
-    auto arcEnd = points.at(currentEnd);
-    int iItm = (currentEnd - currentStart) < 3
-                   ? currentStart + 1
-                   : (int)ceil((currentStart + currentEnd) / 2.0);
+    auto arcStart = points.at(currentStartIdx);
+    auto arcEnd = points.at(currentEndIdx);
+    int iItm = (currentEndIdx - currentStartIdx) < 3
+                   ? currentStartIdx + 1
+                   : (int)ceil((currentStartIdx + currentEndIdx) / 2.0);
     auto arcItm = points.at(iItm);
 
-    //    SHIPXML_DEBUG("start {}, end {}, onArc {}",
-    //              ToString(Convert(arcStart)),
-    //              ToString(Convert(arcEnd)),
-    //              ToString(Convert(arcItm)));
+    SHIPXML_TRACE("    use start {}, end {}, onArc {}", ToString(Convert(arcStart)),
+                  ToString(Convert(arcEnd)), ToString(Convert(arcItm)));
 
     bool isValid = true;
     bool isArc = false;
@@ -243,53 +252,58 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
       gp_Pnt center = circle->Location();
       double radius = circle->Radius();
 
-      // SHIPXML_DEBUG("created circle at {},r {}", ToString(Convert(center)),
-      // radius)
+      SHIPXML_TRACE("    check as arc,  center {}, r {}", ToString(Convert(center)), radius)
 
-      for (int i = currentStart + 1; i < currentEnd; i++) {
+      for (int i = currentStartIdx + 1; i < currentEndIdx; i++) {
         gp_Pnt pointToCheck = points.at(i);
+        double dist =abs(center.Distance(pointToCheck) - radius);
 
-        if (abs(center.Distance(pointToCheck) - radius) > tolerance) {
+        if (dist > tolerance) {
           // ok, we exceeded the distance, this solution is not valid;
-          SHIPXML_DEBUG("check failed at {} {} {}", center.X(), center.Y(),
-                        center.Z())
+          SHIPXML_TRACE("        check failed at #{} {}, distance {}", i, ToString(Convert(center)), dist);
           isValid = false;
           break;
         }
       }
+      SHIPXML_TRACE("    check {} for arc from {} to {}, center {}",
+                    isValid ? "succeed" : "failed",
+                    ToString(Convert(arcStart)), ToString(Convert(arcEnd)),
+                    ToString(Convert(center)) );
+
 
       isArc = true;
     } else {
       // points most probably have been collinear, so we check using a line
-      // for a line using brute code instead of BRepExtrema_DistShapeShape is
-      // much faster see
-      // https://math.stackexchange.com/questions/1905533/find-perpendicular-distance-from-point-to-line-in-3d
       GC_MakeLine mkln(arcStart, arcEnd);
       if (mkln.IsDone()) {
-        SHIPXML_DEBUG("check as line")
+        SHIPXML_TRACE("    check as line from {} to {}",
+                      ToString(Convert(arcStart)), ToString(Convert(arcEnd)));
 
-        //   vec3 d = (C - B) / C.distance(B);
-        auto d = gp_Vec(arcStart, arcEnd);
-        d.Normalize();
-        for (int i = currentStart + 1; i < currentEnd; i++) {
+        gp_Lin line = mkln.Value()->Lin();
+
+        for (int i = currentStartIdx + 1; i < currentEndIdx; i++) {
           gp_Pnt pointToCheck = points.at(i);
 
-          // vec3 v = A - B;
-          auto v = gp_Vec(arcStart, pointToCheck);
-          // double t = v.dot(d);
-          double t = v.Dot(d);
-          // vec3 P = B + t * d;
-          auto P = gp_Pnt(arcEnd.X() + t * d.X(), arcEnd.Y() + t * d.Y(),
-                          arcEnd.Y() + t * d.Y());
-          if (P.Distance(pointToCheck) > tolerance) {
+
+          double dist = line.Distance(pointToCheck);
+          //          SHIPXML_DEBUG("        at #{} {}, distance {}", i,
+          //                        ToString(Convert(pointToCheck)), dist);
+          if (dist > tolerance) {
             // check failed
-            SHIPXML_DEBUG("check failed at [{} {} {}]", pointToCheck.X(),
+            SHIPXML_TRACE("    check failed at [{} {} {}]", pointToCheck.X(),
                           pointToCheck.Y(), pointToCheck.Z())
             isValid = false;
             break;
           }
+
         }  // end of line check loop
         isArc = false;
+
+
+        SHIPXML_TRACE("    check {} for line from {} to {}",
+                      isValid ? "succeed" : "failed",
+                      ToString(Convert(arcStart)), ToString(Convert(arcEnd)));
+
       } else {
         SHIPXML_ERROR("failed to create a line from [{} {} {}] to [{} {} {}]",
                       arcStart.X(), arcStart.Y(), arcStart.Z(), arcEnd.X(),
@@ -298,30 +312,34 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
       }
     }  // end of arc/line check
     if (isValid) {
-      lastValidEnd = currentEnd;
+      lastValidEndIdx = currentEndIdx;
       lastValidIsArc = isArc;
-      currentEnd++;
+      currentEndIdx++;
       // special handling for the last arc in case that lastValidEnd == last
       // point
-      // SHIPXML_DEBUG("check passed at #{}, next check for #{},
-      // {}",lastValidEnd, currentEnd, isArc ? " as arc" :  "as line")
-      if (lastValidIsArc != points.size() - 1) {
+
+      if (lastValidEndIdx < points.size() - 1) {
         continue;
       }
+      SHIPXML_TRACE("check passed at #{}, reached end of points",
+                      lastValidEndIdx);
     }
-    // fall back to the previous solution
-    SHIPXML_DEBUG("check failed, go back to #{} to #{}, create {}",
-                  currentStart, lastValidEnd, lastValidIsArc ? "arc" : "line")
-    gp_Pnt foundStart = points.at(currentStart);
-    gp_Pnt end = points.at(lastValidEnd);
 
-    // SHIPXML_DEBUG("    start {}, end {}", ToString(Convert(foundStart)),
-    // ToString(Convert(end)))
+
+
+    // fall back to the previous solution
+    gp_Pnt foundStart = points.at(currentStartIdx);
+    gp_Pnt end = points.at(lastValidEndIdx);
+
+    SHIPXML_TRACE("check loop finished as {}, start #{} ({}), end #{} ({})",
+                  lastValidIsArc ? "arc" : "line",
+                  currentStartIdx, ToString(Convert( foundStart)),
+                  lastValidEndIdx, ToString(Convert( end)));
 
     if (lastValidIsArc) {
-      iItm = (lastValidEnd - currentStart) < 3
-                 ? currentStart + 1
-                 : (int)ceil((currentStart + lastValidEnd) / 2.0);
+      iItm = (lastValidEndIdx - currentStartIdx) < 3
+                 ? currentStartIdx + 1
+                 : (int)ceil((currentStartIdx + lastValidEndIdx) / 2.0);
       arcItm = points.at(iItm);
 
       // SHIPXML_DEBUG("    found onArc #{}, {}", iItm,
@@ -335,30 +353,40 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
       Handle(Geom_Curve) baseCurve = mkfacc.Value()->BasisCurve();
       Handle(Geom_Circle) circle = Handle(Geom_Circle)::DownCast(baseCurve);
 
+      SHIPXML_DEBUG(
+          "    create arc from create line from #{} ({}) to #{} ({}), center {}",
+          currentStartIdx, ToString(Convert(foundStart)),
+          lastValidEndIdx, ToString(Convert(end)),
+          ToString(Convert(circle->Location())));
+
       // TODO: check withershins
 
       segments.emplace_back(arcStart, arcEnd, arcItm, circle->Location(), true);
 
     } else {
+      SHIPXML_DEBUG("    create line from #{} ({}) to #{} ({})",
+          currentStartIdx, ToString(Convert(foundStart)),
+          lastValidEndIdx,ToString(Convert(end)))
+
       segments.emplace_back(foundStart, end);
     }
 
     // now continue from last valid solution
-    currentStart = lastValidEnd;
-    lastValidEnd = currentStart + 1;
+    currentStartIdx = lastValidEndIdx;
+    lastValidEndIdx = currentStartIdx + 1;
     lastValidIsArc = false;
-    currentEnd = lastValidEnd + 1;
+    currentEndIdx = lastValidEndIdx + 1;
 
-    if (currentEnd >= points.size()) {
+    if (currentEndIdx >= points.size()) {
       break;
     }
 
   }  // end of while loop
 
-  if (lastValidEnd + 1 < points.size()) {
-    SHIPXML_DEBUG("add closing line from #{} to #{}", currentStart,
+  if (lastValidEndIdx + 1 < points.size()) {
+    SHIPXML_DEBUG("add closing line from #{} to #{}", currentStartIdx,
                   points.size() - 1);
-    auto arcStart = points.at(currentStart);
+    auto arcStart = points.at(currentStartIdx);
     auto const& arcEnd = points.at(points.size() - 1);
     segments.emplace_back(arcStart, arcEnd);
   }

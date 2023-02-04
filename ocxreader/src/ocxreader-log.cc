@@ -22,7 +22,7 @@ namespace ocxreader {
 
 void Log::Initialize() {
   auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  consoleSink->set_pattern("%^[%T] %n: %v%$");
+  consoleSink->set_pattern("%^[%l] %n: %v%$");
 
   std::vector<spdlog::sink_ptr> sinks{consoleSink};
   auto logger = std::make_shared<spdlog::logger>(OCXREADER_DEFAULT_LOGGER_NAME,

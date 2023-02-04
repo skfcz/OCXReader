@@ -13,3 +13,43 @@
  ***************************************************************************/
 
 #include "shipxml/internal/shipxml-helper.h"
+
+namespace  shipxml {
+
+
+std::vector<shipxml::ArcSegment> ReadCurve(const LDOM_Element &curveRootN) {
+  auto segments = std::vector<shipxml::ArcSegment>();
+
+
+
+  return segments;
+}
+
+shipxml::CartesianPoint Convert(gp_Pnt point) {
+  return shipxml::CartesianPoint(point.X(), point.Y(), point.Z());
+}
+
+
+shipxml::Vector Convert(gp_Dir vec) {
+  return shipxml::Vector(vec.X(), vec.Y(), vec.Z());
+}
+
+std::string ToString(shipxml::CartesianPoint p) {
+
+  std::ostringstream strs;
+  strs << "[" << p.GetX() << ", " << p.GetY() << ", " << p.GetZ() << "]";
+  return strs.str();
+
+}
+
+std::string ToString(shipxml::Vector v) {
+
+  std::ostringstream strs;
+  strs << "[" << v.GetX() << ", " << v.GetY() << ", " << v.GetZ() << "]";
+  return strs.str();
+
+}
+
+
+
+}

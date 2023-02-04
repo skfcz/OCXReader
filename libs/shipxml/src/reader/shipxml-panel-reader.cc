@@ -148,7 +148,7 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
                                              Panel &panel) {
   auto meta = ocx::helper::GetOCXMeta(panelN);
 
-  SHIPXML_DEBUG("ReadSupport {} ", panel.GetName())
+  SHIPXML_INFO("ReadSupportAndOuterContour {}", panel.GetName());
 
   auto unboundedGeometryN =
       ocx::helper::GetFirstChild(panelN, "UnboundedGeometry");
@@ -168,11 +168,11 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
       !gridRefN.isNull()) {
     refN = gridRefN;
 
-    SHIPXML_DEBUG("    Using GridRef guid={} as UnboundedGeometry", meta->guid)
-
+    auto gridMeta = ocx::helper::GetOCXMeta(refN);
+    SHIPXML_DEBUG("    Using GridRef guid={} as UnboundedGeometry", gridMeta->guid)
     panel.GetProperties().Add("support.gridRef.GUID", meta->guid);
 
-    auto refPlaneW = ocx::OCXContext::GetInstance()->LookupRefPlane(meta->guid);
+    auto refPlaneW = ocx::OCXContext::GetInstance()->LookupRefPlane(gridMeta->guid);
     if (refPlaneW.refPlaneN.isNull()) {
       SHIPXML_WARN("Failed to lookup an RefPlane for guid={}", meta->guid)
       return;
@@ -190,18 +190,25 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
     switch (refPlaneType) {
       case ocx::RefPlaneType::X:
         panel.GetProperties().Add("support.gridRef.type", "X");
+        support.SetLocationType(LocationType::X);
+        support.SetMajorPlane(MajorPlane::X);
         break;
       case ocx::RefPlaneType::Y:
         panel.GetProperties().Add("support.gridRef.type", "Y");
+        support.SetLocationType(LocationType::Y);
+        support.SetMajorPlane(MajorPlane::Y);
         break;
       case ocx::RefPlaneType::Z:
         panel.GetProperties().Add("support.gridRef.type", "Z");
+        support.SetLocationType(LocationType::Z);
+        support.SetMajorPlane(MajorPlane::Z);
         break;
       default:
         SHIPXML_ERROR("Undefined RefPlaneType={}",
                       magic_enum::enum_name(refPlaneType))
     }
 
+    support.SetIsPlanar(true);
     support.SetGrid(refPlaneMeta->id);
     support.SetCoordinate(refPlaneMeta->name);
     support.SetNormal(refPlaneW.normal);
@@ -310,8 +317,8 @@ void PanelReader::ReadSupportAndOuterContour(const LDOM_Element &panelN,
   panel.SetSupport(support);
 
   // TODO: Currently we only support panels with a planar support
-  if (!panel.IsPlanar()) {
-    SHIPXML_DEBUG("Do not read OuterContour for none planar panels")
+  if (!panel.GetSupport().IsPlanar()) {
+    SHIPXML_WARN("Do not read OuterContour for none planar panel {}", panel.GetName())
     return;
   }
 

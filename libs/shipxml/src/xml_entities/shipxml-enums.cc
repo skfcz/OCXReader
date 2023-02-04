@@ -23,7 +23,7 @@ namespace shipxml {
 Standard_Real const AMSystemIsParallelTolerance = 45.0 / 180.0 * M_PI;
 
 AMSystem ToAMSystem(gp_Dir const& normal) {
-  SHIPXML_INFO("ToAMSystem [{} {} {}]", normal.X(), normal.Y(), normal.Z())
+  //SHIPXML_DEBUG("ToAMSystem [{} {} {}]", normal.X(), normal.Y(), normal.Z())
 
   if (gp_Dir(1, 0, 0).IsParallel(normal, AMSystemIsParallelTolerance)) {
     return AMSystem::YZ;

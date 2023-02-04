@@ -29,16 +29,21 @@ namespace ocx {
 
 RefPlaneWrapper::RefPlaneWrapper() : type(RefPlaneType::UNDEF) {}
 
-RefPlaneWrapper::RefPlaneWrapper(const RefPlaneType &type,
-                                 const LDOM_Element &refPlaneN,
-                                 const gp_Dir &normal, const gp_Pnt &p1,
-                                 const gp_Pnt &p2, const gp_Pnt &p3)
-    : type(type),
-      refPlaneN(refPlaneN),
-      normal(normal),
-      p1(p1),
-      p2(p2),
-      p3(p3) {}
+RefPlaneWrapper::RefPlaneWrapper(
+                                 const std::string &idi,
+                                 const RefPlaneType &typei,
+                                 const LDOM_Element &refPlaneNi,
+                                 const gp_Dir &normali, const gp_Pnt &p1i,
+                                 const gp_Pnt &p2i, const gp_Pnt &p3i)
+    : id(idi),
+      type(typei),
+      refPlaneN(refPlaneNi),
+      normal(normali),
+      p1(p1i),
+      p2(p2i),
+      p3(p3i) {
+    std::cout << "RefPlaneWrapper " << id << "normal= [" << normal.X() << ", " << normal.Y() << ", "<< normal.Z() << "]" << std::endl;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -203,7 +208,8 @@ void OCXContext::RegisterRefPlane(std::string const &guid,
                                   LDOM_Element const &element,
                                   gp_Dir const &normal, gp_Pnt const &p0,
                                   gp_Pnt const &p1, gp_Pnt const &p2) {
-  GUID2RefPlane[guid] = RefPlaneWrapper(type, element, normal, p0, p1, p2);
+  std::cout << "RegisterRefPlane " << guid << std::endl;
+  GUID2RefPlane[guid] = RefPlaneWrapper(guid, type, element, normal, p0, p1, p2);
 }
 
 RefPlaneWrapper OCXContext::LookupRefPlane(std::string_view const &guid) {

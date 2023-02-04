@@ -91,7 +91,7 @@ Plate PlateReader::ReadPlate(const LDOM_Element &plateN, Panel const &panel) {
   // TODO: Plate Material
 
   // currently we only support plates on planar panels
-  if (!panel.IsPlanar()) {
+  if (!panel.GetSupport().IsPlanar()) {
     SHIPXML_DEBUG("Do not read OuterContour for none planar panels")
   } else {
     auto outerContourN = ocx::helper::GetFirstChild(plateN, "OuterContour");

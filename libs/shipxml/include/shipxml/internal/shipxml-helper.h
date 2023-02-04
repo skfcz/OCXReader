@@ -15,4 +15,22 @@
 #ifndef SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_HELPER_H_
 #define SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_HELPER_H_
 
+#include <gp_Pnt.hxx>
+#include <vector>
+
+namespace  shipxml {
+
+[[nodiscard]] std::vector<shipxml::ArcSegment> ReadCurve(
+    LDOM_Element const &curveRootN);
+
+[[nodiscard]] shipxml::CartesianPoint Convert( gp_Pnt point);
+
+[[nodiscard]] shipxml::Vector Convert( gp_Dir d);
+
+[[nodiscard]] std::string ToString( shipxml::CartesianPoint p);
+
+[[nodiscard]] std::string ToString( shipxml::Vector v);
+
+}
+
 #endif  // SHIPXML_INCLUDE_SHIPXML_INTERNAL_SHIPXML_HELPER_H_

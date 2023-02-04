@@ -35,10 +35,7 @@ class Log {
 constexpr char SHIPXML_DEFAULT_LOGGER_NAME[] = "SHIPXML";
 
 #ifndef SHIPXML_CONFIG_RELEASE
-#define SHIPXML_TRACE(...)                                        \
-  if (spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME) != nullptr) {      \
-    spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME)->trace(__VA_ARGS__); \
-  }
+#define SHIPXML_TRACE(...)
 #define SHIPXML_DEBUG(...)                                        \
   if (spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME) != nullptr) {      \
     spdlog::get(SHIPXML_DEFAULT_LOGGER_NAME)->debug(__VA_ARGS__); \
