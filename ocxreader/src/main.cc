@@ -19,25 +19,24 @@
 #include <memory>
 
 #include "ocx/ocx-reader.h"
-#include "ocxreader/ocxreader-cli.h"
-#include "ocxreader/ocxreader-export.h"
+#include "ocxreader/internal/ocxreader-cli.h"
+#include "ocxreader/internal/ocxreader-export.h"
+#include "ocxreader/internal/ocxreader-log.h"
 
 int main(int argc, char** argv) {
   namespace po = boost::program_options;
 
-  // Path to config file
-  std::string config_file_path;
+  std::string reader_config_file_path;
 
-  // Only allowed in cli mode
   po::options_description generic("Generic options");
   generic.add_options()                      //
       ("version,v", "print version string")  //
       ("help,h", "produce help message")     //
-      ("config-file", po::value<std::string>(&config_file_path),
+      ("reader-config-file", po::value<std::string>(&reader_config_file_path),
        "The path to the file containing OCX parsing options (e.g. "
        "path/to/config_file.json)");
 
-  po::options_description opts("OCXReader CLI options");
+  po::options_description opts("OCXReader configuration options");
   opts.add_options()                                                      //
       ("input-file,i", po::value<std::string>(), "The OCX file to read")  //
       ("export-format", po::value<std::vector<std::string>>()->multitoken(),
@@ -49,7 +48,10 @@ int main(int argc, char** argv) {
        "directory.")  //
       ("output-file,o", po::value<std::string>(),
        "The output file name. This is used as the filename to the defined "
-       "export formats. If not defined input-file is used.");
+       "export formats. If not defined input-file is used.")  //
+      ("log-config-file,l", po::value<std::string>(),
+       "The path to the file containing logging configuration options options "
+       "(e.g. path/to/log_conf.toml)");
 
   po::options_description allopts("Allowed options");
   allopts.add(generic).add(opts);
@@ -72,21 +74,20 @@ int main(int argc, char** argv) {
       return 0;
     }
 
-    // Parse options from config file if defined
-    if (!config_file_path.empty()) {
-      std::filesystem::path configFilePath(config_file_path);
-      // Use system dependent preferred path separators
-      configFilePath.make_preferred();
-      if (!std::filesystem::exists(configFilePath)) {
-        std::cerr << "No config file found at: " << configFilePath << std::endl;
+    // Parse options from reader config file if defined
+    if (!reader_config_file_path.empty()) {
+      std::filesystem::path readerConfigFile;
+      if (!ocxreader::cli::get_valid_file_path(reader_config_file_path,
+                                               readerConfigFile)) {
+        std::cerr << "No config file found at: " << readerConfigFile
+                  << std::endl;
         return 33;
       }
-      std::ifstream configFileStream(configFilePath.generic_string());
+      std::ifstream configFileStream(readerConfigFile.generic_string());
       po::store(
           ocxreader::cli::parse_json_config_file(configFileStream, opts, true),
           vm);
     }
-
     // Parse all options again (overwrites config-file options)
     po::store(po::parse_command_line(argc, argv, allopts), vm);
   } catch (po::unknown_option& e) {
@@ -114,7 +115,7 @@ int main(int argc, char** argv) {
     return 33;
   }
 
-  // Validate export formats, also cache OCAF export type if present (XML, XBF)
+  // Validate export formats, also cache XCAF export type if present (XML, XBF)
   bool exportXCAFXBF = false;
   bool exportXCAFXML = false;
   std::vector<std::string> exportFormats;
@@ -190,9 +191,21 @@ int main(int argc, char** argv) {
     }
     outputFileName = outputFile.substr(0, outputFile.find_last_of('.'));
   }
-
   // Assemble output file path location
   std::string outputFilePath = saveTo + outputFileName;
+
+  // Initialize logging
+  std::filesystem::path logConfigFile;
+  if (vm.count("log-config-file")) {
+    if (!ocxreader::cli::get_valid_file_path(
+            vm["log-config-file"].as<std::string>(), logConfigFile)) {
+      std::cerr << "No config file found at: " << logConfigFile << std::endl;
+      return 33;
+    }
+    ocxreader::Log::Initialize(logConfigFile.generic_string());
+  } else {
+    ocxreader::Log::Initialize();
+  }
 
   // Initialize the application
   Handle(TDocStd_Application) app = new TDocStd_Application;
@@ -207,6 +220,7 @@ int main(int argc, char** argv) {
 
   if (doc.IsNull()) {
     std::cerr << "Failed to create document" << std::endl;
+    ocxreader::Log::Shutdown();
     return 33;
   }
 
@@ -216,6 +230,7 @@ int main(int argc, char** argv) {
   if (!ocx::OCXReader::Perform(ocxFileInput.c_str(), doc, ctx)) {
     std::cerr << "Failed to read OCX document" << std::endl;
     app->Close(doc);
+    ocxreader::Log::Shutdown();
     return 33;
   }
 
@@ -225,10 +240,13 @@ int main(int argc, char** argv) {
       ret == 66) {
     std::cerr << "Failed to export" << std::endl;
     app->Close(doc);
+    ocxreader::Log::Shutdown();
     return ret;
   }
 
   app->Close(doc);
+
+  ocxreader::Log::Shutdown();
 
   return 0;
 }

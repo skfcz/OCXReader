@@ -12,23 +12,41 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocxreader/ocxreader-log.h"
+#include "ocxreader/internal/ocxreader-log.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog_setup/conf.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace ocxreader {
 
-void Log::Initialize() {
+void Log::Initialize(std::string_view logConfigFile) {
+  try {
+    // spdlog_setup::setup_error thrown if file not found
+    spdlog_setup::from_file(logConfigFile.data());
+    return;
+  } catch (const spdlog_setup::setup_error &err) {
+    std::cerr << "Error: Could not initialize logging from file: "
+              << logConfigFile.data() << " - " << err.what() << std::endl;
+  } catch (const std::exception &err) {
+    std::cerr << "Unknown error during logging initialization: " << err.what()
+              << std::endl;
+  }
+
+  // Fallback to default logging configuration
+  // No need to initialize libraries logging systems as they provide their own
+  // logging system initialization
   auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   consoleSink->set_pattern("%^[%l] %n: %v%$");
 
   std::vector<spdlog::sink_ptr> sinks{consoleSink};
   auto logger = std::make_shared<spdlog::logger>(OCXREADER_DEFAULT_LOGGER_NAME,
                                                  begin(sinks), end(sinks));
-  logger->set_level(spdlog::level::trace);
-  logger->flush_on(spdlog::level::trace);
+  logger->set_level(spdlog::level::warn);
+  logger->flush_on(spdlog::level::warn);
   spdlog::register_logger(logger);
 }
 

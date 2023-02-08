@@ -30,7 +30,14 @@ target_link_libraries(${PROJECT_NAME}
                       Boost::system
                       Boost::filesystem)
 
-# Testing
-if (${build_tests})
+# Adjust runtime environment for Visual Studio
+set_property(
+  TARGET ${PROJECT_NAME}
+  PROPERTY
+  VS_DEBUGGER_ENVIRONMENT
+  "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
+)
+
+if (${occutils_build_tests})
   # add_subdirectory(test) # TODO: Add tests
 endif ()

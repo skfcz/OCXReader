@@ -12,15 +12,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCXREADER_INCLUDE_OCXREADER_OCX_READER_EXPORT_H_
-#define OCXREADER_INCLUDE_OCXREADER_OCX_READER_EXPORT_H_
+#ifndef OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_EXPORT_H_
+#define OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_EXPORT_H_
 
-#include <TDocStd_Application.hxx>
-#include <TDocStd_Document.hxx>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "TDocStd_Application.hxx"
+#include "TDocStd_Document.hxx"
 #include "ocx/ocx-context.h"
 
 namespace ocxreader::file_export {
@@ -32,4 +32,4 @@ int HandleExport(Handle(TDocStd_Document) const& doc,
 
 }  // namespace ocxreader::file_export
 
-#endif  // OCXREADER_INCLUDE_OCXREADER_OCX_READER_EXPORT_H_
+#endif  // OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_EXPORT_H_

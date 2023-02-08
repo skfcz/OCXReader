@@ -12,11 +12,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocxreader/ocxreader-cli.h"
+#include "ocxreader/internal/ocxreader-cli.h"
 
 #include <boost/program_options.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <filesystem>
 #include <string>
 
 namespace ocxreader::cli {
@@ -76,6 +77,18 @@ boost::program_options::basic_parsed_options<charT> parse_json_config_file(
   parseJsonOptions(is, result);
 
   return boost::program_options::basic_parsed_options<charT>(result);
+}
+
+bool get_valid_file_path(std::string const& filepath,
+                         std::filesystem::path& path) {
+  path = std::filesystem::path(filepath);
+  // Use system dependent preferred path separators
+  path.make_preferred();
+  if (!std::filesystem::exists(path)) {
+    std::cerr << "No config file found at: " << path << std::endl;
+    return false;
+  }
+  return true;
 }
 
 }  // namespace ocxreader::cli

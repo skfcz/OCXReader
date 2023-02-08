@@ -12,13 +12,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCXREADER_INCLUDE_OCXREADER_OCX_READER_CLI_H_
-#define OCXREADER_INCLUDE_OCXREADER_OCX_READER_CLI_H_
+#ifndef OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_CLI_H_
+#define OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_CLI_H_
 
-#include <boost/program_options.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <filesystem>
 #include <string>
+
+#include "boost/program_options.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/property_tree/ptree.hpp"
 
 namespace ocxreader::cli {
 
@@ -45,6 +47,16 @@ boost::program_options::basic_parsed_options<charT> parse_json_config_file(
     const boost::program_options::options_description& desc,
     bool allow_unregistered = false);
 
+/**
+ * @brief Checks whether a given file path is valid and writes the result to the
+ * given path object.
+ *
+ * @param filepath the file path to check
+ * @return true if the file path is valid, false otherwise
+ */
+bool get_valid_file_path(std::string const& filepath,
+                         std::filesystem::path& path);
+
 }  // namespace ocxreader::cli
 
-#endif  // OCXREADER_INCLUDE_OCXREADER_OCX_READER_CLI_H_
+#endif  // OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_CLI_H_

@@ -4,6 +4,7 @@ project(shipxml VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
 # Where shipxml's .h files can be found
 set(shipxml_include_dirs
+    "${SUBMODULE_DIR}/spdlog_setup/include"
     "${OpenCASCADE_INCLUDE_DIR}"
     "${occutils_SOURCE_DIR}/include"
     "${ocx_SOURCE_DIR}/include"

@@ -153,7 +153,7 @@ if "!found_buildsln!" equ "true" (
 
 @REM Run installsln
 if "!found_install!" equ "true" (
-  echo -- Running installsln with options: !install_options!
+  echo -- Running installsln with options:!install_options!
   call ./tools/installsln.bat !install_options!
   if not "!ERRORLEVEL!" equ "0" (
     echo -- Failed to install solution
@@ -163,7 +163,7 @@ if "!found_install!" equ "true" (
 
 @REM Run run
 if "!found_run!" equ "true" (
-  echo -- Running run with options: !run_options!
+  echo -- Running run with options:!run_options!
   call ./tools/run.bat !run_options!
   if not "!ERRORLEVEL!" equ "0" (
     echo -- Failed to run solution

@@ -4,6 +4,7 @@ project(ocx VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
 # Where ocx's .h files can be found
 set(ocx_include_dirs
+    "${SUBMODULE_DIR}/spdlog_setup/include"
     "${OpenCASCADE_INCLUDE_DIR}"
     "${occutils_SOURCE_DIR}/include"
     "${ocx_SOURCE_DIR}/include"
@@ -43,6 +44,6 @@ set_property(
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
 )
 
-if (${build_tests})
+if (${ocx_build_tests})
   add_subdirectory(test)
 endif ()

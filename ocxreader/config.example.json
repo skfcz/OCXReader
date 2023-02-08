@@ -1,5 +1,0 @@
-{
-  "input-file": "data/Aveva-OHCM-MidShip_V285.3docx",
-  "export-format": ["STEP", "XCAF-XML"],
-  "save-to": "generated"
-}

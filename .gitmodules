@@ -1,0 +1,3 @@
+[submodule "deps/spdlog_setup"]
+	path = deps/spdlog_setup
+	url = https://github.com/guangie88/spdlog_setup

@@ -16,26 +16,38 @@
 #define OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_
 
 #include <spdlog/sinks/stdout_color_sinks.h>
-
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 namespace ocx {
 
 /**
- * Logging class for ocx library
+ * OCX Logger class
  */
 class Log {
  public:
+  /**
+   * Initialize the ocx logging system
+   */
   static void Initialize();
 
+  /**
+   * Shutdown the ocx logging system
+   */
   static void Shutdown();
+
+ private:
+  /**
+   * @brief Flag to indicate if the logging system was initialized through a
+   * config file. This is used to determine if the logging system should be
+   * shutdown when the ocx library is unloaded or not.
+   */
+  static bool m_initializedThroughConfigFile;
 };
 
 }  // namespace ocx
 
 constexpr char OCX_DEFAULT_LOGGER_NAME[] = "OCX";
 
-#ifndef OCX_CONFIG_RELEASE
 #define OCX_TRACE(...)                                        \
   if (spdlog::get(OCX_DEFAULT_LOGGER_NAME) != nullptr) {      \
     spdlog::get(OCX_DEFAULT_LOGGER_NAME)->trace(__VA_ARGS__); \
@@ -60,14 +72,5 @@ constexpr char OCX_DEFAULT_LOGGER_NAME[] = "OCX";
   if (spdlog::get(OCX_DEFAULT_LOGGER_NAME) != nullptr) {         \
     spdlog::get(OCX_DEFAULT_LOGGER_NAME)->critical(__VA_ARGS__); \
   }
-#else
-// Disable logging in release build
-#define OCX_TRACE(...) (void)0;
-#define OCX_DEBUG(...) (void)0;
-#define OCX_INFO(...) (void)0;
-#define OCX_WARN(...) (void)0;
-#define OCX_ERROR(...) (void)0;
-#define OCX_FATAL(...) (void)0;
-#endif
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_LOG_H_

@@ -1,0 +1,49 @@
+# level is optional for both sinks and loggers
+# level for error logging is 'err', not 'error'
+# _st => single threaded, _mt => multi threaded
+# syslog_sink is automatically thread-safe by default, no need for _mt suffix
+
+# max_size supports suffix
+# - T (terabyte)
+# - G (gigabyte)
+# - M (megabyte)
+# - K (kilobyte)
+# - or simply no suffix (byte)
+
+# check out https: // github.com/gabime/spdlog/wiki/3.-Custom-formatting
+global_pattern = "%^[%l] %n: %v%$"
+
+# ------------------------------------------------------------------------------
+# Sink configuration
+# ------------------------------------------------------------------------------
+[[sink]]
+name = "color_console_mt"
+type = "color_stdout_sink_mt"
+
+[[sink]]
+name = "file_err"
+type = "rotating_file_sink_mt"
+base_filename = "log/ocxreader-err.log"
+truncate = true # default is false
+level = "err"
+create_parent_dir = true
+max_size = "10M"
+max_files = 10
+
+# ------------------------------------------------------------------------------
+# Logging configuration
+# ------------------------------------------------------------------------------
+[[logger]]
+name = "OCX"
+sinks = ["color_console_mt", "file_err"]
+level = "warn"
+
+[[logger]]
+name = "SHIPXML"
+sinks = ["color_console_mt", "file_err"]
+level = "warn"
+
+[[logger]]
+name = "OCXREADER"
+sinks = ["color_console_mt", "file_err"]
+level = "warn"

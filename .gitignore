@@ -36,6 +36,7 @@
 /Testing/
 *.ninja
 *.stp
+*.log
 
 # OCXReader
 **/generated/
@@ -45,4 +46,3 @@ config.json
 .vscode/
 /build/
 /cmake-build-*
-

@@ -12,22 +12,32 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCXREADER_INCLUDE_OCXREADER_OCX_READER_LOG_H_
-#define OCXREADER_INCLUDE_OCXREADER_OCX_READER_LOG_H_
+#ifndef OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_LOG_H_
+#define OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_LOG_H_
 
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
-#include "spdlog/spdlog.h"
+#include <string>
+#include <vector>
 
 namespace ocxreader {
 
 /**
- * Logging class for ocxreader
+ * OCX Logger class
  */
 class Log {
  public:
-  static void Initialize();
+  /**
+   * Initialize the ocxreader logging system
+   *
+   * @param logConfigFile path to the log config file
+   */
+  static void Initialize(std::string_view logConfigFile = "");
 
+  /**
+   * Shutdown the ocxreader logging system
+   */
   static void Shutdown();
 };
 
@@ -35,7 +45,6 @@ class Log {
 
 constexpr char OCXREADER_DEFAULT_LOGGER_NAME[] = "OCXREADER";
 
-#ifndef OCXREADER_CONFIG_RELEASE
 #define OCXREADER_TRACE(...)                                        \
   if (spdlog::get(OCXREADER_DEFAULT_LOGGER_NAME) != nullptr) {      \
     spdlog::get(OCXREADER_DEFAULT_LOGGER_NAME)->trace(__VA_ARGS__); \
@@ -60,14 +69,5 @@ constexpr char OCXREADER_DEFAULT_LOGGER_NAME[] = "OCXREADER";
   if (spdlog::get(OCXREADER_DEFAULT_LOGGER_NAME) != nullptr) {         \
     spdlog::get(OCXREADER_DEFAULT_LOGGER_NAME)->critical(__VA_ARGS__); \
   }
-#else
-// Disable logging in release build
-#define OCXREADER_TRACE(...) (void)0;
-#define OCXREADER_DEBUG(...) (void)0;
-#define OCXREADER_INFO(...) (void)0;
-#define OCXREADER_WARN(...) (void)0;
-#define OCXREADER_ERROR(...) (void)0;
-#define OCXREADER_FATAL(...) (void)0;
-#endif
 
-#endif  // OCXREADER_INCLUDE_OCXREADER_OCX_READER_LOG_H_
+#endif  // OCXREADER_INCLUDE_OCXREADER_INTERNAL_OCXREADER_LOG_H_
