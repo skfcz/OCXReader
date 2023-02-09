@@ -17,6 +17,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog_setup/conf.h>
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -28,10 +29,10 @@ void Log::Initialize(std::string_view logConfigFile) {
     // spdlog_setup::setup_error thrown if file not found
     spdlog_setup::from_file(logConfigFile.data());
     return;
-  } catch (const spdlog_setup::setup_error &err) {
+  } catch (spdlog_setup::setup_error const &err) {
     std::cerr << "Error: Could not initialize logging from file: "
               << logConfigFile.data() << " - " << err.what() << std::endl;
-  } catch (const std::exception &err) {
+  } catch (std::exception const &err) {
     std::cerr << "Unknown error during logging initialization: " << err.what()
               << std::endl;
   }
