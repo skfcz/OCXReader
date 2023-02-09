@@ -87,6 +87,16 @@ system [here](https://vcpkg.io/en/getting-started.html).
 > permission for all users. Otherwise, you will get an error when trying to
 > access and install vcpkg packages through a non-root user.
 
+#### Git submodules
+
+Besides vcpkg the project uses git submodules to manage some of its dependencies.
+When checking out the project for the first time, make sure to also initialize
+and update the submodules:
+
+```shell
+$ git submodule update --init --recursive
+```
+
 #### Python
 
 The OpenCascade build requires python with a version of at least 3.7. However,
