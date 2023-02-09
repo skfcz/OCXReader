@@ -4,7 +4,6 @@ project(ocx VERSION ${OCXREADER_VERSION} LANGUAGES CXX)
 
 # Where ocx's .h files can be found
 set(ocx_include_dirs
-    "${SUBMODULE_DIR}/spdlog_setup/include"
     "${OpenCASCADE_INCLUDE_DIR}"
     "${occutils_SOURCE_DIR}/include"
     "${ocx_SOURCE_DIR}/include"

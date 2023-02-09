@@ -15,7 +15,6 @@
 #include "ocx/internal/ocx-log.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog_setup/conf.h>
 
 #include <memory>
 
