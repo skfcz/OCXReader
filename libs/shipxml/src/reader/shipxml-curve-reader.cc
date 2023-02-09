@@ -230,20 +230,27 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
                    : (int)ceil((currentStartIdx + currentEndIdx) / 2.0);
     auto arcItm = points.at(iItm);
 
-    SHIPXML_TRACE("    use start {}, end {}, onArc {}", ToString(Convert(arcStart)),
-                  ToString(Convert(arcEnd)), ToString(Convert(arcItm)));
+    SHIPXML_TRACE("    use start {}, end {}, onArc {}",
+                  ToString(Convert(arcStart)), ToString(Convert(arcEnd)),
+                  ToString(Convert(arcItm)));
 
     bool isValid = true;
     bool isArc = false;
 
-    // we spare the effort of using GProp_PEquation and directly use
+    // We spare the effort of using GProp_PEquation and directly use
     // GC_MakeArcOfCircle to check and create
-    // FIXME: Fix circle fail: Issue is resulting Crossproduct of created DIR1
-    // FIXME: and DIR2 (gp_Dir Dir3 = Dir1.Crossed(Dir2);) results in solution
-    // FIXME: (0,0,0) which cannot get assigned as gp_Dir (cannot be 0,0,0)
-    GC_MakeArcOfCircle mkacc(arcStart, arcEnd, arcItm);
-    if (mkacc.IsDone()) {
-      Handle(Geom_TrimmedCurve) const& arc = mkacc.Value();
+    Handle(Geom_TrimmedCurve) arc;
+    try {
+      GC_MakeArcOfCircle mkacc(arcStart, arcEnd, arcItm);
+      if (mkacc.IsDone()) {
+        arc = mkacc.Value();
+        isArc = true;
+      }
+    } catch (Standard_Failure const& e) {
+      isArc = false;
+    }
+
+    if (isArc) {
       Handle(Geom_Curve) baseCurve = arc->BasisCurve();
       Handle(Geom_Circle) circle = Handle(Geom_Circle)::DownCast(baseCurve);
 
@@ -252,26 +259,24 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
       gp_Pnt center = circle->Location();
       double radius = circle->Radius();
 
-      SHIPXML_TRACE("    check as arc,  center {}, r {}", ToString(Convert(center)), radius)
+      SHIPXML_TRACE("    check as arc,  center {}, r {}",
+                    ToString(Convert(center)), radius)
 
       for (int i = currentStartIdx + 1; i < currentEndIdx; i++) {
         gp_Pnt pointToCheck = points.at(i);
-        double dist =abs(center.Distance(pointToCheck) - radius);
+        double dist = abs(center.Distance(pointToCheck) - radius);
 
         if (dist > tolerance) {
           // ok, we exceeded the distance, this solution is not valid;
-          SHIPXML_TRACE("        check failed at #{} {}, distance {}", i, ToString(Convert(center)), dist);
+          SHIPXML_TRACE("        check failed at #{} {}, distance {}", i,
+                        ToString(Convert(center)), dist);
           isValid = false;
           break;
         }
       }
       SHIPXML_TRACE("    check {} for arc from {} to {}, center {}",
-                    isValid ? "succeed" : "failed",
-                    ToString(Convert(arcStart)), ToString(Convert(arcEnd)),
-                    ToString(Convert(center)) );
-
-
-      isArc = true;
+                    isValid ? "succeed" : "failed", ToString(Convert(arcStart)),
+                    ToString(Convert(arcEnd)), ToString(Convert(center)));
     } else {
       // points most probably have been collinear, so we check using a line
       GC_MakeLine mkln(arcStart, arcEnd);
@@ -283,7 +288,6 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
 
         for (int i = currentStartIdx + 1; i < currentEndIdx; i++) {
           gp_Pnt pointToCheck = points.at(i);
-
 
           double dist = line.Distance(pointToCheck);
           //          SHIPXML_DEBUG("        at #{} {}, distance {}", i,
@@ -297,8 +301,6 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
           }
 
         }  // end of line check loop
-        isArc = false;
-
 
         SHIPXML_TRACE("    check {} for line from {} to {}",
                       isValid ? "succeed" : "failed",
@@ -322,19 +324,17 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
         continue;
       }
       SHIPXML_TRACE("check passed at #{}, reached end of points",
-                      lastValidEndIdx);
+                    lastValidEndIdx);
     }
-
-
 
     // fall back to the previous solution
     gp_Pnt foundStart = points.at(currentStartIdx);
     gp_Pnt end = points.at(lastValidEndIdx);
 
     SHIPXML_TRACE("check loop finished as {}, start #{} ({}), end #{} ({})",
-                  lastValidIsArc ? "arc" : "line",
-                  currentStartIdx, ToString(Convert( foundStart)),
-                  lastValidEndIdx, ToString(Convert( end)));
+                  lastValidIsArc ? "arc" : "line", currentStartIdx,
+                  ToString(Convert(foundStart)), lastValidEndIdx,
+                  ToString(Convert(end)));
 
     if (lastValidIsArc) {
       iItm = (lastValidEndIdx - currentStartIdx) < 3
@@ -354,10 +354,10 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
       Handle(Geom_Circle) circle = Handle(Geom_Circle)::DownCast(baseCurve);
 
       SHIPXML_DEBUG(
-          "    create arc from create line from #{} ({}) to #{} ({}), center {}",
-          currentStartIdx, ToString(Convert(foundStart)),
-          lastValidEndIdx, ToString(Convert(end)),
-          ToString(Convert(circle->Location())));
+          "    create arc from create line from #{} ({}) to #{} ({}), center "
+          "{}",
+          currentStartIdx, ToString(Convert(foundStart)), lastValidEndIdx,
+          ToString(Convert(end)), ToString(Convert(circle->Location())));
 
       // TODO: check withershins
 
@@ -365,8 +365,8 @@ std::vector<ArcSegment> ReadNURBS3D(const LDOM_Element& nurbs3DN,
 
     } else {
       SHIPXML_DEBUG("    create line from #{} ({}) to #{} ({})",
-          currentStartIdx, ToString(Convert(foundStart)),
-          lastValidEndIdx,ToString(Convert(end)))
+                    currentStartIdx, ToString(Convert(foundStart)),
+                    lastValidEndIdx, ToString(Convert(end)))
 
       segments.emplace_back(foundStart, end);
     }
