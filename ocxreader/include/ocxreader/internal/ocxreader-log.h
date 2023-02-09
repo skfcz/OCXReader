@@ -24,7 +24,7 @@
 namespace ocxreader {
 
 /**
- * OCX Logger class
+ * OCXReader Logger class
  */
 class Log {
  public:
