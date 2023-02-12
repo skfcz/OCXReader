@@ -18,6 +18,7 @@
 #include <LDOM_Element.hxx>
 #include <gp_Dir.hxx>
 
+#include "../../../../../cmake-build-release-system/vcpkg_installed/x64-linux-dynamic/include/opencascade/Geom_BSplineCurve.hxx"
 #include "shipxml/internal/shipxml-am-curve.h"
 #include "shipxml/internal/shipxml-enums.h"
 
@@ -50,6 +51,13 @@ namespace shipxml {
 
 [[nodiscard]] std::vector<ArcSegment> ReadNURBS3D(LDOM_Element const &crvEL,
                                                   AMCurve const &curve);
+
+
+[[nodiscard]] void Refine(opencascade::handle<Geom_BSplineCurve> handle1, double startU,
+            double endU, std::vector<gp_Pnt>& points);
+
+[[nodiscard]] std::vector<ArcSegment> CreateArcSegments(std::vector<gp_Pnt> & points,
+                                     int startRangeIdx, int endRangeIdx);
 
 }  // namespace shipxml
 

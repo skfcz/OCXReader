@@ -298,6 +298,11 @@ PolesWeightsCurve ParseControlPointsCurve(LDOM_Element const &controlPtListN,
     i++;
   }
 
+  //  for ( int i = 1; i <= polesWeights.poles.Size();i++) {
+  //    gp_Pnt point = polesWeights.poles.Value(i);
+  //      OCX_INFO("pole #{} [{}, {}, {}]", i, point.X(), point.Y(), point.Z());
+  //  }
+
   return polesWeights;
 }
 
