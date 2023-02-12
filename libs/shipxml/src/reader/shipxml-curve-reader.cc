@@ -424,6 +424,9 @@ std::vector<ArcSegment> CreateArcSegments(std::vector<gp_Pnt>& points, int start
           for (int i = currentStartIdx + 1; i < currentEndIdx; i++) {
             gp_Pnt pointToCheck = points.at(i);
             double dist = abs(center.Distance(pointToCheck) - radius);
+      for (int i = currentStartIdx + 1; i < currentEndIdx; i++) {
+        gp_Pnt pointToCheck = points.at(i);
+        double dist = abs(center.Distance(pointToCheck) - radius);
 
             if (dist > maxDistancToCurve) {
               // ok, we exceeded the distance, this solution is not valid;

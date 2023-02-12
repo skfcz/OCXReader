@@ -43,6 +43,6 @@ set_property(
   "PATH=$<$<CONFIG:DEBUG>:${OpenCASCADE_BINARY_DIR}d>$<$<NOT:$<CONFIG:DEBUG>>:${OpenCASCADE_BINARY_DIR}>;%PATH%"
 )
 
-if (${build_tests})
+if (${ocx_build_tests})
   add_subdirectory(test)
 endif ()

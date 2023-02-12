@@ -12,11 +12,11 @@
  *                                                                         *
  ***************************************************************************/
 
-// This file #includes all ocx-reader implementation .cc files. The
+// This file #includes all ocxreader implementation .cc files. The
 // purpose is to allow a user to build ocx by compiling this
 // file alone.
 
-// The following lines pull in the real ocx-reader*.cc files.
+// The following lines pull in the real ocxreader*.cc files.
 
 #include "src/main.cc"
 #include "src/ocxreader-cli.cc"

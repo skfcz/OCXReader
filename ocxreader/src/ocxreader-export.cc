@@ -12,7 +12,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocxreader/ocxreader-export.h"
+#include "ocxreader/internal/ocxreader-export.h"
 
 #include <BinXCAFDrivers.hxx>
 #include <STEPCAFControl_Writer.hxx>

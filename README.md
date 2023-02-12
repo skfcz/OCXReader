@@ -87,6 +87,16 @@ system [here](https://vcpkg.io/en/getting-started.html).
 > permission for all users. Otherwise, you will get an error when trying to
 > access and install vcpkg packages through a non-root user.
 
+#### Git submodules
+
+Besides vcpkg the project uses git submodules to manage some of its dependencies.
+When checking out the project for the first time, make sure to also initialize
+and update the submodules:
+
+```shell
+$ git submodule update --init --recursive
+```
+
 #### Python
 
 The OpenCascade build requires python with a version of at least 3.7. However,
@@ -247,8 +257,8 @@ Follow these steps to configure CMake options in CLion:
 
 ## Installation
 
-The projects `cli` provides a functionality to install the project to. A typical
-installation step looks like this:
+The projects `cli` provides a functionality to install the project. To install
+the project, use the `installsln` command:
 
 ```shell
 # Install the project (use cli.bat on Windows)
@@ -276,27 +286,32 @@ $ ocxreader --help
 Allowed options:
 
 Generic options:
-  -v [ --version ]          print version string
-  -h [ --help ]             produce help message
-  --config-file arg         The path to the file containing OCX parsing options
-                            (e.g. path/to/config_file.json)
+  -v [ --version ]              print version string
+  -h [ --help ]                 produce help message
+  --reader-config-file arg      The path to the file containing OCX parsing
+                                options (e.g. path/to/config_file.json)
 
-OCXReader CLI options:
-  -i [ --input-file ] arg   The OCX file to read
-  --export-format arg       The export format(s) to use. This can be one or 
-                            more of the following: STEP, SHIPXML, XCAF-XML, 
-                            XCAF-XBF
-  -s [ --save-to ] arg      The output-file path. Defines were to write the 
-                            exported file(s) to. If not defined files get saved
-                            relative to the program working directory.
-  -o [ --output-file ] arg  The output file name. This is used as the filename 
-                            to the defined export formats. If not defined 
-                            input-file is used.
+OCXReader configuration options:
+  -i [ --input-file ] arg       The OCX file to read
+  --export-format arg           The export format(s) to use. This can be one or
+                                more of the following: STEP, SHIPXML, XCAF-XML,
+                                XCAF-XBF
+  -s [ --save-to ] arg          The output-file path. Defines were to write the
+                                exported file(s) to. If not defined files get
+                                saved relative to the program working
+                                directory.
+  -o [ --output-file ] arg      The output file name. This is used as the
+                                filename to the defined export formats. If not
+                                defined input-file is used.
+  -l [ --log-config-file ] arg  The path to the file containing logging
+                                configuration options options (e.g.
+                                path/to/log_conf.toml)
 ```
 
 The generic option `--config-file` can be used to define the OCXReader CLI
 options in a JSON file.
-A sample configuration file can be found [here](ocxreader/config.example.json).
+A sample configuration file can be
+found [here](ocxreader/config/config.example.json).
 
 ## Contributors
 

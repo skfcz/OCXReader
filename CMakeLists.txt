@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
-option(build_tests "Build tests." OFF)
-if (build_tests)
+option(ocx_build_tests "Build OCX tests." OFF)
+option(occutils_build_tests "Build OCCUtils tests." OFF)
+if (ocx_build_tests OR occutils_build_tests)
   list(APPEND VCPKG_MANIFEST_FEATURES "tests")
 endif ()
 
@@ -28,7 +29,10 @@ find_package(freetype CONFIG REQUIRED) # freetype is a dependency of OpenCASCADE
 find_package(Boost REQUIRED COMPONENTS program_options system filesystem)
 find_package(GTest CONFIG REQUIRED)
 
-# Packages
+# Resolve dependencies using git submodules
+get_filename_component(SUBMODULE_DIR ${CMAKE_CURRENT_LIST_DIR}/deps ABSOLUTE)
+
+# Local libraries
 add_subdirectory(libs/occutils)
 add_subdirectory(libs/ocx)
 add_subdirectory(libs/shipxml)

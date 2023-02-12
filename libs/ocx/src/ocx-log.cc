@@ -20,18 +20,30 @@
 
 namespace ocx {
 
+bool Log::m_initializedThroughConfigFile = false;
+
 void Log::Initialize() {
+  // Check if logging already initialized
+  if (spdlog::get(OCX_DEFAULT_LOGGER_NAME) != nullptr) {
+    m_initializedThroughConfigFile = true;
+    return;
+  }
+
+  // Fallback to default logging configuration
   auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   consoleSink->set_pattern("%^[%l] %n: %v%$");
 
   std::vector<spdlog::sink_ptr> sinks{consoleSink};
   auto logger = std::make_shared<spdlog::logger>(OCX_DEFAULT_LOGGER_NAME,
                                                  begin(sinks), end(sinks));
-  logger->set_level(spdlog::level::trace);
-  logger->flush_on(spdlog::level::trace);
+  logger->set_level(spdlog::level::warn);
+  logger->flush_on(spdlog::level::warn);
   spdlog::register_logger(logger);
 }
 
-void Log::Shutdown() { spdlog::shutdown(); }
+void Log::Shutdown() {
+  if (m_initializedThroughConfigFile) return;
+  spdlog::shutdown();
+}
 
 }  // namespace ocx

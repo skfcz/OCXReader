@@ -12,18 +12,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocxreader/ocxreader-cli.h"
+#include "ocxreader/internal/ocxreader-cli.h"
 
 #include <boost/program_options.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <filesystem>
+#include <iostream>
 #include <string>
 
 namespace ocxreader::cli {
 
 template <class charT>
-void parseChildren(std::string const& prefix, boost::property_tree::ptree& tree,
-                   boost::program_options::parsed_options& options) {
+void parseChildren(std::string const &prefix, boost::property_tree::ptree &tree,
+                   boost::program_options::parsed_options &options) {
   if (tree.empty()) {
     // remove first dot
     std::basic_string<charT> name = prefix.substr(1);
@@ -40,7 +42,7 @@ void parseChildren(std::string const& prefix, boost::property_tree::ptree& tree,
         (options.description->find_nothrow(name, false) == nullptr);
     opt.position_key = -1;
     // append value to existing option-key if it exists
-    for (auto& o : options.options) {
+    for (auto &o : options.options) {
       if (o.string_key == name) {
         o.value.push_back(value);
         return;
@@ -55,8 +57,8 @@ void parseChildren(std::string const& prefix, boost::property_tree::ptree& tree,
 }
 
 template <class charT>
-void parseJsonOptions(std::basic_istream<charT>& is,
-                      boost::program_options::parsed_options& options) {
+void parseJsonOptions(std::basic_istream<charT> &is,
+                      boost::program_options::parsed_options &options) {
   boost::property_tree::basic_ptree<std::basic_string<charT>,
                                     std::basic_string<charT>>
       pt;
@@ -67,8 +69,8 @@ void parseJsonOptions(std::basic_istream<charT>& is,
 
 template <class charT>
 boost::program_options::basic_parsed_options<charT> parse_json_config_file(
-    std::basic_istream<charT>& is,
-    const boost::program_options::options_description& desc,
+    std::basic_istream<charT> &is,
+    boost::program_options::options_description const &desc,
     bool allow_unregistered) {
   // do any option checks here
 
@@ -76,6 +78,18 @@ boost::program_options::basic_parsed_options<charT> parse_json_config_file(
   parseJsonOptions(is, result);
 
   return boost::program_options::basic_parsed_options<charT>(result);
+}
+
+bool get_valid_file_path(std::string const &filepath,
+                         std::filesystem::path &path) {
+  path = std::filesystem::path(filepath);
+  // Use system dependent preferred path separators
+  path.make_preferred();
+  if (!std::filesystem::exists(path)) {
+    std::cerr << "No config file found at: " << path << std::endl;
+    return false;
+  }
+  return true;
 }
 
 }  // namespace ocxreader::cli
