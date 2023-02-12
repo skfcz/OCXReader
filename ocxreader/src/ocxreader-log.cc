@@ -39,7 +39,6 @@ void Log::Initialize(std::string_view logConfigFile) {
 
   // Fallback to default logging configuration
   // No need to initialize libraries logging systems as they provide their own
-  // logging system initialization
   auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   consoleSink->set_pattern("%^[%l] %n: %v%$");
 

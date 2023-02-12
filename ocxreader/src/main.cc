@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
   }
 
   // Read and parse the OCX file
-  std::shared_ptr<ocx::OCXContext> ctx = nullptr;
+  std::shared_ptr<ocx::OCXContext> ctx;
   std::cout << "Read from " << ocxFileInput << std::endl;
   if (!ocx::OCXReader::Perform(ocxFileInput.c_str(), doc, ctx)) {
     std::cerr << "Failed to read OCX document" << std::endl;
