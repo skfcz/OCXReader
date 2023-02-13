@@ -26,7 +26,7 @@
  * This namespace is used to read OCX XML for curves and create OpenCascade
  * TopoDS_Wires.
  */
-namespace ocx::shared::curve {
+namespace ocx::reader::shared::curve {
 
 /**
  * Base method managing the reading of various curve types, e.g.
@@ -58,6 +58,6 @@ namespace {  // anonymous namespace
 
 }  // namespace
 
-}  // namespace ocx::shared::curve
+}  // namespace ocx::reader::shared::curve
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_CURVE_READER_H_

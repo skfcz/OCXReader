@@ -20,7 +20,7 @@
 #include <memory>
 #include <string>
 
-namespace ocx::vessel::panel::stiffened_by {
+namespace ocx::reader::vessel::panel::stiffened_by {
 
 [[nodiscard]] TopoDS_Shape ReadStiffenedBy(LDOM_Element const &panelN,
                                            bool addShape = true);
@@ -32,6 +32,6 @@ namespace {  // anonymous namespace
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel::stiffened_by
+}  // namespace ocx::reader::vessel::panel::stiffened_by
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_STIFFENER_READER_H_

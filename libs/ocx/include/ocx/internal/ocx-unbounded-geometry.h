@@ -16,15 +16,14 @@
 #define OCX_INCLUDE_OCX_INTERNAL_OCX_UNBOUNDED_GEOMETRY_READER_H_
 
 #include <LDOM_Element.hxx>
-#include <memory>
+#include <TopoDS_Shape.hxx>
 
 #include "ocx/ocx-context.h"
-#include "ocx/internal/ocx-utils.h"
 
-namespace ocx::shared::unbounded_geometry {
+namespace ocx::reader::shared::unbounded_geometry {
 
 TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &unboundedGeometryN);
 
-}  // namespace ocx::shared::unbounded_geometry
+}  // namespace ocx::reader::shared::unbounded_geometry
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_UNBOUNDED_GEOMETRY_READER_H_

@@ -26,7 +26,7 @@
 #include "ocx/internal/ocx-unbounded-geometry.h"
 #include "ocx/ocx-helper.h"
 
-namespace ocx::vessel::panel {
+namespace ocx::reader::vessel::panel {
 
 void ReadPanels(LDOM_Element const &vesselN) {
   OCX_INFO("Start reading panels...")
@@ -113,7 +113,7 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
       OCXContext::GetInstance()->LookupShape(panelN);
   if (unboundedGeometryShape.IsNull()) {
     TopoDS_Shape unboundedGeometry =
-        ocx::shared::unbounded_geometry::ReadUnboundedGeometry(panelN);
+        ocx::reader::shared::unbounded_geometry::ReadUnboundedGeometry(panelN);
     if (!unboundedGeometry.IsNull()) {
       // Register the UnboundedGeometry in the context
       unboundedGeometryShape = unboundedGeometry;
@@ -136,7 +136,7 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
   // Read the Contour
   auto outerContour = TopoDS_Wire();  // retain scope for CreatePanelSurfaces
   if (CreatePanelContours && OCXContext::CreateLimitedBy == withLimitedBy) {
-    outerContour = ocx::shared::outer_contour::ReadOuterContour(panelN);
+    outerContour = ocx::reader::shared::outer_contour::ReadOuterContour(panelN);
     if (!outerContour.IsNull()) {
       shapes.push_back(outerContour);
     } else {
@@ -185,7 +185,8 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
   // Read ComposedOf
   if (CreateComposedOf) {
     TopoDS_Shape composedOf =
-        ocx::vessel::panel::composed_of::ReadComposedOf(panelN, withLimitedBy);
+        ocx::reader::vessel::panel::composed_of::ReadComposedOf(panelN,
+                                                                withLimitedBy);
     if (!composedOf.IsNull()) {
       shapes.push_back(composedOf);
     } else {
@@ -199,7 +200,7 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
   if (OCXContext::CreateStiffenerTraces &&
       OCXContext::CreateLimitedBy == withLimitedBy) {
     TopoDS_Shape stiffenedBy =
-        ocx::vessel::panel::stiffened_by::ReadStiffenedBy(
+        ocx::reader::vessel::panel::stiffened_by::ReadStiffenedBy(
             panelN, OCXContext::CreateLimitedBy == withLimitedBy);
     if (!stiffenedBy.IsNull()) {
       shapes.push_back(stiffenedBy);
@@ -208,7 +209,8 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
 
   // Handle second run: LimitedBy nodes
   if (withLimitedBy) {
-    TopoDS_Shape limitedBy = ocx::shared::limited_by::ReadLimitedBy(panelN);
+    TopoDS_Shape limitedBy =
+        ocx::reader::shared::limited_by::ReadLimitedBy(panelN);
     if (!limitedBy.IsNull()) {
       shapes.push_back(limitedBy);
     }
@@ -237,4 +239,4 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel
+}  // namespace ocx::reader::vessel::panel

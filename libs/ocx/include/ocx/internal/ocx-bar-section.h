@@ -15,7 +15,10 @@
 #ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_BAR_SECTION_H_
 #define OCX_INCLUDE_OCX_INTERNAL_OCX_BAR_SECTION_H_
 
-namespace ocx {
+#include <Standard_Real.hxx>
+#include <string>
+
+namespace ocx::context_entities {
 
 class BarSection {
  public:
@@ -62,6 +65,6 @@ class RoundBar final : public BarSection {
   Standard_Real m_diameter;
 };
 
-}  // namespace ocx
+}  // namespace ocx::context_entities
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_BAR_SECTION_H_

@@ -25,31 +25,44 @@
 #include "src/ocx-reader.cc"
 #include "src/ocx-utils.cc"
 
-// Shared
-#include "src/shared/ocx-curve.cc"
-#include "src/shared/ocx-limited-by.cc"
-#include "src/shared/ocx-outer-contour.cc"
-#include "src/shared/ocx-surface.cc"
-#include "src/shared/ocx-unbounded-geometry.cc"
+//-----------------------------------------------------------------------------
+// Context Entities
+//-----------------------------------------------------------------------------
+
+#include "src/context_entities/ocx-bar-section.cc"
+#include "src/context_entities/ocx-principal-particulars-wrapper.cc"
+#include "src/context_entities/ocx-refplane-wrapper.cc"
+
+//-----------------------------------------------------------------------------
+// Reader
+//-----------------------------------------------------------------------------
+
+#include "src/reader/shared/ocx-curve.cc"
+#include "src/reader/shared/ocx-limited-by.cc"
+#include "src/reader/shared/ocx-outer-contour.cc"
+#include "src/reader/shared/ocx-surface.cc"
+#include "src/reader/shared/ocx-unbounded-geometry.cc"
 
 // <ocx:ocxXML>
 //    <ocx:ClassCatalogue>
-#include "src/class_catalogue/ocx-class-catalogue.cc"
-#include "src/class_catalogue/x_section_catalogue/ocx-bar-section.cc"
-#include "src/class_catalogue/x_section_catalogue/ocx-x-section-catalogue.cc"
+#include "src/reader/class_catalogue/ocx-class-catalogue.cc"
+#include "src/reader/class_catalogue/x_section_catalogue/ocx-x-section-catalogue.cc"
 //    </ocx:ClassCatalogue>
 //    <ocx:Vessel>
-#include "src/vessel/ocx-vessel.cc"
+#include "src/reader/vessel/ocx-vessel.cc"
+//      <ocx:ClassificationData>
+#include "src/reader/vessel/classification_data/ocx-classification-data.cc"
+//      </ocx:ClassificationData>
 //      <ocx:CoordinateSystem>
-#include "src/vessel/coordinate_system/ocx-coordinate-system.cc"
+#include "src/reader/vessel/coordinate_system/ocx-coordinate-system.cc"
 //      </ocx:CoordinateSystem>
 //      <ocx:Panel>
-#include "src/vessel/panel/composed_of/ocx-composed-of.cc"
-#include "src/vessel/panel/ocx-panel.cc"
-#include "src/vessel/panel/stiffened_by/ocx-stiffened-by.cc"
+#include "src/reader/vessel/panel/composed_of/ocx-composed-of.cc"
+#include "src/reader/vessel/panel/ocx-panel.cc"
+#include "src/reader/vessel/panel/stiffened_by/ocx-stiffened-by.cc"
 //      </ocx:Panel>
 //      <ocx:ReferenceSurfaces>
-#include "src/vessel/reference_surfaces/ocx-reference-surfaces.cc"
+#include "src/reader/vessel/reference_surfaces/ocx-reference-surfaces.cc"
 //      </ocx:ReferenceSurfaces>
 //    </ocx:Vessel>
 // </ocx:ocxXML>

@@ -19,7 +19,7 @@
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 
-namespace ocx::vessel::panel {
+namespace ocx::reader::vessel::panel {
 
 void ReadPanels(LDOM_Element const &vesselN);
 
@@ -30,6 +30,6 @@ namespace {  // anonymous namespace
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel
+}  // namespace ocx::reader::vessel::panel
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_PANEL_READER_H_

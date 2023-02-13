@@ -18,13 +18,10 @@
 #include <LDOM_Element.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
-#include <TopoDS_Shell.hxx>
-#include <memory>
-#include <string>
 
 #include "ocx/ocx-context.h"
 
-namespace ocx::surface {
+namespace ocx::reader::shared::surface {
 
 /**
  * Base method managing the reading of various surface types, e.g.
@@ -110,6 +107,6 @@ namespace {  // anonymous namespace
 
 }  // namespace
 
-}  // namespace ocx::surface
+}  // namespace ocx::reader::shared::surface
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_SURFACE_READER_H_

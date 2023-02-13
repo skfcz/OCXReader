@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 03 Nov 2022                                               *
+ *   Created on: 02 Dec 2022                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,25 +12,37 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
+#include "ocx/internal/ocx-vessel.h"
 
 #include <LDOM_Element.hxx>
-#include <TopoDS_Shape.hxx>
-#include <memory>
-#include <utility>
 
+#include "ocx/internal/ocx-classification-data.h"
+#include "ocx/internal/ocx-coordinate-system.h"
+#include "ocx/internal/ocx-panel.h"
+#include "ocx/internal/ocx-reference-surfaces.h"
 #include "ocx/ocx-context.h"
 
-namespace ocx::reader::vessel::reference_surfaces {
+namespace ocx::reader::vessel {
 
-/**
- * Read the references surfaces from the OCX file.
- * The references surfaces are registered in the OCXContext as TopoDS_Shell.
- * @param vesselN the Vessel element
- */
-void ReadReferenceSurfaces(LDOM_Element const &vesselN);
+void ReadVessel() {
+  LDOM_Element vesselN = ocx::helper::GetFirstChild(
+      OCXContext::GetInstance()->OCXRoot(), "Vessel");
+  if (vesselN.isNull()) {
+    OCX_ERROR("No Vessel child node found.")
+    return;
+  }
 
-}  // namespace ocx::reader::vessel::reference_surfaces
+  // Read coordinate system
+  ocx::reader::vessel::coordinate_system::ReadCoordinateSystem(vesselN);
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
+  // Read reference surfaces
+  ocx::reader::vessel::reference_surfaces::ReadReferenceSurfaces(vesselN);
+
+  // Read classification data
+  ocx::reader::vessel::classification_data::ReadClassificationData(vesselN);
+
+  // Read panels
+  ocx::reader::vessel::panel::ReadPanels(vesselN);
+}
+
+}  // namespace ocx::reader::vessel

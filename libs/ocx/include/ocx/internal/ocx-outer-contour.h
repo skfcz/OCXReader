@@ -16,13 +16,12 @@
 #define OCX_INCLUDE_OCX_INTERNAL_OCX_OUTER_CONTOUR_H_
 
 #include <LDOM_Element.hxx>
-#include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 
-namespace ocx::shared::outer_contour {
+namespace ocx::reader::shared::outer_contour {
 
 TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN);
 
-}  // namespace ocx::shared::outer_contour
+}  // namespace ocx::reader::shared::outer_contour
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_OUTER_CONTOUR_H_

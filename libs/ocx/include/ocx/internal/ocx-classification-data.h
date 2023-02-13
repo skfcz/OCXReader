@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 03 Nov 2022                                               *
+ *   Created on: 13 Feb 2023                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,25 +12,21 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_CLASSIFICATION_DATA_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_CLASSIFICATION_DATA_H_
 
 #include <LDOM_Element.hxx>
-#include <TopoDS_Shape.hxx>
-#include <memory>
-#include <utility>
 
-#include "ocx/ocx-context.h"
+namespace ocx::reader::vessel::classification_data {
 
-namespace ocx::reader::vessel::reference_surfaces {
+void ReadClassificationData(LDOM_Element const &vesselN);
 
-/**
- * Read the references surfaces from the OCX file.
- * The references surfaces are registered in the OCXContext as TopoDS_Shell.
- * @param vesselN the Vessel element
- */
-void ReadReferenceSurfaces(LDOM_Element const &vesselN);
+namespace {  // anonymous namespace
 
-}  // namespace ocx::reader::vessel::reference_surfaces
+void ReadPrincipalParticulars(LDOM_Element const &classificationDataN);
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
+}  // namespace
+
+}  // namespace ocx::reader::vessel::classification_data
+
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_CLASSIFICATION_DATA_H_

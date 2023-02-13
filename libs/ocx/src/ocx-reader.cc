@@ -135,7 +135,7 @@ Standard_Boolean OCXReader::Parse(Handle(TDocStd_Document) & doc,
   // TODO: Read ClassCatalogue
 
   // Read Vessel elements TODO: Should return Standard_Boolean
-  ocx::vessel::ReadVessel();
+  ocx::reader::vessel::ReadVessel();
 
   return Standard_True;
 }

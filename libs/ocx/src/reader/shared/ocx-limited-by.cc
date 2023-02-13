@@ -23,7 +23,7 @@
 #include "occutils/occutils-curve.h"
 #include "ocx/ocx-helper.h"
 
-namespace ocx::shared::limited_by {
+namespace ocx::reader::shared::limited_by {
 
 TopoDS_Shape ReadLimitedBy(LDOM_Element const &panelN) {
   auto meta = ocx::helper::GetOCXMeta(panelN);
@@ -196,7 +196,7 @@ TopoDS_Shape ReadOcxItemPtr(LDOM_Element const &panelN,
 TopoDS_Shape ReadFreeEdgeCurve3D(LDOM_Element const &curveN) {
   auto meta = ocx::helper::GetOCXMeta(curveN);
 
-  TopoDS_Shape curveShape = ocx::shared::curve::ReadCurve(curveN);
+  TopoDS_Shape curveShape = ocx::reader::shared::curve::ReadCurve(curveN);
   if (curveShape.IsNull()) {
     OCX_ERROR("Failed to read FreeEdgeCurve3D with id={} guid={}", meta->id,
               meta->guid)
@@ -343,4 +343,4 @@ TopoDS_Shape ReadGridRef(LDOM_Element const &panelN,
 
 }  // namespace
 
-}  // namespace ocx::shared::limited_by
+}  // namespace ocx::reader::shared::limited_by

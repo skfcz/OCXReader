@@ -15,10 +15,11 @@
 #include "ocx/internal/ocx-unbounded-geometry.h"
 
 #include <LDOM_Element.hxx>
+#include <TopoDS_Shape.hxx>
 
 #include "ocx/ocx-helper.h"
 
-namespace ocx::shared::unbounded_geometry {
+namespace ocx::reader::shared::unbounded_geometry {
 
 TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
   auto meta = ocx::helper::GetOCXMeta(elementN);
@@ -77,7 +78,8 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
     if (aNodeType == LDOM_Node::ELEMENT_NODE) {
       LDOM_Element surfaceN = (LDOM_Element &)childN;
 
-      if (TopoDS_Shape surface = ocx::surface::ReadSurface(surfaceN);
+      if (TopoDS_Shape surface =
+              ocx::reader::shared::surface::ReadSurface(surfaceN);
           !surface.IsNull()) {
         return surface;
       }
@@ -92,4 +94,4 @@ TopoDS_Shape ReadUnboundedGeometry(LDOM_Element const &elementN) {
   return {};
 }
 
-}  // namespace ocx::shared::unbounded_geometry
+}  // namespace ocx::reader::shared::unbounded_geometry

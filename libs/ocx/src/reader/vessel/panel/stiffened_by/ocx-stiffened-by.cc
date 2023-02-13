@@ -22,7 +22,7 @@
 #include "ocx/internal/ocx-curve.h"
 #include "ocx/ocx-helper.h"
 
-namespace ocx::vessel::panel::stiffened_by {
+namespace ocx::reader::vessel::panel::stiffened_by {
 
 TopoDS_Shape ReadStiffenedBy(LDOM_Element const &panelN, bool addShape) {
   auto meta = ocx::helper::GetOCXMeta(panelN);
@@ -101,7 +101,7 @@ TopoDS_Shape ReadStiffener(LDOM_Element const &stiffenerN, bool addShape) {
     return {};
   }
 
-  TopoDS_Shape trace = ocx::shared::curve::ReadCurve(traceN);
+  TopoDS_Shape trace = ocx::reader::shared::curve::ReadCurve(traceN);
   if (trace.IsNull()) {
     OCX_ERROR(
         "Failed to read TraceLine in ReadStiffener with stiffener id={} "
@@ -137,4 +137,4 @@ TopoDS_Shape ReadStiffener(LDOM_Element const &stiffenerN, bool addShape) {
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel::stiffened_by
+}  // namespace ocx::reader::vessel::panel::stiffened_by

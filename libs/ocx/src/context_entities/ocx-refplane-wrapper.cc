@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 03 Nov 2022                                               *
+ *   Created on: 13 Feb 2023                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,25 +12,27 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
+#include "ocx/internal/ocx-refplane-wrapper.h"
 
 #include <LDOM_Element.hxx>
-#include <TopoDS_Shape.hxx>
-#include <memory>
-#include <utility>
+#include <gp_Dir.hxx>
+#include <gp_Pnt.hxx>
+#include <string>
 
-#include "ocx/ocx-context.h"
+namespace ocx::context_entities {
 
-namespace ocx::reader::vessel::reference_surfaces {
+RefPlaneWrapper::RefPlaneWrapper() : m_type(RefPlaneType::UNDEF) {}
 
-/**
- * Read the references surfaces from the OCX file.
- * The references surfaces are registered in the OCXContext as TopoDS_Shell.
- * @param vesselN the Vessel element
- */
-void ReadReferenceSurfaces(LDOM_Element const &vesselN);
+RefPlaneWrapper::RefPlaneWrapper(std::string_view id, RefPlaneType const &type,
+                                 LDOM_Element const &refPlaneN,
+                                 gp_Dir const &normal, gp_Pnt const &p1,
+                                 gp_Pnt const &p2, gp_Pnt const &p3)
+    : m_id(id),
+      m_type(type),
+      m_refPlaneN(refPlaneN),
+      m_normal(normal),
+      m_p1(p1),
+      m_p2(p2),
+      m_p3(p3) {}
 
-}  // namespace ocx::reader::vessel::reference_surfaces
-
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_REFERENCE_SURFACES_READER_H_
+}  // namespace ocx::context_entities

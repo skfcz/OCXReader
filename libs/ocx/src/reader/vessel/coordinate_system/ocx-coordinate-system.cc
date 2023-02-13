@@ -26,9 +26,8 @@
 
 #include "occutils/occutils-wire.h"
 #include "ocx/ocx-context.h"
-#include "ocx/ocx-helper.h"
 
-namespace ocx::vessel::coordinate_system {
+namespace ocx::reader::vessel::coordinate_system {
 
 void ReadCoordinateSystem(LDOM_Element const &vesselN) {
   OCX_INFO("Start reading coordinate system...")
@@ -145,7 +144,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
       gp_Pnt org;
       gp_Dir direction;
       gp_Pnt pnt0, pnt1, pnt2, pnt3;
-      RefPlaneType refPlaneType;
+      ocx::context_entities::RefPlaneType refPlaneType;
 
       if (refPlaneTypeName == "XRefPlanes") {
         // YZ plane (frame)
@@ -156,7 +155,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         pnt1 = gp_Pnt(location, -1.10 * width / 2.0, OCXContext::MinZ);
         pnt2 = gp_Pnt(location, -1.10 * width / 2.0, OCXContext::MaxZ);
         pnt3 = gp_Pnt(location, 1.10 * width / 2.0, OCXContext::MaxZ);
-        refPlaneType = RefPlaneType::X;
+        refPlaneType = ocx::context_entities::RefPlaneType::X;
 
       } else if (refPlaneTypeName == "YRefPlanes") {
         // XZ plane (longitudinal)
@@ -167,7 +166,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         pnt1 = gp_Pnt(OCXContext::MaxX, location, OCXContext::MinZ);
         pnt2 = gp_Pnt(OCXContext::MaxX, location, OCXContext::MaxZ);
         pnt3 = gp_Pnt(OCXContext::MinX, location, OCXContext::MaxZ);
-        refPlaneType = RefPlaneType::Y;
+        refPlaneType = ocx::context_entities::RefPlaneType::Y;
 
       } else if (refPlaneTypeName == "ZRefPlanes") {
         // XY plane (deck)
@@ -178,7 +177,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
         pnt1 = gp_Pnt(OCXContext::MinX, -1.05 * width / 2.0, location);
         pnt2 = gp_Pnt(OCXContext::MaxX, -1.05 * width / 2.0, location);
         pnt3 = gp_Pnt(OCXContext::MaxX, 1.05 * width / 2.0, location);
-        refPlaneType = RefPlaneType::Z;
+        refPlaneType = ocx::context_entities::RefPlaneType::Z;
       }
 
       auto unlimitedSurface = gp_Pln(org, direction);
@@ -230,4 +229,4 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
 
 }  // namespace
 
-}  // namespace ocx::vessel::coordinate_system
+}  // namespace ocx::reader::vessel::coordinate_system

@@ -31,7 +31,7 @@
 #include "ocx/internal/ocx-utils.h"
 #include "ocx/ocx-helper.h"
 
-namespace ocx::surface {
+namespace ocx::reader::shared::surface {
 
 TopoDS_Shape ReadSurface(LDOM_Element const &surfaceN) {
   auto meta = ocx::helper::GetOCXMeta(surfaceN);
@@ -205,7 +205,8 @@ TopoDS_Face ReadNURBSSurface(LDOM_Element const &nurbsSrfN) {
     return {};
   }
 
-  TopoDS_Wire outerContour = ocx::shared::curve::ReadCurve(faceBoundaryCurveN);
+  TopoDS_Wire outerContour =
+      ocx::reader::shared::curve::ReadCurve(faceBoundaryCurveN);
   if (outerContour.IsNull()) {
     OCX_ERROR(
         "Failed to read FaceBoundaryCurve child node in NURBSSurface with "
@@ -405,7 +406,7 @@ TopoDS_Face ReadPlane3D(LDOM_Element const &surfaceN) {
   LDOM_Element faceBoundaryCurveN =
       ocx::helper::GetFirstChild(surfaceN, "FaceBoundaryCurve");
   if (!faceBoundaryCurveN.isNull()) {
-    outerContour = ocx::shared::curve::ReadCurve(faceBoundaryCurveN);
+    outerContour = ocx::reader::shared::curve::ReadCurve(faceBoundaryCurveN);
   } else {
     OCX_DEBUG(
         "No FaceBoundaryCurve child node found in Plane3D with surface id={}. "
@@ -505,4 +506,4 @@ TopoDS_Face ReadPlane3D(LDOM_Element const &surfaceN) {
 
 }  // namespace
 
-}  // namespace ocx::surface
+}  // namespace ocx::reader::shared::surface

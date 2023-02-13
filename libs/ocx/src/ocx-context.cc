@@ -22,30 +22,12 @@
 #include <utility>
 
 #include "occutils/occutils-shape.h"
+#include "ocx/internal/ocx-bar-section.h"
 #include "ocx/internal/ocx-exceptions.h"
+#include "ocx/internal/ocx-refplane-wrapper.h"
 #include "ocx/ocx-helper.h"
 
 namespace ocx {
-
-RefPlaneWrapper::RefPlaneWrapper() : type(RefPlaneType::UNDEF) {}
-
-RefPlaneWrapper::RefPlaneWrapper(
-                                 const std::string &idi,
-                                 const RefPlaneType &typei,
-                                 const LDOM_Element &refPlaneNi,
-                                 const gp_Dir &normali, const gp_Pnt &p1i,
-                                 const gp_Pnt &p2i, const gp_Pnt &p3i)
-    : id(idi),
-      type(typei),
-      refPlaneN(refPlaneNi),
-      normal(normali),
-      p1(p1i),
-      p2(p2i),
-      p3(p3i) {
-    std::cout << "RefPlaneWrapper " << id << "normal= [" << normal.X() << ", " << normal.Y() << ", "<< normal.Z() << "]" << std::endl;
-}
-
-//-----------------------------------------------------------------------------
 
 bool LDOMCompare::operator()(LDOM_Element const &lhs,
                              LDOM_Element const &rhs) const {
@@ -203,16 +185,16 @@ TopoDS_Shape OCXContext::LookupShape(LDOM_Element const &element) {
 
 //-----------------------------------------------------------------------------
 
-void OCXContext::RegisterRefPlane(std::string const &guid,
-                                  RefPlaneType const &type,
-                                  LDOM_Element const &element,
-                                  gp_Dir const &normal, gp_Pnt const &p0,
-                                  gp_Pnt const &p1, gp_Pnt const &p2) {
-  std::cout << "RegisterRefPlane " << guid << std::endl;
-  GUID2RefPlane[guid] = RefPlaneWrapper(guid, type, element, normal, p0, p1, p2);
+void OCXContext::RegisterRefPlane(
+    std::string const &guid, ocx::context_entities::RefPlaneType const &type,
+    LDOM_Element const &element, gp_Dir const &normal, gp_Pnt const &p0,
+    gp_Pnt const &p1, gp_Pnt const &p2) {
+  GUID2RefPlane[guid] = ocx::context_entities::RefPlaneWrapper(
+      guid, type, element, normal, p0, p1, p2);
 }
 
-RefPlaneWrapper OCXContext::LookupRefPlane(std::string_view const &guid) {
+ocx::context_entities::RefPlaneWrapper OCXContext::LookupRefPlane(
+    std::string_view const &guid) {
   if (auto res = GUID2RefPlane.find(guid); res != GUID2RefPlane.end()) {
     return res->second;
   }
@@ -222,12 +204,27 @@ RefPlaneWrapper OCXContext::LookupRefPlane(std::string_view const &guid) {
 
 //-----------------------------------------------------------------------------
 
-void OCXContext::RegisterBarSection(LDOM_Element const &element,
-                                    BarSection const &section) {
+void OCXContext::RegisterPrincipalParticulars(
+    ocx::context_entities::PrincipalParticularsWrapper const
+        &PrincipalParticularsWrapper) {
+  m_principalParticulars = PrincipalParticularsWrapper;
+}
+
+ocx::context_entities::PrincipalParticularsWrapper
+OCXContext::GetPrincipalParticulars() {
+  return m_principalParticulars;
+}
+
+//-----------------------------------------------------------------------------
+
+void OCXContext::RegisterBarSection(
+    LDOM_Element const &element,
+    ocx::context_entities::BarSection const &section) {
   LDOM2BarSection[element] = section;
 }
 
-BarSection OCXContext::LookupBarSection(LDOM_Element const &element) const {
+ocx::context_entities::BarSection OCXContext::LookupBarSection(
+    LDOM_Element const &element) const {
   if (auto res = LDOM2BarSection.find(element); res != LDOM2BarSection.end()) {
     return res->second;
   }

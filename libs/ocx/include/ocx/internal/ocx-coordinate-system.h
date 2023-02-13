@@ -12,18 +12,14 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_H_
 
 #include <LDOM_Element.hxx>
 #include <Quantity_Color.hxx>
 #include <TopoDS_Shape.hxx>
-#include <memory>
-#include <utility>
 
-#include "ocx/ocx-context.h"
-
-namespace ocx::vessel::coordinate_system {
+namespace ocx::reader::vessel::coordinate_system {
 
 void ReadCoordinateSystem(LDOM_Element const &vesselN);
 
@@ -34,6 +30,6 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
 
 }  // namespace
 
-}  // namespace ocx::vessel::coordinate_system
+}  // namespace ocx::reader::vessel::coordinate_system
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_READER_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_COORDINATE_SYSTEM_H_

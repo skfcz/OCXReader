@@ -17,12 +17,11 @@
 
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
-#include <memory>
 
-#include "ocx/ocx-context.h"
 #include "ocx/internal/ocx-utils.h"
+#include "ocx/ocx-context.h"
 
-namespace ocx::shared::limited_by {
+namespace ocx::reader::shared::limited_by {
 
 /**
  * @brief Read LimitedBy by calculating the intersection between the passed
@@ -50,6 +49,6 @@ namespace {  // anonymous namespace
 
 }  // namespace
 
-}  // namespace ocx::shared::limited_by
+}  // namespace ocx::reader::shared::limited_by
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_LIMITED_BY_READER_H_

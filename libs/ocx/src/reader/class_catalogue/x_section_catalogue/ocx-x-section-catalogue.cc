@@ -14,13 +14,13 @@
 
 #include "ocx/internal/ocx-x-section-catalogue.h"
 
-#include <LDOM_Element.hxx>
 #include <memory>
 
+#include "LDOM_Element.hxx"
 #include "ocx/internal/ocx-utils.h"
 #include "ocx/ocx-helper.h"
 
-namespace ocx::x_section_catalogue {
+namespace ocx::reader::class_catalogue::x_section_catalogue {
 
 void ReadXSectionCatalogue(LDOM_Element const &catalogueN) {
   LDOM_Element xSectionCatalogueN =
@@ -104,4 +104,4 @@ void ReadFlatBar(LDOM_Element const &barSectionN) {
 
 }  // namespace
 
-}  // namespace ocx::x_section_catalogue
+}  // namespace ocx::reader::class_catalogue::x_section_catalogue

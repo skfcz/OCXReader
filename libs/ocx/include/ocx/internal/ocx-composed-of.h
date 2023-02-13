@@ -19,7 +19,7 @@
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 
-namespace ocx::vessel::panel::composed_of {
+namespace ocx::reader::vessel::panel::composed_of {
 
 [[nodiscard]] TopoDS_Shape ReadComposedOf(LDOM_Element const &panelN,
                                           bool withLimitedBy = false);
@@ -33,6 +33,6 @@ namespace {  // anonymous namespace
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel::composed_of
+}  // namespace ocx::reader::vessel::panel::composed_of
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_COMPOSED_OF_H_

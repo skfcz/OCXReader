@@ -16,12 +16,8 @@
 #define OCX_INCLUDE_OCX_INTERNAL_BAR_SECTION_READER_H_
 
 #include <LDOM_Element.hxx>
-#include <memory>
 
-#include "ocx/ocx-context.h"
-#include "ocx/internal/ocx-utils.h"
-
-namespace ocx::x_section_catalogue {
+namespace ocx::reader::class_catalogue::x_section_catalogue {
 
 /**
  * Read the XSectionCatalogue
@@ -41,6 +37,6 @@ void ReadFlatBar(LDOM_Element const &barSectionN);
 
 }  // namespace
 
-}  // namespace ocx::x_section_catalogue
+}  // namespace ocx::reader::class_catalogue::x_section_catalogue
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_BAR_SECTION_READER_H_

@@ -14,7 +14,7 @@
 
 #include "ocx/internal/ocx-outer-contour.h"
 
-namespace ocx::shared::outer_contour {
+namespace ocx::reader::shared::outer_contour {
 
 TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN) {
   auto meta = ocx::helper::GetOCXMeta(elementN);
@@ -27,7 +27,8 @@ TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN) {
     return {};
   }
 
-  TopoDS_Shape curveShape = ocx::shared::curve::ReadCurve(outerContourN);
+  TopoDS_Shape curveShape =
+      ocx::reader::shared::curve::ReadCurve(outerContourN);
   if (curveShape.IsNull()) {
     OCX_ERROR("Failed to read curve shape from element id={} guid={}", meta->id,
               meta->guid)
@@ -55,4 +56,4 @@ TopoDS_Wire ReadOuterContour(LDOM_Element const& elementN) {
   return TopoDS::Wire(curveShape);
 }
 
-}  // namespace ocx::shared::outer_contour
+}  // namespace ocx::reader::shared::outer_contour

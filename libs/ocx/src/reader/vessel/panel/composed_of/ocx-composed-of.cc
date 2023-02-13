@@ -23,7 +23,7 @@
 #include "ocx/internal/ocx-outer-contour.h"
 #include "ocx/internal/ocx-unbounded-geometry.h"
 
-namespace ocx::vessel::panel::composed_of {
+namespace ocx::reader::vessel::panel::composed_of {
 
 TopoDS_Shape ReadComposedOf(LDOM_Element const &panelN, bool withLimitedBy) {
   auto meta = ocx::helper::GetOCXMeta(panelN);
@@ -96,7 +96,8 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
   if (unboundedGeometryShape.IsNull()) {
     if (!ocx::helper::GetFirstChild(plateN, "UnboundedGeometry").isNull()) {
       TopoDS_Shape unboundedGeometry =
-          ocx::shared::unbounded_geometry::ReadUnboundedGeometry(plateN);
+          ocx::reader::shared::unbounded_geometry::ReadUnboundedGeometry(
+              plateN);
       if (!unboundedGeometry.IsNull()) {
         // Register the UnboundedGeometry in the context
         unboundedGeometryShape = unboundedGeometry;
@@ -136,7 +137,7 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
   // Read the Contour
   auto outerContour = TopoDS_Wire();  // retain scope for CreatePlateSurfaces
   if (CreatePlateContours && OCXContext::CreateLimitedBy == withLimitedBy) {
-    outerContour = ocx::shared::outer_contour::ReadOuterContour(plateN);
+    outerContour = ocx::reader::shared::outer_contour::ReadOuterContour(plateN);
     if (!outerContour.IsNull()) {
       shapes.push_back(outerContour);
     } else {
@@ -181,7 +182,8 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
 
   // Handle second run: LimitedBy nodes
   if (withLimitedBy) {
-    TopoDS_Shape limitedBy = ocx::shared::limited_by::ReadLimitedBy(plateN);
+    TopoDS_Shape limitedBy =
+        ocx::reader::shared::limited_by::ReadLimitedBy(plateN);
     if (!limitedBy.IsNull()) {
       shapes.push_back(limitedBy);
     }
@@ -216,4 +218,4 @@ TopoDS_Shape ReadBracket(LDOM_Element const &bracketN) {
 
 }  // namespace
 
-}  // namespace ocx::vessel::panel::composed_of
+}  // namespace ocx::reader::vessel::panel::composed_of

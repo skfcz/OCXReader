@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Created on: 28 Nov 2022                                               *
+ *   Created on: 13 Feb 2023                                               *
  ***************************************************************************
  *   Copyright (c) 2022, Carsten Zerbst (carsten.zerbst@groy-groy.de)      *
  *   Copyright (c) 2022, Paul Buechner                                     *
@@ -12,27 +12,4 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "ocx/internal/ocx-class-catalogue.h"
-
-#include "ocx/internal/ocx-x-section-catalogue.h"
-#include "ocx/ocx-helper.h"
-
-namespace ocx::class_catalogue {
-
-void ReadClassCatalogue() {
-  LDOM_Element catalogueN = ocx::helper::GetFirstChild(
-      OCXContext::GetInstance()->OCXRoot(), "ClassCatalogue");
-  if (catalogueN.isNull()) {
-    OCX_ERROR("No ClassCatalogue child node found.")
-    return;
-  }
-
-  // TODO: Read MaterialCatalogue
-
-  // Read XSectionCatalogue
-  ocx::x_section_catalogue::ReadXSectionCatalogue(catalogueN);
-
-  // TODO: Read HoleShapeCatalogue
-}
-
-}  // namespace ocx::class_catalogue
+#include "ocx/internal/ocx-principal-particulars-wrapper.h"

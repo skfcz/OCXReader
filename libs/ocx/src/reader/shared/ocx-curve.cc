@@ -30,7 +30,7 @@
 #include "ocx/internal/ocx-utils.h"
 #include "ocx/ocx-helper.h"
 
-namespace ocx::shared::curve {
+namespace ocx::reader::shared::curve {
 
 TopoDS_Wire ReadCurve(LDOM_Element const &curveRootN) {
   auto meta = ocx::helper::GetOCXMeta(curveRootN);
@@ -476,4 +476,4 @@ TopoDS_Shape ReadNURBS3D(LDOM_Element const &nurbs3DN) {
 
 }  // namespace
 
-}  // namespace ocx::shared::curve
+}  // namespace ocx::reader::shared::curve

@@ -24,7 +24,7 @@
 #include "ocx/internal/ocx-surface.h"
 #include "ocx/ocx-helper.h"
 
-namespace ocx::vessel::reference_surfaces {
+namespace ocx::reader::vessel::reference_surfaces {
 
 void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
   LDOM_Element refSurfsN =
@@ -45,7 +45,8 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
 
       auto meta = ocx::helper::GetOCXMeta(surfaceN);
 
-      TopoDS_Shape referenceSurface = ocx::surface::ReadSurface(surfaceN);
+      TopoDS_Shape referenceSurface =
+          ocx::reader::shared::surface::ReadSurface(surfaceN);
       if (!referenceSurface.IsNull()) {
         OCXContext::GetInstance()->RegisterShape(surfaceN, referenceSurface);
 
@@ -92,4 +93,4 @@ void ReadReferenceSurfaces(LDOM_Element const &vesselN) {
   OCX_INFO("Registered {} reference surfaces", shapes.size())
 }
 
-}  // namespace ocx::vessel::reference_surfaces
+}  // namespace ocx::reader::vessel::reference_surfaces

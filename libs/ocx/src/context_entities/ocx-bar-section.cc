@@ -16,7 +16,7 @@
 
 #include <utility>
 
-namespace ocx {
+namespace ocx::context_entities {
 
 BarSection::BarSection(std::string barSectionType)
     : m_barSectionType(std::move(barSectionType)) {}
@@ -43,4 +43,4 @@ Standard_Real RoundBar::GetHeight() const { return m_height; }
 
 Standard_Real RoundBar::GetDiameter() const { return m_diameter; }
 
-}  // namespace ocx
+}  // namespace ocx::context_entities

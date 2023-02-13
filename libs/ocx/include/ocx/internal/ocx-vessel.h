@@ -15,10 +15,10 @@
 #ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_VESSEL_H_
 #define OCX_INCLUDE_OCX_INTERNAL_OCX_VESSEL_H_
 
-namespace ocx::vessel {
+namespace ocx::reader::vessel {
 
 void ReadVessel();
 
-}  // namespace ocx::vessel
+}  // namespace ocx::reader::vessel
 
 #endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_VESSEL_H_
