@@ -107,11 +107,101 @@ void ReadPrincipalParticulars(LDOM_Element const &classificationDataN) {
         ocx::helper::ReadDimension(designSpeedN);
   }
 
+  if (LDOM_Element freeboardLengthN =
+          ocx::helper::GetFirstChild(principalParticularsN, "FreeboardLength");
+      !freeboardLengthN.isNull()) {
+    principalParticularsWrapper.m_freeboardLength =
+        ocx::helper::ReadDimension(freeboardLengthN);
+  }
+
+  if (LDOM_Element normalBallastDraughtN = ocx::helper::GetFirstChild(
+          principalParticularsN, "NormalBallastDraught");
+      !normalBallastDraughtN.isNull()) {
+    principalParticularsWrapper.m_normalBallastDraught =
+        ocx::helper::ReadDimension(normalBallastDraughtN);
+  }
+
+  if (LDOM_Element heavyBallastDraughtN = ocx::helper::GetFirstChild(
+          principalParticularsN, "HeavyBallastDraught");
+      !heavyBallastDraughtN.isNull()) {
+    principalParticularsWrapper.m_heavyBallastDraught =
+        ocx::helper::ReadDimension(heavyBallastDraughtN);
+  }
+
+  if (LDOM_Element slammingDraughtEmptyFPN = ocx::helper::GetFirstChild(
+          principalParticularsN, "SlammingDraughtEmptyFP");
+      !slammingDraughtEmptyFPN.isNull()) {
+    principalParticularsWrapper.m_slammingDraughtEmptyFP =
+        ocx::helper::ReadDimension(slammingDraughtEmptyFPN);
+  }
+
+  if (LDOM_Element slammingDraughtFullFPN = ocx::helper::GetFirstChild(
+          principalParticularsN, "SlammingDraughtFullFP");
+      !slammingDraughtFullFPN.isNull()) {
+    principalParticularsWrapper.m_slammingDraughtFullFP =
+        ocx::helper::ReadDimension(slammingDraughtFullFPN);
+  }
+
+  if (LDOM_Element lengthOfWaterlineN = ocx::helper::GetFirstChild(
+          principalParticularsN, "LengthOfWaterline");
+      !lengthOfWaterlineN.isNull()) {
+    principalParticularsWrapper.m_lengthOfWaterline =
+        ocx::helper::ReadDimension(lengthOfWaterlineN);
+  }
+
+  if (LDOM_Element freeboardDeckHeightN = ocx::helper::GetFirstChild(
+          principalParticularsN, "FreeboardDeckHeight");
+      !freeboardDeckHeightN.isNull()) {
+    principalParticularsWrapper.m_freeboardDeckHeight =
+        ocx::helper::ReadDimension(freeboardDeckHeightN);
+  }
+
   if (LDOM_Element apPosN =
           ocx::helper::GetFirstChild(principalParticularsN, "AP_Pos");
       !apPosN.isNull()) {
     principalParticularsWrapper.m_apPos = ocx::helper::ReadDimension(apPosN);
   }
+
+  if (LDOM_Element deepestEquilibriumWLN = ocx::helper::GetFirstChild(
+          principalParticularsN, "DeepestEquilibriumWL");
+      !deepestEquilibriumWLN.isNull()) {
+    principalParticularsWrapper.m_deepestEquilibriumWL =
+        ocx::helper::ReadDimension(deepestEquilibriumWLN);
+  }
+
+  if (LDOM_Element upperDeckAreaN =
+          ocx::helper::GetFirstChild(principalParticularsN, "UpperDeckArea");
+      !upperDeckAreaN.isNull()) {
+    principalParticularsWrapper.m_upperDeckArea =
+        ocx::helper::ReadDimension(upperDeckAreaN);
+  }
+
+  if (LDOM_Element waterPlaneAreaN =
+          ocx::helper::GetFirstChild(principalParticularsN, "WaterPlaneArea");
+      !waterPlaneAreaN.isNull()) {
+    principalParticularsWrapper.m_waterPlaneArea =
+        ocx::helper::ReadDimension(waterPlaneAreaN);
+  }
+
+  if (LDOM_Element zPosDecklineN =
+          ocx::helper::GetFirstChild(principalParticularsN, "ZPosDeckline");
+      !zPosDecklineN.isNull()) {
+    principalParticularsWrapper.m_zPosDeckline =
+        ocx::helper::ReadDimension(zPosDecklineN);
+  }
+
+  if (LDOM_Element speedFactorN =
+          ocx::helper::GetFirstChild(principalParticularsN, "SpeedFactor");
+      !speedFactorN.isNull()) {
+    principalParticularsWrapper.m_speedFactor =
+        ocx::helper::ReadDimension(speedFactorN);
+  }
+
+  // TODO: Add support for the following principal particulars properties:
+  // TODO: - hasDeadweightLessThan
+  // TODO: - hasBilgeKeel
+  // TODO: - freeboardType
+  // TODO: - numberOfDecksAbove
 
   // Add principal particular to context
   ocx::OCXContext::GetInstance()->RegisterPrincipalParticulars(
