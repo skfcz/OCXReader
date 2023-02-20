@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "license": "LGPL-2.1",
   "description": [
-    "OCXReader is a tool to read and parse data from OCX files and export them",
-    "to different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB."
+    "A tool to convert vessels in OCX format into 3D geometry and export them",
+    "to different formats."
   ],
   "dependencies": [
     {
