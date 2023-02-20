@@ -37,6 +37,7 @@
 *.ninja
 *.stp
 *.log
+/packages/
 
 # OCXReader
 **/generated/
