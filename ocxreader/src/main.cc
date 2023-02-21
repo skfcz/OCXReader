@@ -26,13 +26,13 @@
 int main(int argc, char** argv) {
   namespace po = boost::program_options;
 
-  std::string reader_config_file_path;
+  std::string config_file_path;
 
   po::options_description generic("Generic options");
   generic.add_options()                      //
       ("version,v", "print version string")  //
       ("help,h", "produce help message")     //
-      ("reader-config-file", po::value<std::string>(&reader_config_file_path),
+      ("config-file", po::value<std::string>(&config_file_path),
        "The path to the file containing OCX parsing options (e.g. "
        "path/to/config_file.json)");
 
@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
     }
 
     // Parse options from reader config file if defined
-    if (!reader_config_file_path.empty()) {
+    if (!config_file_path.empty()) {
       std::filesystem::path readerConfigFile;
-      if (!ocxreader::cli::get_valid_file_path(reader_config_file_path,
+      if (!ocxreader::cli::get_valid_file_path(config_file_path,
                                                readerConfigFile)) {
         std::cerr << "No config file found at: " << readerConfigFile
                   << std::endl;

@@ -89,7 +89,8 @@ system [here](https://vcpkg.io/en/getting-started.html).
 
 #### Git submodules
 
-Besides vcpkg the project uses git submodules to manage some of its dependencies.
+Besides vcpkg the project uses git submodules to manage some of its
+dependencies.
 When checking out the project for the first time, make sure to also initialize
 and update the submodules:
 
@@ -288,7 +289,7 @@ Allowed options:
 Generic options:
   -v [ --version ]              print version string
   -h [ --help ]                 produce help message
-  --reader-config-file arg      The path to the file containing OCX parsing
+  --config-file arg             The path to the file containing OCX parsing
                                 options (e.g. path/to/config_file.json)
 
 OCXReader configuration options:
