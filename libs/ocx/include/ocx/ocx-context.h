@@ -31,6 +31,7 @@
 #include "ocx/internal/ocx-principal-particulars-wrapper.h"
 #include "ocx/internal/ocx-refplane-wrapper.h"
 #include "ocx/internal/ocx-utils.h"
+#include "ocx/internal/ocx-vessel-grid-wrapper.h"
 
 namespace ocx {
 
@@ -159,6 +160,21 @@ class OCXContext {
   GetPrincipalParticulars();
 
   /**
+   * Register a the ocx VesselGrid
+   *
+   * @param vesselGridWrappers the VesselGridWrappers to register
+   */
+  void RegisterVesselGrid(
+      std::vector<ocx::context_entities::VesselGridWrapper> const
+          &vesselGridWrappers);
+
+  /**
+   * Get the ocx VesselGrid
+   */
+  [[nodiscard]] std::vector<ocx::context_entities::VesselGridWrapper>
+  GetVesselGrid();
+
+  /**
    * Register a BarSection by its LDOM_Element (matched by given GUID or ID)
    *
    * @param shape the BarSection to register (one of TopoDS_Face or
@@ -208,6 +224,11 @@ class OCXContext {
    * The ocx PrincipalParticular
    */
   ocx::context_entities::PrincipalParticularsWrapper m_principalParticulars;
+
+  /**
+   * The ocx VesselGrid
+   */
+  std::vector<ocx::context_entities::VesselGridWrapper> m_vesselGrid;
 
   std::map<LDOM_Element, TopoDS_Shape, LDOMCompare> LDOM2TopoDS_Shape;
 

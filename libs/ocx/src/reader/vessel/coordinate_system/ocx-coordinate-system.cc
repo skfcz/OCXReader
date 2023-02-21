@@ -18,13 +18,16 @@
 #include <BRep_Builder.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <Quantity_Color.hxx>
+#include <Standard_Integer.hxx>
 #include <TDataStd_Name.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS_Compound.hxx>
 #include <gp_Pln.hxx>
 #include <list>
+#include <magic_enum.hpp>
 
 #include "occutils/occutils-wire.h"
+#include "ocx/internal/ocx-vessel-grid-wrapper.h"
 #include "ocx/ocx-context.h"
 
 namespace ocx::reader::vessel::coordinate_system {
@@ -32,63 +35,66 @@ namespace ocx::reader::vessel::coordinate_system {
 void ReadCoordinateSystem(LDOM_Element const &vesselN) {
   OCX_INFO("Start reading coordinate system...")
 
-  LDOM_Element cosysN = ocx::helper::GetFirstChild(vesselN, "CoordinateSystem");
-  if (cosysN.isNull()) {
+  LDOM_Element coordinateSystemN =
+      ocx::helper::GetFirstChild(vesselN, "CoordinateSystem");
+  if (coordinateSystemN.isNull()) {
     OCX_ERROR("No CoordinateSystem child node found.")
     return;
   }
 
   // TODO: do we need to read the LocalCartesian ?
-  // TODO: do we need to read the VesselGrid ?
 
-  LDOM_Element frameTblsN = ocx::helper::GetFirstChild(cosysN, "FrameTables");
-  if (frameTblsN.isNull()) {
+  LDOM_Element frameTablesN =
+      ocx::helper::GetFirstChild(coordinateSystemN, "FrameTables");
+  if (frameTablesN.isNull()) {
     OCX_ERROR("No FrameTables child node found in CoordinateSystem")
     return;
   }
 
-  std::list<TopoDS_Shape> shapes;
+  std::list<TopoDS_Shape> refPlaneShapes;
 
-  LDOM_Element xRefPlanesN =
-      ocx::helper::GetFirstChild(frameTblsN, "XRefPlanes");
-  if (xRefPlanesN.isNull()) {
+  // TODO: Evaluate refactor with python like for "refplane", color in zip()
+
+  if (LDOM_Element xRefPlanesN =
+          ocx::helper::GetFirstChild(frameTablesN, "XRefPlanes");
+      xRefPlanesN.isNull()) {
     OCX_ERROR("No XRefPlanes child node found in CoordinateSystem/FrameTables")
   } else {
     // Material Green 400
     auto color =
         Quantity_Color(102 / 256.0, 187 / 256.0, 106 / 256.0, Quantity_TOC_RGB);
     TopoDS_Shape comp = ReadRefPlane(xRefPlanesN, color);
-    shapes.push_back(comp);
+    refPlaneShapes.push_back(comp);
   }
 
-  LDOM_Element yRefPlanesN =
-      ocx::helper::GetFirstChild(frameTblsN, "YRefPlanes");
-  if (yRefPlanesN.isNull()) {
+  if (LDOM_Element yRefPlanesN =
+          ocx::helper::GetFirstChild(frameTablesN, "YRefPlanes");
+      yRefPlanesN.isNull()) {
     OCX_ERROR("No YRefPlanes child node found in CoordinateSystem/FrameTables")
   } else {
     // Material Lime 400
     auto color =
         Quantity_Color(212 / 256.0, 225 / 256.0, 87 / 256.0, Quantity_TOC_RGB);
     TopoDS_Shape comp = ReadRefPlane(yRefPlanesN, color);
-    shapes.push_back(comp);
+    refPlaneShapes.push_back(comp);
   }
 
-  LDOM_Element zRefPlanesN =
-      ocx::helper::GetFirstChild(frameTblsN, "ZRefPlanes");
-  if (zRefPlanesN.isNull()) {
+  if (LDOM_Element zRefPlanesN =
+          ocx::helper::GetFirstChild(frameTablesN, "ZRefPlanes");
+      zRefPlanesN.isNull()) {
     OCX_ERROR("No ZRefPlanes child node found in CoordinateSystem/FrameTables")
   } else {
     // Material Amber 400
     auto color =
         Quantity_Color(255 / 256.0, 202 / 256.0, 40 / 256.0, Quantity_TOC_RGB);
     TopoDS_Shape comp = ReadRefPlane(zRefPlanesN, color);
-    shapes.push_back(comp);
+    refPlaneShapes.push_back(comp);
   }
 
   TopoDS_Compound refPlanesAssy;
   BRep_Builder builder;
   builder.MakeCompound(refPlanesAssy);
-  for (const TopoDS_Shape &shape : shapes) {
+  for (const TopoDS_Shape &shape : refPlaneShapes) {
     builder.Add(refPlanesAssy, shape);
   }
 
@@ -96,8 +102,21 @@ void ReadCoordinateSystem(LDOM_Element const &vesselN) {
       OCXContext::GetInstance()->OCAFShapeTool()->AddShape(refPlanesAssy, true);
   TDataStd_Name::Set(label, "Reference Planes");
 
+  // TODO: Add configure option to enable/disable reading of VesselGrid
+  // Read in VesselGrid
+  if (LDOM_Element vesselGridN =
+          ocx::helper::GetFirstChild(coordinateSystemN, "VesselGrid");
+      vesselGridN.isNull()) {
+    OCX_ERROR("No VesselGrid child node found.")
+    return;
+  } else {
+    ReadVesselGrid(vesselGridN);
+  }
+
   OCX_INFO("Finished reading coordinate system...")
 }
+
+//-----------------------------------------------------------------------------
 
 namespace {
 
@@ -108,7 +127,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
   OCX_INFO("Reading reference planes from {}", refPlaneTypeName)
 
   int cntPlanes = 0;
-  std::list<TopoDS_Shape> shapes;
+  std::list<TopoDS_Shape> refPlaneShapes;
   LDOM_Node aChildN = refPlanesN.getFirstChild();
   while (!aChildN.isNull()) {
     const LDOM_Node::NodeType aNodeType = aChildN.getNodeType();
@@ -203,7 +222,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
       OCXContext::GetInstance()->OCAFColorTool()->SetColor(surfaceL, color,
                                                            XCAFDoc_ColorSurf);
 
-      shapes.push_back(surface);
+      refPlaneShapes.push_back(surface);
 
       cntPlanes++;
     }
@@ -213,7 +232,7 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
   TopoDS_Compound refPlanesAssy;
   BRep_Builder refPlanesBuilder;
   refPlanesBuilder.MakeCompound(refPlanesAssy);
-  for (TopoDS_Shape const &shape : shapes) {
+  for (TopoDS_Shape const &shape : refPlaneShapes) {
     refPlanesBuilder.Add(refPlanesAssy, shape);
   }
 
@@ -225,6 +244,94 @@ TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
            refPlaneTypeName)
 
   return refPlanesAssy;
+}
+
+//-----------------------------------------------------------------------------
+
+void ReadVesselGrid(LDOM_Element const &vesselGridN) {
+  OCX_INFO("Reading VesselGrid")
+
+  // Create a vector to store the VesselGridWrappers
+  std::vector<context_entities::VesselGridWrapper> vesselGrid;
+
+  for (auto const &gridType : {context_entities::VesselGridType::XGrid,
+                               context_entities::VesselGridType::YGrid,
+                               context_entities::VesselGridType::ZGrid}) {
+    LDOM_Element gridN = ocx::helper::GetFirstChild(
+        vesselGridN, magic_enum::enum_name(gridType));
+    if (gridN.isNull()) {
+      OCX_ERROR("No {} child node found in VesselGrid",
+                magic_enum::enum_name(gridType))
+      continue;
+    }
+
+    // Create VesselGridWrapper to store the grid data
+    context_entities::VesselGridWrapper gridWrapper(gridType);
+
+    if (std::string isReversed = ocx::helper::GetAttrValue(gridN, "isReversed");
+        !isReversed.empty()) {
+      gridWrapper.SetIsReversed(ocx::utils::stob(isReversed));
+    }
+
+    if (std::string isMainSystem =
+            ocx::helper::GetAttrValue(gridN, "isMainSystem");
+        !isMainSystem.empty()) {
+      gridWrapper.SetIsMainSystem(ocx::utils::stob(isMainSystem));
+    }
+
+    if (LDOM_Element distanceToApN =
+            ocx::helper::GetFirstChild(gridN, "DistanceToAP");
+        !distanceToApN.isNull()) {
+      gridWrapper.SetDistanceToAp(ocx::helper::ReadDimension(distanceToApN));
+    }
+
+    // Parse SpacingGroups
+    LDOM_Node aChildN = gridN.getFirstChild();
+    while (!aChildN.isNull()) {
+      const LDOM_Node::NodeType aNodeType = aChildN.getNodeType();
+      if (aNodeType == LDOM_Node::ELEMENT_NODE) {
+        LDOM_Element childN = (LDOM_Element &)aChildN;
+
+        // Check for X,Y,Z-SpacingGroup
+        if (ocx::helper::GetLocalTagName(childN).find("SpacingGroup") ==
+            std::string::npos) {
+          aChildN = aChildN.getNextSibling();
+          continue;
+        }
+
+        Standard_Integer firstGridNumber, count;
+
+        ocx::helper::GetIntegerAttribute(childN, "firstGridNumber",
+                                         firstGridNumber);
+        ocx::helper::GetIntegerAttribute(childN, "count", count);
+
+        Standard_Real gridPosition, spacing;
+
+        if (LDOM_Element gridPositionN =
+                ocx::helper::GetFirstChild(childN, "GridPosition");
+            !gridPositionN.isNull()) {
+          gridPosition = ocx::helper::ReadDimension(gridPositionN);
+        }
+
+        if (LDOM_Element spacingN =
+                ocx::helper::GetFirstChild(childN, "Spacing");
+            !spacingN.isNull()) {
+          spacing = ocx::helper::ReadDimension(spacingN);
+        }
+
+        // Add SpacingGroup to VesselGridWrapper
+        gridWrapper.AddSpacingGroup(
+            {firstGridNumber, count, spacing, gridPosition});
+      }
+      aChildN = aChildN.getNextSibling();
+    }
+
+    // Add VesselGridWrapper to vesselGrid
+    vesselGrid.push_back(gridWrapper);
+  }
+
+  // Add VesselGridWrapper to OCXContext
+  OCXContext::GetInstance()->RegisterVesselGrid(vesselGrid);
 }
 
 }  // namespace

@@ -95,6 +95,17 @@ LDOM_Element GetFirstChild(LDOM_Element const &parent,
                            std::string_view localName);
 
 /**
+ * @brief Get the integer attribute value from an attribute. If the attribute is
+ * missing the value is not touched
+ *
+ * @param elem the element containing the attribute
+ * @param attrName the attributes name
+ * @param value the variable to put the value
+ */
+void GetIntegerAttribute(LDOM_Element const &elem, std::string const &attrName,
+                         Standard_Integer &value);
+
+/**
  * @brief Get the double attribute value from an attribute. Does not care if
  * this is more an integer '50' or double '50.0'. If the attribute is missing
  * the value is not touched

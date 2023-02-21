@@ -28,6 +28,8 @@ namespace {  // anonymous namespace
 TopoDS_Shape ReadRefPlane(LDOM_Element const &refPlanesN,
                           Quantity_Color const &color);
 
+void ReadVesselGrid(LDOM_Element const &vesselGridN);
+
 }  // namespace
 
 }  // namespace ocx::reader::vessel::coordinate_system

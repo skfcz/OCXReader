@@ -16,6 +16,7 @@
 #define OCX_INCLUDE_OCX_INTERNAL_OCX_PRINCIPAL_PARTICULAR_WRAPPER_H_
 
 #include <Standard_Real.hxx>
+#include <optional>
 
 namespace ocx::context_entities {
 
@@ -54,14 +55,14 @@ struct PrincipalParticularsWrapper {
   /**
    * The length of the Vessel between perpendiculars, Lpp.
    */
-  Standard_Real m_lpp;
+  std::optional<Standard_Real> m_lpp;
 
   /**
    * Rule (scantling) length, L. A length measurement for the ship that is
    * defined in classification society rules (see ISO 10303-218,
    * section 4.2.32.4).
    */
-  Standard_Real m_ruleLength;
+  std::optional<Standard_Real> m_ruleLength;
 
   /**
    * The ratio of the moulded displacement volume to the volume of a block that
@@ -69,126 +70,126 @@ struct PrincipalParticularsWrapper {
    * breadth and its depth equal to the scantlings draught (see ISO 10303-218,
    * section 4.2.32.1).
    */
-  Standard_Real m_blockCoefficient;
+  std::optional<Standard_Real> m_blockCoefficient;
 
   /**
    * X-Position of fwd. end of waterline for free-board length.
    */
-  Standard_Real m_fpPos;
+  std::optional<Standard_Real> m_fpPos;
 
   /**
    * The moulded breadth of the Vessel, B.
    */
-  Standard_Real m_mouldedBreath;
+  std::optional<Standard_Real> m_mouldedBreath;
 
   /**
    * The moulded depth of the Vessel, D.
    */
-  Standard_Real m_mouldedDepth;
+  std::optional<Standard_Real> m_mouldedDepth;
 
   /**
    * Design draught moulded, fully loaded condition, Td. The summer load draught
    * used by the classification society in its calculations for structural
    * integrity and strength (see ISO 10303-218, section 4.2.32.6).
    */
-  Standard_Real m_scantlingDraught;
+  std::optional<Standard_Real> m_scantlingDraught;
 
   /**
    * The forward or service speed at which the ship is designed to operate (see
    * ISO 10303-218, section 4.2.32.2).
    */
-  Standard_Real m_designSpeed;
+  std::optional<Standard_Real> m_designSpeed;
 
   /**
    * The free-board length of the Vessel, Lll.
    */
-  Standard_Real m_freeboardLength;
+  std::optional<Standard_Real> m_freeboardLength;
 
   /**
    * The Vessel draught at normal ballast, Tnb.
    */
-  Standard_Real m_normalBallastDraught;
+  std::optional<Standard_Real> m_normalBallastDraught;
 
   /**
    * The Vessel draught at heavy ballast, Thb.
    */
-  Standard_Real m_heavyBallastDraught;
+  std::optional<Standard_Real> m_heavyBallastDraught;
 
   /**
    * The design slamming draught at FP (all ballast tanks empty), Tf-e.
    */
-  Standard_Real m_slammingDraughtEmptyFP;
+  std::optional<Standard_Real> m_slammingDraughtEmptyFP;
 
   /**
    * The Vessel draught at FP used when calculation design slamming loads (all
    * ballast tanks full), Tf-f.
    */
-  Standard_Real m_slammingDraughtFullFP;
+  std::optional<Standard_Real> m_slammingDraughtFullFP;
 
   /**
    * The length of the waterline at T, Lwl.
    */
-  Standard_Real m_lengthOfWaterline;
+  std::optional<Standard_Real> m_lengthOfWaterline;
 
   /**
    * The height of free-board deck, D1.
    */
-  Standard_Real m_freeboardDeckHeight;
+  std::optional<Standard_Real> m_freeboardDeckHeight;
 
   /**
    * X Position of AP.
    */
-  Standard_Real m_apPos;
+  std::optional<Standard_Real> m_apPos;
 
   /**
    * Z coordinate of the bulkhead deck.
    */
-  Standard_Real m_zPosOfDeck;
+  std::optional<Standard_Real> m_zPosOfDeck;
 
   /**
    * Deepest equilibrium waterline in damaged condition.
    */
-  Standard_Real m_deepestEquilibriumWL;
+  std::optional<Standard_Real> m_deepestEquilibriumWL;
 
   /**
    * Projected area of upper deck forward 0.2 L.
    */
-  Standard_Real m_upperDeckArea;
+  std::optional<Standard_Real> m_upperDeckArea;
 
   /**
    * The area of water-plane forward 0.2 L at scantling draught Td.
    */
-  Standard_Real m_waterPlaneArea;
+  std::optional<Standard_Real> m_waterPlaneArea;
 
   /**
    * Vertical distance from baseline to deck-line at FE.
    */
-  Standard_Real m_zPosDeckline;
+  std::optional<Standard_Real> m_zPosDeckline;
 
   /**
    * Speed factor Cav.
    */
-  Standard_Real m_speedFactor;
+  std::optional<Standard_Real> m_speedFactor;
 
   /**
    * The ship has dead-weight less than 50000 tonnes (boolean).
    */
-  bool m_hasDeadweightLessThan;
+  std::optional<bool> m_hasDeadweightLessThan;
 
   /**
    * Whether the vessel has a bilge keel or not.
    */
-  bool m_hasBilgeKeel;
+  std::optional<bool> m_hasBilgeKeel;
 
   /**
    * Enumerated free-board types according to the Rules.
    */
-  FreeboardType m_freeboardType = FreeboardType::A;
+  std::optional<FreeboardType> m_freeboardType;
 
   /**
    * Number of decks above 0.7 D from baseline.
    */
-  int m_numberOfDecksAbove;
+  std::optional<int> m_numberOfDecksAbove;
 };
 
 }  // namespace ocx::context_entities

@@ -133,6 +133,23 @@ LDOM_Element GetFirstChild(LDOM_Element const &parent,
 
 //-----------------------------------------------------------------------------
 
+void GetIntegerAttribute(LDOM_Element const &elem, std::string const &attrName,
+                         Standard_Integer &value) {
+  LDOMString stringValue = elem.getAttribute(attrName.c_str());
+  if (stringValue.Type() == LDOMBasicString::StringType::LDOM_NULL) {
+    return;
+  }
+
+  if (strlen(stringValue.GetString()) > 0) {
+    value = Standard_Integer(std::stoi(stringValue.GetString()));
+    return;
+  }
+
+  stringValue.GetInteger(value);
+}
+
+//-----------------------------------------------------------------------------
+
 void GetDoubleAttribute(LDOM_Element const &elem, std::string const &attrName,
                         Standard_Real &value) {
   LDOMString stringValue = elem.getAttribute(attrName.c_str());

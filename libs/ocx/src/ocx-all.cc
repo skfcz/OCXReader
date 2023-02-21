@@ -32,6 +32,7 @@
 #include "src/context_entities/ocx-bar-section.cc"
 #include "src/context_entities/ocx-principal-particulars-wrapper.cc"
 #include "src/context_entities/ocx-refplane-wrapper.cc"
+#include "src/context_entities/ocx-vessel-grid-wrapper.cc"
 
 //-----------------------------------------------------------------------------
 // Reader

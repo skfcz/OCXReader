@@ -217,6 +217,19 @@ OCXContext::GetPrincipalParticulars() {
 
 //-----------------------------------------------------------------------------
 
+void OCXContext::RegisterVesselGrid(
+    std::vector<ocx::context_entities::VesselGridWrapper> const
+        &vesselGridWrappers) {
+  m_vesselGrid = vesselGridWrappers;
+}
+
+std::vector<ocx::context_entities::VesselGridWrapper>
+OCXContext::GetVesselGrid() {
+  return m_vesselGrid;
+}
+
+//-----------------------------------------------------------------------------
+
 void OCXContext::RegisterBarSection(
     LDOM_Element const &element,
     ocx::context_entities::BarSection const &section) {
