@@ -32,14 +32,14 @@ void ReadVessel() {
     return;
   }
 
+  // Read classification data
+  ocx::reader::vessel::classification_data::ReadClassificationData(vesselN);
+
   // Read coordinate system
   ocx::reader::vessel::coordinate_system::ReadCoordinateSystem(vesselN);
 
   // Read reference surfaces
   ocx::reader::vessel::reference_surfaces::ReadReferenceSurfaces(vesselN);
-
-  // Read classification data
-  ocx::reader::vessel::classification_data::ReadClassificationData(vesselN);
 
   // Read panels
   ocx::reader::vessel::panel::ReadPanels(vesselN);
