@@ -121,6 +121,8 @@ gp_Pnt ReadPoint(LDOM_Element const &pointN);
 
 gp_Dir ReadDirection(LDOM_Element const &dirN);
 
+gp_Trsf ReadTransformation(LDOM_Element transfEle);
+
 double ReadDimension(LDOM_Element const &valueN);
 
 /**

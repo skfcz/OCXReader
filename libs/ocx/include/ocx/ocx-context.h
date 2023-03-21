@@ -109,6 +109,10 @@ class OCXContext {
    */
   void RegisterShape(LDOM_Element const &element, TopoDS_Shape const &shape);
 
+  TopoDS_Shape LookupHoleShape(std::string_view const &guid);
+
+  void RegisterHoleShape(std::string &uuid,
+                         TopoDS_Shape &holeShape);
   /**
    * @brief Get a previously registered Shape by its LDOM_Element (matched by
    * given GUID or ID)
@@ -243,6 +247,8 @@ class OCXContext {
    */
   std::map<std::string, ocx::context_entities::RefPlaneWrapper, std::less<>>
       GUID2RefPlane;
+  
+  std::map<std::string, TopoDS_Shape, std::less<>> HOLECatalogue;
 
   opencascade::handle<TDocStd_Document> ocafDoc;
   opencascade::handle<XCAFDoc_ShapeTool> ocafShapeTool;

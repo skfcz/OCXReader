@@ -196,7 +196,39 @@ gp_Pnt ReadPoint(LDOM_Element const &pointN) {
 }
 
 //-----------------------------------------------------------------------------
+gp_Trsf ReadTransformation(LDOM_Element transfEle) {
+  gp_Trsf transformation;
+  LDOM_Element originEle = GetFirstChild(transfEle, "Origin");
+  if (!originEle.isNull()) {
+    // Origin Point
+    gp_Pnt point = ReadPoint(originEle);
+    // Primary Axis Direction Vector
+    LDOM_Element primaryAxisEle = GetFirstChild(transfEle, "PrimaryAxis");
+    gp_Dir primAxis;
+    if (!primaryAxisEle.isNull()) primAxis = ReadDirection(primaryAxisEle);
 
+    // Secondary Axis Direction Vector
+    LDOM_Element secondaryAxisEle = GetFirstChild(transfEle, "SecondaryAxis");
+    gp_Dir secondaryAxis;
+    if (!secondaryAxisEle.isNull())
+      secondaryAxis = ReadDirection(secondaryAxisEle);
+
+    gp_Pnt p1 = gp_Pnt(0, 0, 0);
+    gp_Dir d1 = gp_Dir(0, 0, 1);
+    gp_Ax3 a = gp_Ax3(p1, d1);
+
+    gp_Dir xAxis = primAxis;
+    primAxis.Cross(secondaryAxis);
+    gp_Ax3 b = gp_Ax3(p1,primAxis,xAxis );
+    transformation.SetDisplacement( a,b);
+
+    gp_Trsf translation;
+    translation.SetTranslation(p1, point);
+    transformation = translation * transformation;
+  }
+  return transformation;
+}
+//----------------------------
 gp_Dir ReadDirection(const LDOM_Element &dirN) {
   double x = 0;
   GetDoubleAttribute(dirN, "x", x);

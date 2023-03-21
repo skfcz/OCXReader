@@ -20,6 +20,7 @@
 #include "ocx/internal/ocx-coordinate-system.h"
 #include "ocx/internal/ocx-panel.h"
 #include "ocx/internal/ocx-reference-surfaces.h"
+#include "ocx/internal/ocx-class-catalogue.h"
 #include "ocx/ocx-context.h"
 
 namespace ocx::reader::vessel {
@@ -41,6 +42,9 @@ void ReadVessel() {
   // Read reference surfaces
   ocx::reader::vessel::reference_surfaces::ReadReferenceSurfaces(vesselN);
 
+  // Read Class catalogue ( material, profile, hole etc.)
+
+  ocx::class_catalogue::ReadClassCatalogue();
   // Read panels
   ocx::reader::vessel::panel::ReadPanels(vesselN);
 }

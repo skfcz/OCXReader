@@ -15,6 +15,7 @@
 #include "ocx/internal/ocx-class-catalogue.h"
 
 #include "ocx/internal/ocx-x-section-catalogue.h"
+#include "ocx/internal/ocx-hole-catalogue.h"
 #include "ocx/ocx-helper.h"
 
 namespace ocx::reader::class_catalogue {
@@ -34,6 +35,8 @@ void ReadClassCatalogue() {
       catalogueN);
 
   // TODO: Read HoleShapeCatalogue
+
+  ocx::hole_catalogue::ReadHoleCatalogue(catalogueN);
 }
 
 }  // namespace ocx::reader::class_catalogue
