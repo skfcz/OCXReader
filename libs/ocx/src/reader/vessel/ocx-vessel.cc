@@ -44,7 +44,7 @@ void ReadVessel() {
 
   // Read Class catalogue ( material, profile, hole etc.)
 
-  ocx::class_catalogue::ReadClassCatalogue();
+  ocx::reader::class_catalogue::ReadClassCatalogue();
   // Read panels
   ocx::reader::vessel::panel::ReadPanels(vesselN);
 }

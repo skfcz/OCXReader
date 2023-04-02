@@ -40,7 +40,7 @@ void ReadHoleCatalogue(LDOM_Element const &catalogueN) {
        LDOM_Node curveEle = contourEle.getFirstChild();
        //if (curveEle.getNodeName().GetString() ==
        //    std::string("ocx:CompositeCurve3D"))
-         hole2dShape = ocx::shared::curve::ReadCurve(
+         hole2dShape = ocx::reader::shared::curve::ReadCurve(
              (LDOM_Element &)contourEle);
 
        if (!hole2dShape.IsNull()) {
