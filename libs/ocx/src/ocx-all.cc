@@ -39,17 +39,17 @@
 //-----------------------------------------------------------------------------
 
 #include "src/reader/shared/ocx-curve.cc"
+#include "src/reader/shared/ocx-cut-by.cc"
 #include "src/reader/shared/ocx-limited-by.cc"
 #include "src/reader/shared/ocx-outer-contour.cc"
 #include "src/reader/shared/ocx-surface.cc"
-
 #include "src/reader/shared/ocx-unbounded-geometry.cc"
 
 // <ocx:ocxXML>
 //    <ocx:ClassCatalogue>
+#include "src/reader/class_catalogue/hole_catalogue/ocx-hole-catalogue.cc"
 #include "src/reader/class_catalogue/ocx-class-catalogue.cc"
 #include "src/reader/class_catalogue/x_section_catalogue/ocx-x-section-catalogue.cc"
-#include "src/reader/class_catalogue/hole_catalogue/ocx-hole-catalogue.cc"
 //    </ocx:ClassCatalogue>
 //    <ocx:Vessel>
 #include "src/reader/vessel/ocx-vessel.cc"
@@ -63,7 +63,6 @@
 #include "src/reader/vessel/panel/composed_of/ocx-composed-of.cc"
 #include "src/reader/vessel/panel/ocx-panel.cc"
 #include "src/reader/vessel/panel/stiffened_by/ocx-stiffened-by.cc"
-#include "src/reader/vessel/panel/cut_by/ocx-cut-by.cc"
 //      </ocx:Panel>
 //      <ocx:ReferenceSurfaces>
 #include "src/reader/vessel/reference_surfaces/ocx-reference-surfaces.cc"

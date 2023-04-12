@@ -196,8 +196,10 @@ gp_Pnt ReadPoint(LDOM_Element const &pointN) {
 }
 
 //-----------------------------------------------------------------------------
+
 gp_Trsf ReadTransformation(LDOM_Element transfEle) {
-  gp_Trsf transformation;
+  gp_Trsf localToGlobalTrsf;
+
   LDOM_Element originEle = GetFirstChild(transfEle, "Origin");
   if (!originEle.isNull()) {
     // Origin Point
@@ -205,30 +207,37 @@ gp_Trsf ReadTransformation(LDOM_Element transfEle) {
     // Primary Axis Direction Vector
     LDOM_Element primaryAxisEle = GetFirstChild(transfEle, "PrimaryAxis");
     gp_Dir primAxis;
-    if (!primaryAxisEle.isNull()) primAxis = ReadDirection(primaryAxisEle);
+    if (!primaryAxisEle.isNull()) {
+      primAxis = ReadDirection(primaryAxisEle);
+    }
 
     // Secondary Axis Direction Vector
     LDOM_Element secondaryAxisEle = GetFirstChild(transfEle, "SecondaryAxis");
     gp_Dir secondaryAxis;
-    if (!secondaryAxisEle.isNull())
+    if (!secondaryAxisEle.isNull()) {
       secondaryAxis = ReadDirection(secondaryAxisEle);
+    }
 
-    gp_Pnt p1 = gp_Pnt(0, 0, 0);
-    gp_Dir d1 = gp_Dir(0, 0, 1);
-    gp_Ax3 a = gp_Ax3(p1, d1);
+    auto initialCoordinateSystem = gp_Ax3(gp::Origin(), gp::DZ());
 
     gp_Dir xAxis = primAxis;
     primAxis.Cross(secondaryAxis);
-    gp_Ax3 b = gp_Ax3(p1,primAxis,xAxis );
-    transformation.SetDisplacement( a,b);
+    auto targetCoordinateSystem = gp_Ax3(gp::Origin(), primAxis, xAxis);
+    localToGlobalTrsf.SetDisplacement(initialCoordinateSystem,
+                                      targetCoordinateSystem);
 
     gp_Trsf translation;
-    translation.SetTranslation(p1, point);
-    transformation = translation * transformation;
+    translation.SetTranslation(gp::Origin(), point);
+    localToGlobalTrsf = translation * localToGlobalTrsf;
+  } else {
+    OCX_ERROR("No origin found in transformation")
   }
-  return transformation;
+
+  return localToGlobalTrsf;
 }
-//----------------------------
+
+//-----------------------------------------------------------------------------
+
 gp_Dir ReadDirection(const LDOM_Element &dirN) {
   double x = 0;
   GetDoubleAttribute(dirN, "x", x);
@@ -411,8 +420,9 @@ PolesWeightsSurface ParseControlPointsSurface(
 // TODO: Prototype, if solution is proven to work goes to -> OCCUtils::Surface
 // TODO: Should support SewedShape shape type (face, a shell, a solid or a
 // TODO: compound.)
-TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
-                            std::string_view id, std::string_view guid) {
+TopoDS_Shape LimitShapeByWire(TopoDS_Shape const &shape,
+                              TopoDS_Wire const &wire, std::string_view id,
+                              std::string_view guid) {
   // Check if given TopoDS_Shape is one of TopoDS_Face or TopoDS_Shell
   if (!OCCUtils::Shape::IsFace(shape) && !OCCUtils::Shape::IsShell(shape)) {
     OCX_ERROR(
@@ -498,7 +508,7 @@ TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
 
     if (numShells != 1) {
       OCX_ERROR(
-          "Expected exactly one shell to be composed from CutShapeByWire in "
+          "Expected exactly one shell to be composed from LimitShapeByWire in "
           "id={} guid={}, but got {} shells, skip it. This is must likely due "
           "to "
           "missing implementation building a TopoDS_Face from non-planar "

@@ -12,25 +12,23 @@
  *                                                                         *
  ***************************************************************************/
 
-//#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_STIFFENER_READER_H_
-//#define OCX_INCLUDE_OCX_INTERNAL_OCX_STIFFENER_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_CUT_BY_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_CUT_BY_H_
 
 #include <LDOM_Element.hxx>
 #include <TopoDS_Shape.hxx>
-#include <memory>
-#include <string>
-
 
 namespace ocx::vessel::panel::cut_by {
 
-[[nodiscard]] std::list<TopoDS_Shape> ReadCutBy(LDOM_Element const &panelN);
+[[nodiscard]] TopoDS_Shape ReadCutBy(LDOM_Element const &panelN,
+                                     TopoDS_Shape &panelShape);
 
 namespace {  // anonymous namespace
 
-[[nodiscard]] TopoDS_Shape ReadCutGeometry(LDOM_Element const &stiffenerN);
+[[nodiscard]] TopoDS_Wire ReadCutGeometry(LDOM_Element const &stiffenerN);
 
 }  // namespace
 
 }  // namespace ocx::vessel::panel::cut_by
 
-//#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_STIFFENER_READER_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_CUT_BY_H_

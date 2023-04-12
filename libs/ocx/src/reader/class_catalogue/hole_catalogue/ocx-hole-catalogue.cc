@@ -12,11 +12,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <LDOM_Element.hxx>
-#include <memory>
-
-#include "ocx/internal/ocx-utils.h"
 #include "ocx/internal/ocx-hole-catalogue.h"
+
+#include <LDOM_Element.hxx>
+#include <TopoDS_Shape.hxx>
+
 #include "ocx/ocx-helper.h"
 
 namespace ocx::hole_catalogue {
@@ -29,31 +29,26 @@ void ReadHoleCatalogue(LDOM_Element const &catalogueN) {
     return;
   }
 
-   // Read Hole
-   LDOM_Element hole2Dele =
-       ocx::helper::GetFirstChild(holeCatalogueN, "Hole2D");
-   while (!hole2Dele.isNull()) {
-     LDOM_Element contourEle =
-         ocx::helper::GetFirstChild(hole2Dele, "Contour");
-     if (!contourEle.isNull()) {
-       TopoDS_Shape hole2dShape = TopoDS_Shape();
-       LDOM_Node curveEle = contourEle.getFirstChild();
-       //if (curveEle.getNodeName().GetString() ==
-       //    std::string("ocx:CompositeCurve3D"))
-         hole2dShape = ocx::reader::shared::curve::ReadCurve(
-             (LDOM_Element &)contourEle);
+  // Read Hole
+  LDOM_Element hole2DEle = ocx::helper::GetFirstChild(holeCatalogueN, "Hole2D");
+  while (!hole2DEle.isNull()) {
+    LDOM_Element contourEle = ocx::helper::GetFirstChild(hole2DEle, "Contour");
+    if (!contourEle.isNull()) {
+      // TODO: HoleShapes from parametric types ( Rectangular etc.)
+      // LDOM_Node curveEle = contourEle.getFirstChild();
 
-       if (!hole2dShape.IsNull()) {
-         std::string guid =
-             hole2Dele.getAttribute("ocx:GUIDRef").GetString();
-         // Add to hole catalogue
-         OCXContext::GetInstance()->RegisterHoleShape(guid, hole2dShape);
-       }
-     }
+      TopoDS_Shape hole2dShape =
+          ocx::reader::shared::curve::ReadCurve(contourEle);
 
-     hole2Dele = hole2Dele.GetSiblingByTagName();
-   }
- 
+      if (!hole2dShape.IsNull()) {
+        auto holeMeta = ocx::helper::GetOCXMeta(hole2DEle);
+        // Add to hole catalogue
+        OCXContext::GetInstance()->RegisterHoleShape(holeMeta->guid,
+                                                     hole2dShape);
+      }
+    }
 
+    hole2DEle = hole2DEle.GetSiblingByTagName();
+  }
 }
 }  // namespace ocx::hole_catalogue

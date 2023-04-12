@@ -15,15 +15,13 @@
 #include "ocx/internal/ocx-composed-of.h"
 
 #include <BRep_Builder.hxx>
-#include <BRepAlgoAPI_Cut.hxx>
 #include <Quantity_Color.hxx>
 #include <TDataStd_Name.hxx>
 #include <TopoDS_Compound.hxx>
 
-#include "ocx/internal/ocx-limited-by.h"
-#include "ocx/internal/ocx-outer-contour.h"
-#include "ocx/internal/ocx-unbounded-geometry.h"
+#include "occutils/occutils-boolean.h"
 #include "ocx/internal/ocx-cut-by.h"
+#include "ocx/internal/ocx-unbounded-geometry.h"
 
 namespace ocx::reader::vessel::panel::composed_of {
 
@@ -160,29 +158,18 @@ TopoDS_Shape ReadPlate(LDOM_Element const &panelN, LDOM_Element const &plateN,
   // Read the PlateSurface
   if (CreatePlateSurfaces && CreatePlateContours &&
       OCXContext::CreateLimitedBy == withLimitedBy) {
-    TopoDS_Shape plateSurface = ocx::helper::CutShapeByWire(
+    TopoDS_Shape plateSurface = ocx::helper::LimitShapeByWire(
         unboundedGeometryShape, outerContour, plateMeta->id, plateMeta->guid);
     if (!plateSurface.IsNull()) {
-
-       // Punch the CutBy geometry( Slot, hole)  if there is any
-       std::list<TopoDS_Shape> cutByGeometries =
-           ocx::vessel::panel::cut_by::ReadCutBy(panelN);
-       for (TopoDS_Shape cutGeometry : cutByGeometries) {
-         BRepAlgoAPI_Cut anAlgo(plateSurface, cutGeometry);
-
-        anAlgo.Build();
-        if (anAlgo.IsDone()) {
-          if (anAlgo.HasErrors()) {
-            OCX_ERROR(
-                "Failed to CutBy in ReadPlate with panel id={} "
-                "guid={}",
-                plateMeta->id, plateMeta->guid);
-            anAlgo.DumpErrors(std::cerr);
-          }
-          // Get result.
-          plateSurface = anAlgo.Shape();
+      if (OCXContext::CreateCutBy) {
+        // Apply CutBy geometries
+        if (auto cutBy =
+                ocx::vessel::panel::cut_by::ReadCutBy(panelN, plateSurface);
+            !cutBy.IsNull()) {
+          shapes.push_back(cutBy);
         }
       }
+
       // Material Design ...
       auto color =
           Quantity_Color(76 / 255.0, 175 / 255.0, 80 / 255.0, Quantity_TOC_RGB);

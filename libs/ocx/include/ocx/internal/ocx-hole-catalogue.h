@@ -12,14 +12,10 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OCX_INCLUDE_OCX_INTERNAL_HOLE_READER_H_
-#define OCX_INCLUDE_OCX_INTERNAL_HOLE_READER_H_
+#ifndef OCX_INCLUDE_OCX_INTERNAL_OCX_HOLE_READER_H_
+#define OCX_INCLUDE_OCX_INTERNAL_OCX_HOLE_READER_H_
 
 #include <LDOM_Element.hxx>
-#include <memory>
-
-#include "ocx/internal/ocx-utils.h"
-#include "ocx/ocx-context.h"
 
 namespace ocx::hole_catalogue {
 
@@ -27,17 +23,7 @@ namespace ocx::hole_catalogue {
  * Read the HoleCatalogue
  */
 void ReadHoleCatalogue(LDOM_Element const &catalogueN);
-//
-//namespace {  // anonymous namespace
-///**
-// * Read holes from the HoleCatalogue
-// */
-////void ReadHoleCatalogue(LDOM_Element const &holeCatalogueN);
-//void ReadHoleCatal(LDOM_Element const &holeCatalogueN);
-//
-//
-//}  // namespace
 
 }  // namespace ocx::hole_catalogue
 
-#endif  // OCX_INCLUDE_OCX_INTERNAL_HOLE_READER_H_
+#endif  // OCX_INCLUDE_OCX_INTERNAL_OCX_HOLE_READER_H_
