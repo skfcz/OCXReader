@@ -201,6 +201,22 @@ ocx::context_entities::RefPlaneWrapper OCXContext::LookupRefPlane(
   OCX_ERROR("No RefPlane found for given guid {}", guid)
   return {};
 }
+//-----------------------------------------------------------------------------
+
+void OCXContext::RegisterHoleShape(std::string const &guid,
+                                   TopoDS_Shape const &holeShape) {
+  m_holeCatalogue[guid] = holeShape;
+}
+
+//-----------------------------------------------------------------------------
+
+TopoDS_Shape OCXContext::LookupHoleShape(std::string_view const &guid) {
+  if (auto res = m_holeCatalogue.find(guid); res != m_holeCatalogue.end()) {
+    return res->second;
+  }
+  OCX_ERROR("No HoleShape found for given guid {}", guid)
+  return {};
+}
 
 //-----------------------------------------------------------------------------
 

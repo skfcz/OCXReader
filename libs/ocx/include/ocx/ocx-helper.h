@@ -121,6 +121,8 @@ gp_Pnt ReadPoint(LDOM_Element const &pointN);
 
 gp_Dir ReadDirection(LDOM_Element const &dirN);
 
+gp_Trsf ReadTransformation(LDOM_Element transfEle);
+
 double ReadDimension(LDOM_Element const &valueN);
 
 /**
@@ -164,8 +166,9 @@ PolesWeightsSurface ParseControlPointsSurface(
  * @param wire the wire to cut with
  * @return the cut shape or an empty shape if the cut failed
  */
-TopoDS_Shape CutShapeByWire(TopoDS_Shape const &shape, TopoDS_Wire const &wire,
-                            std::string_view id, std::string_view guid);
+TopoDS_Shape LimitShapeByWire(TopoDS_Shape const &shape,
+                              TopoDS_Wire const &wire, std::string_view id,
+                              std::string_view guid);
 
 /**
  * Compute the 3D intersection between a two surfaces

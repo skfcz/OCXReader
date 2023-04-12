@@ -34,6 +34,7 @@
 /.idea/
 /build/
 /Testing/
+/out/
 *.ninja
 *.stp
 *.log

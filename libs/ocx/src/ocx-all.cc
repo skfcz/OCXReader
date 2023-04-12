@@ -39,6 +39,7 @@
 //-----------------------------------------------------------------------------
 
 #include "src/reader/shared/ocx-curve.cc"
+#include "src/reader/shared/ocx-cut-by.cc"
 #include "src/reader/shared/ocx-limited-by.cc"
 #include "src/reader/shared/ocx-outer-contour.cc"
 #include "src/reader/shared/ocx-surface.cc"
@@ -46,6 +47,7 @@
 
 // <ocx:ocxXML>
 //    <ocx:ClassCatalogue>
+#include "src/reader/class_catalogue/hole_catalogue/ocx-hole-catalogue.cc"
 #include "src/reader/class_catalogue/ocx-class-catalogue.cc"
 #include "src/reader/class_catalogue/x_section_catalogue/ocx-x-section-catalogue.cc"
 //    </ocx:ClassCatalogue>

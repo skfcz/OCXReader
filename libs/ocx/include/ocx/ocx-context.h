@@ -118,6 +118,11 @@ class OCXContext {
    */
   [[nodiscard]] TopoDS_Shape LookupShape(LDOM_Element const &element);
 
+  void RegisterHoleShape(std::string const &guid,
+                         TopoDS_Shape const &holeShape);
+
+  [[nodiscard]] TopoDS_Shape LookupHoleShape(std::string_view const &guid);
+
   /**
    * Register an X/Y/ZRefPlane element by its GUID
    *
@@ -237,6 +242,8 @@ class OCXContext {
    */
   std::map<LDOM_Element, ocx::context_entities::BarSection, LDOMCompare>
       LDOM2BarSection;
+
+  std::map<std::string, TopoDS_Shape, std::less<>> m_holeCatalogue;
 
   /**
    * Map of GUID to RefPlaneWrapper

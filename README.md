@@ -1,7 +1,7 @@
 <h1 align="center">OCXReader</h1>
 
 OCXReader is a tool to read and parse data from OCX files and export them to
-different formats such as STEP, SHIPXML, glTF, XCAF-XML or XCAF-XFB for
+different formats such as STEP, glTF, XCAF-XML or XCAF-XBF for
 visualization.
 
 ![ocx_model](https://user-images.githubusercontent.com/45827409/212651322-0cb6eb6e-dfb1-4203-afab-ca703fd21a08.png)
@@ -32,13 +32,17 @@ ${vesselname}
       |  |  |__ Contour
       |  |  |__ Surface
       |  |  |__ LimitedBy
-      |  |     |__ Limit 1 ... Limit N
+      |  |  |  |__ Limit 1 ... Limit N
+      |  |  |__ CutBy
+      |  |  |  |__ Cut 1 ... Cut N
       |  |__ Bracket 1 ... Bracket N
       |  |__ Pillar 1 ... Pillar N
       |__ StiffenedBy
       |  |__ Stiffener 1 ... Stiffener N
       |__ LimitedBy
-         |__ Limit 1 ... Limit N
+      |  |__ Limit 1 ... Limit N
+      |__ CutBy
+         |__ Cut 1 ... Cut N
 ````
 
 Currently, major items like reference planes, panels, and plates are already
@@ -47,10 +51,9 @@ implemented. Stiffener traces are shown, but no stiffener representation.
 ### Supported Export Formats
 
 - [x] STEP
-- [ ] SHIPXML
 - [ ] glTF
 - [x] XCAF-XML
-- [x] XCAF-XFB
+- [x] XCAF-XBF
 
 ## Setup
 
@@ -324,6 +327,7 @@ found [here](ocxreader/config/config.example.json).
     <tr>
       <td align="center"><a href="https://github.com/skfcz"><img src="https://avatars.githubusercontent.com/u/1381962?v=4?s=64" width="64px;" alt="Carsten Zerbst"/><br /><sub><b>Carsten Zerbst</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Code">💻</a> <a href="#maintenance-skfcz" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=skfcz" title="Documentation">📖</a> <a href="#ideas-skfcz" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center"><a href="https://github.com/paulbuechner"><img src="https://avatars.githubusercontent.com/u/45827409?s=400&u=a62152a15513e36652b045b5879f39f124120254&v=4?s=64" width="64px;" alt="Paul Büchner"/><br /><sub><b>Paul Büchner</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Code">💻</a> <a href="#maintenance-paulbuechner" title="Maintenance">🚧</a> <a href="https://github.com/skfcz/OCXReader/commits?author=paulbuechner" title="Documentation">📖</a> <a href="#ideas-paulbuechner" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center"><a href="https://github.com/OzanOzanOzan"><img src="https://avatars.githubusercontent.com/u/42107969?v=4" width="64px;" alt="Paul Büchner"/><br /><sub><b>Ozan</b></sub></a><br /><a href="https://github.com/skfcz/OCXReader/commits?author=OzanOzanOzan" title="Code">💻</a> <a href="#ideas-paulbuechner" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>

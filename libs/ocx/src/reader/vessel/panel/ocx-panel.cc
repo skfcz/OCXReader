@@ -20,10 +20,10 @@
 #include <TopoDS_Compound.hxx>
 #include <list>
 
+#include "occutils/occutils-boolean.h"
+#include "ocx/internal/ocx-cut-by.h"
 #include "ocx/internal/ocx-log.h"
-#include "ocx/internal/ocx-outer-contour.h"
 #include "ocx/internal/ocx-stiffened-by.h"
-#include "ocx/internal/ocx-unbounded-geometry.h"
 #include "ocx/ocx-helper.h"
 
 namespace ocx::reader::vessel::panel {
@@ -160,9 +160,18 @@ TopoDS_Shape ReadPanel(LDOM_Element const &panelN, bool withLimitedBy) {
   // OuterContour and CutBy, where OuterContour is required)
   if (CreatePanelSurfaces && CreatePanelContours &&
       OCXContext::CreateLimitedBy == withLimitedBy) {
-    TopoDS_Shape panelSurface = ocx::helper::CutShapeByWire(
+    TopoDS_Shape panelSurface = ocx::helper::LimitShapeByWire(
         unboundedGeometryShape, outerContour, meta->id, meta->guid);
     if (!panelSurface.IsNull()) {
+      if (OCXContext::CreateCutBy) {
+        // Apply CutBy geometries
+        if (auto cutBy =
+                ocx::vessel::panel::cut_by::ReadCutBy(panelN, panelSurface);
+            !cutBy.IsNull()) {
+          shapes.push_back(cutBy);
+        }
+      }
+
       // Material Design Light Green 50 300
       auto color = Quantity_Color(174 / 256.0, 213 / 256.0, 129.0 / 256,
                                   Quantity_TOC_RGB);
