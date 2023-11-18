@@ -1,0 +1,446 @@
+<ocx:ocxXML xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd" schemaVersion="3.0.0b4"
+            xsi:schemaLocation="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd OCX_Schema.xsd"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+    <ocx:Header name="Geometry" author="" organization="" time_stamp="2023-10-27T17:17:00.00+02:00"
+                originating_system="manual" documentation="geometry test" application_version=""/>
+    <ocx:Vessel id="i1" name="Geometry" ocx:GUIDRef="21e4ca75-f2cf-4b34-90d2-889c89fa53f3">
+        <ocx:DistanceTolerance numericvalue="1" unit="Umm"/>
+        <ocx:AngleTolerance numericvalue="0.05" unit="URad"/>
+        <ocx:ClassificationData identification="0815" ocx:newbuildingSociety="GL">
+            <ocx:PrincipalParticulars>
+                <ocx:Lpp numericvalue="100" unit="Um"/>
+                <ocx:RuleLength numericvalue="100" unit="Um"/>
+                <ocx:BlockCoefficient numericvalue="0" unit="UDimless"/>
+                <ocx:FP_Pos numericvalue="100" unit="Um"/>
+                <ocx:MouldedBreadth numericvalue="20" unit="Um"/>
+                <ocx:MouldedDepth numericvalue="NaN" unit="Um"/>
+                <ocx:ScantlingDraught numericvalue="25" unit="Um"/>
+                <ocx:DesignSpeed numericvalue="0" unit="UKnots"/>
+                <ocx:AP_Pos numericvalue="0" unit="Um"/>
+            </ocx:PrincipalParticulars>
+        </ocx:ClassificationData>
+        <ocx:BuilderInformation yard="" designer="" owner="" yearOfBuild="2022-01+02:00"/>
+        <!-- a minimal coordinate system with even spaced frames from -5 t 5
+            this is used to check the reference planes -->
+        <ocx:CoordinateSystem id="coordSys" ocx:GUIDRef="2de9de8d-1523-474b-8067-99a4ae366e4f" isGlobal="true">
+            <ocx:XRefPlanes>
+                <ocx:RefPlane ocx:GUIDRef="ac246072-fd04-4911-8163-7d6741c640d6" id="fr0">
+                    <ocx:ReferenceLocation numericvalue="0" unit="Um"/>
+                </ocx:RefPlane>
+            </ocx:XRefPlanes>
+            <ocx:YRefPlanes>
+                <ocx:RefPlane id="lp0" ocx:GUIDRef="6f01277d-2274-4a5c-88ae-6a8d448376ad">
+                    <ocx:ReferenceLocation numericvalue="0" unit="Um"/>
+                </ocx:RefPlane>
+            </ocx:YRefPlanes>
+        </ocx:CoordinateSystem>
+
+        <ocx:Panel id="panelFr0" ocx:GUIDRef="8dd8ed68-e0bf-4655-a5ff-db5fc2f5f711"
+                   ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame0" ocx:tightness="WaterTight">
+            <ocx:Description>A simple, rectangular panel with tons of holes on it
+            </ocx:Description>
+            <ocx:UnboundedGeometry>
+                <!-- an inline plane description -->
+                <ocx:Plane3D id="planeCenter">
+                    <ocx:Area numericvalue="100" unit="Um2"/>
+                    <ocx:Origin coordinates="0 0 0" unit="Um"/>
+                    <ocx:Normal x="0" y="1" z="0"/>
+                    <ocx:UDirection x="0" y="0" z="1"/>
+                </ocx:Plane3D>
+            </ocx:UnboundedGeometry>
+            <ocx:OuterContour>
+                <!-- a simple poly line with five points -->
+                <ocx:PolyLine3D id="pl1" isClosed="true">
+                    <ocx:Length numericvalue="30" unit="Um"/>
+                    <ocx:Point3DList>
+                        <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                        <ocx:Point3D coordinates="0 0 1" unit="Um"/>
+                        <ocx:Point3D coordinates="0 5 1" unit="Um"/>
+                        <ocx:Point3D coordinates="0 5 0" unit="Um"/>
+                        <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                    </ocx:Point3DList>
+                </ocx:PolyLine3D>
+            </ocx:OuterContour>
+            <ocx:ComposedOf>
+                <ocx:Plate ocx:GUIDRef="f37e1c61-23cf-4cf8-8b9e-2783778b8d5e" id="pl0">
+                    <ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
+                        <ocx:Thickness numericvalue="10" unit="Umm"/>
+                    </ocx:PlateMaterial>
+                    <ocx:OuterContour>
+                        <ocx:PolyLine3D id="pl2" isClosed="true">
+                            <ocx:Length numericvalue="12" unit="Um"/>
+                            <ocx:Point3DList>
+                                <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                                <ocx:Point3D coordinates="0 0 1" unit="Um"/>
+                                <ocx:Point3D coordinates="0 5 1" unit="Um"/>
+                                <ocx:Point3D coordinates="0 5 0" unit="Um"/>
+                                <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                            </ocx:Point3DList>
+                        </ocx:PolyLine3D>
+                    </ocx:OuterContour>
+                </ocx:Plate>
+            </ocx:ComposedOf>
+            <ocx:CutBy>
+                <ocx:Hole2DContour id="ParametricCircle_1">
+                    <ocx:HoleRef ocx:GUIDRef="d7ee47a5-cc39-41df-ac89-ec2ec533dbf4" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+                <ocx:Hole2DContour id="SymmetricalHole1">
+                    <ocx:HoleRef ocx:GUIDRef="554b45a0-93d8-49c3-9f49-e069fca95d15" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="600 0 600" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+                <ocx:Hole2DContour id="SymmetricalHole2">
+                    <ocx:HoleRef ocx:GUIDRef="554b45a0-93d8-49c3-9f49-e069fca95d15" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="650 0 200" unit="Um"/>
+                        <ocx:PrimaryAxis x="0.86602544" y="0.5" z="0"/>
+                        <ocx:SecondaryAxis x="-0.5" y="0" z="0.86602544"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+                <ocx:Hole2DContour id="SuperElliptical1">
+                    <ocx:HoleRef ocx:GUIDRef="445d87bd-674f-4e4b-b330-23d57ea9e63c" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="1600 0 700" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+
+                <ocx:Hole2DContour id="SuperElliptical2">
+                    <ocx:HoleRef ocx:GUIDRef="445d87bd-674f-4e4b-b330-23d57ea9e63c" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="1600 0 300" unit="Um"/>
+                        <ocx:PrimaryAxis x="0.86602544" y="-0.5" z="0"/>
+                        <ocx:SecondaryAxis x="0.5" y="0" z="0.86602544"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+                <ocx:Hole2DContour id="HoleWithCurve1">
+                    <ocx:HoleRef ocx:GUIDRef="158235a8-ffb2-4446-8761-0ef823852062" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="3200 0 700" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+
+                <!-- first pair,  real overlapping circles -->
+                <ocx:Hole2DContour id="OverlappingHole11">
+                    <ocx:HoleRef ocx:GUIDRef="d7ee47a5-cc39-41df-ac89-ec2ec533dbf4" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="4100 0 800" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+                <ocx:Hole2DContour id="OverlappingHole12">
+                    <ocx:HoleRef ocx:GUIDRef="d7ee47a5-cc39-41df-ac89-ec2ec533dbf4" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="4200 0 700" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+
+                <!-- second pair, smaller circle within larger circle -->
+                <ocx:Hole2DContour id="OverlappingHole21">
+                    <ocx:HoleRef ocx:GUIDRef="d7ee47a5-cc39-41df-ac89-ec2ec533dbf4" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="4100 0 400" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+                <ocx:Hole2DContour id="OverlappingHole22">
+                    <ocx:HoleRef ocx:GUIDRef="50e0a85d-cf7d-48a2-b995-933e66c9de55" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="4100 0 400" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+
+                <ocx:Hole2DContour id="IntersectionHole1">
+                    <ocx:Description>Circle touches panel boundary</ocx:Description>
+                    <ocx:HoleRef ocx:GUIDRef="d7ee47a5-cc39-41df-ac89-ec2ec533dbf4" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="4700 0 900" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+                <ocx:Hole2DContour id="IntersectionHole2">
+                    <ocx:Description>Rectangle touches panel boundary</ocx:Description>
+                    <ocx:HoleRef ocx:GUIDRef="158235a8-ffb2-4446-8761-0ef823852062" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="4800 0 400" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+
+                <ocx:Hole2DContour id="IntersectionHole3">
+                    <ocx:Description>Rectangle cuts into panel boundary</ocx:Description>
+                    <ocx:HoleRef ocx:GUIDRef="158235a8-ffb2-4446-8761-0ef823852062" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="4500 0 -100" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+
+                <ocx:Hole2DContour id="OutsideHole2">
+                    <ocx:Description>Rectangle lies outside panel boundary</ocx:Description>
+                    <ocx:HoleRef ocx:GUIDRef="158235a8-ffb2-4446-8761-0ef823852062" ocx:refType="ocx:Hole2D" />
+                    <ocx:Transformation>
+                        <ocx:Origin coordinates="5200 0 400" unit="Um"/>
+                        <ocx:PrimaryAxis x="1.0" y="0.0" z="0.0"/>
+                        <ocx:SecondaryAxis x="0.0" y="0.0" z="1.0"/>
+                    </ocx:Transformation>
+                </ocx:Hole2DContour>
+
+            </ocx:CutBy>
+        </ocx:Panel>
+
+
+
+    </ocx:Vessel>
+    <ocx:ClassCatalogue id="nplcid2">
+        <ocx:MaterialCatalogue id="nplcid3">
+            <ocx:Material id="nplcid4" name="A" ocx:grade="A" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
+                <ocx:Density numericvalue="7850" unit="UKgOverm3"/>
+                <ocx:YoungsModulus numericvalue="206000" unit="UNOvermm2"/>
+                <ocx:PoissonRatio numericvalue="0.3" unit="UDimless"/>
+                <ocx:YieldStress numericvalue="235" unit="UNOvermm2"/>
+                <ocx:UltimateStress numericvalue="400" unit="UNOvermm2"/>
+            </ocx:Material>
+        </ocx:MaterialCatalogue>
+        
+        <ocx:HoleShapeCatalogue id="holeShape0">
+            <ocx:Description>Base definition of holes</ocx:Description>
+
+            <ocx:Hole2D id="holeShapeHole0" ocx:GUIDRef="d7ee47a5-cc39-41df-ac89-ec2ec533dbf4">
+                <ocx:ParametricCircle id="parametricCircleDef1">
+                    <ocx:Diameter numericvalue="100" unit="Umm"/>
+                </ocx:ParametricCircle>
+            </ocx:Hole2D>
+
+            <ocx:Hole2D id="holeShapeHole1" ocx:GUIDRef="50e0a85d-cf7d-48a2-b995-933e66c9de55">
+                <ocx:ParametricCircle id="parametricCircleDef2">
+                    <ocx:Diameter numericvalue="50" unit="Umm"/>
+                </ocx:ParametricCircle>
+            </ocx:Hole2D>
+
+            <ocx:Hole2D id="holeShapeHole2" ocx:GUIDRef="554b45a0-93d8-49c3-9f49-e069fca95d15">
+                <!-- where is the origin of this hole ? -->
+                <ocx:SymmetricalHole id="symmetricalHoleDef1">
+                    <ocx:Height numericvalue="200" unit="Umm"/>
+                    <ocx:Width numericvalue="500" unit="Umm"/>
+                </ocx:SymmetricalHole>
+            </ocx:Hole2D>
+
+
+            <ocx:Hole2D id="holeShapeHole3" ocx:GUIDRef="445d87bd-674f-4e4b-b330-23d57ea9e63c">
+                <ocx:SuperElliptical id="superEllipticalDef1" exponent="2">
+                    <ocx:Height numericvalue="200" unit="Umm"/>
+                    <ocx:Width numericvalue="400" unit="Umm"/>
+                </ocx:SuperElliptical>
+            </ocx:Hole2D>
+
+            <ocx:Hole2D id="holeShapeHole4" ocx:GUIDRef="b2380e42-6e8b-4736-b482-5474eab06980">
+                <ocx:RectangularHole id="rectangularHoleDef1">
+                    <ocx:Height numericvalue="200" unit="Umm"/>
+                    <ocx:Width numericvalue="400" unit="Umm"/>
+                    <ocx:FilletRadius numericvalue="0" unit="Umm"/>
+                </ocx:RectangularHole>
+            </ocx:Hole2D>
+
+            <ocx:Hole2D id="holeShapeHole5" ocx:GUIDRef="8186f1d7-fe55-4b54-9b36-cf50d5a351f5">
+                <ocx:RectangularHole id="rectangularHoleDef2">
+                    <ocx:Height numericvalue="200" unit="Umm"/>
+                    <ocx:Width numericvalue="400" unit="Umm"/>
+                    <ocx:FilletRadius numericvalue="25" unit="Umm"/>
+                </ocx:RectangularHole>
+            </ocx:Hole2D>
+
+            <ocx:Hole2D id="holeShapeHole6" ocx:GUIDRef="955ab78c-a478-4018-ba53-a85d10aec2e4">
+                <ocx:RectangularHole id="rectangularHoleDef3">
+                    <ocx:Description>no fillet radius given, there use fillet radius 100</ocx:Description>
+                    <ocx:Height numericvalue="200" unit="Umm"/>
+                    <ocx:Width numericvalue="400" unit="Umm"/>
+                </ocx:RectangularHole>
+            </ocx:Hole2D>
+
+            <ocx:Hole2D id="holeShapeHole7" ocx:GUIDRef="158235a8-ffb2-4446-8761-0ef823852062">
+                <ocx:Contour>
+                    <ocx:PolyLine3D id="holePolyLine">
+                        <ocx:Length numericvalue="1200" unit="Um"/>
+                        <ocx:Point3DList>
+                            <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                            <ocx:Point3D coordinates="400 0 0" unit="Um"/>
+                            <ocx:Point3D coordinates="400 0 200" unit="Um"/>
+                            <ocx:Point3D coordinates="0 0 200" unit="Um"/>
+                            <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                        </ocx:Point3DList>
+                    </ocx:PolyLine3D>
+                </ocx:Contour>
+            </ocx:Hole2D>
+
+        </ocx:HoleShapeCatalogue>
+
+    </ocx:ClassCatalogue>
+    <unitsml:UnitsML xmlns:unitsml="urn:oasis:names:tc:unitsml:schema:xsd:UnitsMLSchema_lite-0.9.18">
+        <unitsml:UnitSet>
+            <unitsml:Unit xml:id="Um" dimensionURL="D_L">
+                <unitsml:UnitName xml:lang="en-us">meter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="m"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="Um2" dimensionURL="D_L2">
+                <unitsml:UnitName xml:lang="en-us">square meter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="m2"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="2"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="Um3" dimensionURL="D_L3">
+                <unitsml:UnitName xml:lang="en-us">cubic meter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="m3"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="3"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="Ucm" dimensionURL="D_L">
+                <unitsml:UnitName xml:lang="en-us">centimeter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="cm"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1" prefix="c"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="Ucm2" dimensionURL="D_L2">
+                <unitsml:UnitName xml:lang="en-us">square centimeter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="cm2"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="2" prefix="c"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="Ucm4" dimensionURL="D_L4">
+                <unitsml:UnitName xml:lang="en-us">double square centimeter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="cm4"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="4" prefix="c"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="Umm" dimensionURL="D_L">
+                <unitsml:UnitName xml:lang="en-us">millimeter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="mm"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1" prefix="m"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="UKnots" dimensionURL="D_L.T-1">
+                <unitsml:UnitName xml:lang="en-us">knot</unitsml:UnitName>
+                <unitsml:UnitSymbol type="kn"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="knot" powerNumerator="1"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="URad" dimensionURL="D_L">
+                <unitsml:UnitName xml:lang="en-us">angle</unitsml:UnitName>
+                <unitsml:UnitSymbol type="rad"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="radian" powerNumerator="1"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="UKg" dimensionURL="D_Kg">
+                <unitsml:UnitName xml:lang="en-us">kilo gram</unitsml:UnitName>
+                <unitsml:UnitSymbol type="kg"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="gram" powerNumerator="1" prefix="k"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="UKgOverm3" dimensionURL="D_Kg.M-3">
+                <unitsml:UnitName xml:lang="en-us">kilo gram per cubic meter</unitsml:UnitName>
+                <unitsml:UnitSymbol type="kg/m3"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="gram" powerNumerator="1" prefix="k"/>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-3"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="UNOvermm2" dimensionURL="D_N.MM-2">
+                <unitsml:UnitName xml:lang="en-us">newton</unitsml:UnitName>
+                <unitsml:UnitSymbol type="N"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="newton" powerNumerator="1"/>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-2" prefix="m"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="UNOverm2" dimensionURL="D_N.MM-2">
+                <unitsml:UnitName xml:lang="en-us">newton</unitsml:UnitName>
+                <unitsml:UnitSymbol type="N"/>
+                <unitsml:RootUnits>
+                    <unitsml:EnumeratedRootUnit unit="newton" powerNumerator="1"/>
+                    <unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-2"/>
+                </unitsml:RootUnits>
+            </unitsml:Unit>
+            <unitsml:Unit xml:id="UDimless" dimensionURL="D_None">
+                <unitsml:UnitName xml:lang="en-us"/>
+                <unitsml:UnitSymbol type="UNonDim"/>
+            </unitsml:Unit>
+        </unitsml:UnitSet>
+        <unitsml:DimensionSet>
+            <unitsml:Dimension xml:id="D_L">
+                <unitsml:Length symbol="L"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_L2">
+                <unitsml:Length symbol="L" powerNumerator="2"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_L3">
+                <unitsml:Length symbol="L" powerNumerator="3"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_L4">
+                <unitsml:Length symbol="L" powerNumerator="4"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_L.T-1">
+                <unitsml:Length symbol="L"/>
+                <unitsml:Time symbol="T" powerNumerator="-1"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_Kg">
+                <unitsml:Mass symbol="M"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_Kg.M-3">
+                <unitsml:Mass symbol="M"/>
+                <unitsml:Length symbol="L" powerNumerator="-3"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_N.MM-2">
+                <unitsml:Length symbol="L"/>
+                <unitsml:Mass symbol="M"/>
+                <unitsml:Time symbol="T" powerNumerator="-1"/>
+            </unitsml:Dimension>
+            <unitsml:Dimension xml:id="D_None" dimensionless="true"/>
+        </unitsml:DimensionSet>
+    </unitsml:UnitsML>
+
+</ocx:ocxXML>
