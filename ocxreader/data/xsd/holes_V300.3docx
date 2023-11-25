@@ -1,9 +1,8 @@
-<ocx:ocxXML xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd" schemaVersion="3.0.0b4"
-            xsi:schemaLocation="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd OCX_Schema.xsd"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
-    <ocx:Header name="Geometry" author="" organization="" time_stamp="2023-10-27T17:17:00.00+02:00"
-                originating_system="manual" documentation="geometry test" application_version=""/>
+<ocxXML xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd"
+    schemaVersion="3.0.0b3" xsi:schemaLocation="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd OCX_Schema.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+    <ocx:Header name="Geometry" author="" organization="" time_stamp="2023-10-27T17:17:00.00+02:00" 
+        originating_system="manual" documentation="geometry test" application_version=""  />
     <ocx:Vessel id="i1" name="Geometry" ocx:GUIDRef="21e4ca75-f2cf-4b34-90d2-889c89fa53f3">
         <ocx:DistanceTolerance numericvalue="1" unit="Umm"/>
         <ocx:AngleTolerance numericvalue="0.05" unit="URad"/>
@@ -24,20 +23,19 @@
         <!-- a minimal coordinate system with even spaced frames from -5 t 5
             this is used to check the reference planes -->
         <ocx:CoordinateSystem id="coordSys" ocx:GUIDRef="2de9de8d-1523-474b-8067-99a4ae366e4f" isGlobal="true">
-            <ocx:XRefPlanes>
-                <ocx:RefPlane ocx:GUIDRef="ac246072-fd04-4911-8163-7d6741c640d6" id="fr0">
-                    <ocx:ReferenceLocation numericvalue="0" unit="Um"/>
-                </ocx:RefPlane>
-            </ocx:XRefPlanes>
-            <ocx:YRefPlanes>
-                <ocx:RefPlane id="lp0" ocx:GUIDRef="6f01277d-2274-4a5c-88ae-6a8d448376ad">
-                    <ocx:ReferenceLocation numericvalue="0" unit="Um"/>
-                </ocx:RefPlane>
-            </ocx:YRefPlanes>
+                <ocx:XRefPlanes>
+                    <ocx:RefPlane ocx:GUIDRef="ac246072-fd04-4911-8163-7d6741c640d6" id="fr0">
+                        <ocx:ReferenceLocation numericvalue="0" unit="Um"/>
+                    </ocx:RefPlane>
+                </ocx:XRefPlanes>
+                <ocx:YRefPlanes>
+                    <ocx:RefPlane id="lp0" ocx:GUIDRef="6f01277d-2274-4a5c-88ae-6a8d448376ad">
+                        <ocx:ReferenceLocation numericvalue="0" unit="Um"/>
+                    </ocx:RefPlane>
+                </ocx:YRefPlanes>
         </ocx:CoordinateSystem>
 
-        <ocx:Panel id="panelFr0" ocx:GUIDRef="8dd8ed68-e0bf-4655-a5ff-db5fc2f5f711"
-                   ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame0" ocx:tightness="WaterTight">
+        <ocx:Panel id="panelFr0" ocx:GUIDRef="8dd8ed68-e0bf-4655-a5ff-db5fc2f5f711" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame0" ocx:tightness="WaterTight">
             <ocx:Description>A simple, rectangular panel with tons of holes on it
             </ocx:Description>
             <ocx:UnboundedGeometry>
@@ -49,9 +47,23 @@
                     <ocx:UDirection x="0" y="0" z="1"/>
                 </ocx:Plane3D>
             </ocx:UnboundedGeometry>
+            <ocx:LimitedBy>
+                <ocx:FreeEdgeCurve3D id="freeEdgeCurve0" ocx:GUIDRef="729ac11e-3dd3-440a-b109-b1c428ad680d">
+                    <ocx:PolyLine3D id="polyLine0" isClosed="true">
+                        <ocx:Length numericvalue="30" unit="Um"/>
+                        <ocx:Point3DList>
+                            <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                            <ocx:Point3D coordinates="0 0 1" unit="Um"/>
+                            <ocx:Point3D coordinates="0 5 1" unit="Um"/>
+                            <ocx:Point3D coordinates="0 5 0" unit="Um"/>
+                            <ocx:Point3D coordinates="0 0 0" unit="Um"/>
+                        </ocx:Point3DList>
+                    </ocx:PolyLine3D>
+                </ocx:FreeEdgeCurve3D>
+            </ocx:LimitedBy>
             <ocx:OuterContour>
                 <!-- a simple poly line with five points -->
-                <ocx:PolyLine3D id="pl1" isClosed="true">
+                <ocx:PolyLine3D id="polyLine1" isClosed="true">
                     <ocx:Length numericvalue="30" unit="Um"/>
                     <ocx:Point3DList>
                         <ocx:Point3D coordinates="0 0 0" unit="Um"/>
@@ -63,12 +75,12 @@
                 </ocx:PolyLine3D>
             </ocx:OuterContour>
             <ocx:ComposedOf>
-                <ocx:Plate ocx:GUIDRef="f37e1c61-23cf-4cf8-8b9e-2783778b8d5e" id="pl0">
+                <ocx:Plate ocx:GUIDRef="f37e1c61-23cf-4cf8-8b9e-2783778b8d5e" id="plate0">
                     <ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
                         <ocx:Thickness numericvalue="10" unit="Umm"/>
                     </ocx:PlateMaterial>
                     <ocx:OuterContour>
-                        <ocx:PolyLine3D id="pl2" isClosed="true">
+                        <ocx:PolyLine3D id="polyLine2" isClosed="true">
                             <ocx:Length numericvalue="12" unit="Um"/>
                             <ocx:Point3DList>
                                 <ocx:Point3D coordinates="0 0 0" unit="Um"/>
@@ -235,7 +247,7 @@
                 <ocx:UltimateStress numericvalue="400" unit="UNOvermm2"/>
             </ocx:Material>
         </ocx:MaterialCatalogue>
-        
+
         <ocx:HoleShapeCatalogue id="holeShape0">
             <ocx:Description>Base definition of holes</ocx:Description>
 
@@ -443,4 +455,4 @@
         </unitsml:DimensionSet>
     </unitsml:UnitsML>
 
-</ocx:ocxXML>
+</ocxXML>
