@@ -1,228 +1,224 @@
-﻿<ocx:ocxXML xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b3//OCX_Schema.xsd" schemaVersion="3.0.0b3" xsi:schemaLocation="https://3docx.org/fileadmin//ocx_schema//V300b3//OCX_Schema.xsd OCX_Schema.xsd"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<ocx:Header name="Geometry" author="" organization="" time_stamp="2023-10-27T17:17:00.00+02:00" originating_system="manual" documentation="geometry test" application_version="" />
+<ocx:ocxXML xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd" schemaVersion="3.0.0b4" xsi:schemaLocation="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd OCX_Schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ocx:Header name="Geometry" author="" organization="" time_stamp="2023-10-27T17:17:00.00+02:00" originating_system="manual" documentation="geometry test" application_version="" license="Copyright 2023 Open Class 3D Exchange (OCX) Consortium (https://3docx.org)    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);     You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    Unless required by applicable law or agreed to in writing, the 3Docx standard and software distributed under the License is distributed on an     &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.    The OCX Consortium is not liable to any use whatsoever of the distributed standard or software based on the standard.    See the License for the specific language governing permissions and limitations under the License. "/>
 	<ocx:Vessel id="i1" name="Geometry" ocx:GUIDRef="21e4ca75-f2cf-4b34-90d2-889c89fa53f3">
-		<ocx:DistanceTolerance numericvalue="1" unit="Umm" />
-		<ocx:AngleTolerance numericvalue="0.05" unit="URad" />
+		<ocx:DistanceTolerance numericvalue="1" unit="Umm"/>
+		<ocx:AngleTolerance numericvalue="0.05" unit="URad"/>
 		<ocx:ClassificationData identification="0815" ocx:newbuildingSociety="GL">
 			<ocx:PrincipalParticulars>
-				<ocx:Lpp numericvalue="100" unit="Um" />
-				<ocx:RuleLength numericvalue="100" unit="Um" />
-				<ocx:BlockCoefficient numericvalue="0" unit="UDimless" />
-				<ocx:FP_Pos numericvalue="100" unit="Um" />
-				<ocx:MouldedBreadth numericvalue="20" unit="Um" />
-				<ocx:MouldedDepth numericvalue="NaN" unit="Um" />
-				<ocx:ScantlingDraught numericvalue="25" unit="Um" />
-				<ocx:DesignSpeed numericvalue="0" unit="UKnots" />
-				<ocx:AP_Pos numericvalue="0" unit="Um" />
+				<ocx:Lpp numericvalue="100" unit="Um"/>
+				<ocx:RuleLength numericvalue="100" unit="Um"/>
+				<ocx:BlockCoefficient numericvalue="0" unit="UDimless"/>
+				<ocx:FP_Pos numericvalue="100" unit="Um"/>
+				<ocx:MouldedBreadth numericvalue="20" unit="Um"/>
+				<ocx:MouldedDepth numericvalue="NaN" unit="Um"/>
+				<ocx:ScantlingDraught numericvalue="25" unit="Um"/>
+				<ocx:DesignSpeed numericvalue="0" unit="UKnots"/>
+				<ocx:AP_Pos numericvalue="0" unit="Um"/>
 			</ocx:PrincipalParticulars>
 		</ocx:ClassificationData>
-		<ocx:BuilderInformation yard="" designer="" owner="" yearOfBuild="2022-01+02:00" />
+		<ocx:BuilderInformation yard="" designer="" owner="" yearOfBuild="2022-01+02:00"/>
 		<!-- a minimal coordinate system with even spaced frames from -5 t 5 
 			this is used to check the reference planes -->
 		<ocx:CoordinateSystem id="coordSys" ocx:GUIDRef="2de9de8d-1523-474b-8067-99a4ae366e4f" isGlobal="true">
 			<ocx:XRefPlanes>
 				<ocx:RefPlane ocx:GUIDRef="ac246072-fd04-4911-8163-7d6741c640d6" id="fr0">
-					<ocx:ReferenceLocation numericvalue="0" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="0" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="54fd024a-6306-4a31-b83a-b040b13cd2af" id="fr-1">
-					<ocx:ReferenceLocation numericvalue="-1" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="-1" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="40727cb4-b9e2-41aa-94fe-070badf15472" id="fr-2">
-					<ocx:ReferenceLocation numericvalue="-2" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="-2" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="ee68d7d7-e47d-4a2f-9833-75b426e8806e" id="fr-3">
-					<ocx:ReferenceLocation numericvalue="-3" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="-3" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="385f73c0-2131-41d3-9805-99f02f9dae08" id="fr-4">
-					<ocx:ReferenceLocation numericvalue="-4" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="-4" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="1a305c92-88fa-414e-8365-b739a06bd545" id="fr-5">
-					<ocx:ReferenceLocation numericvalue="-4" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="-4" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="6b386d22-1484-4a39-9f4f-c7f0dc7d645e" id="fr1">
-					<ocx:ReferenceLocation numericvalue="1" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="1" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="ac708fd4-911e-4dde-92f3-7190bbfb9a0b" id="fr2">
-					<ocx:ReferenceLocation numericvalue="2" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="2" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="80b7673a-7e80-4e62-bb93-578714b7ac1e" id="fr3">
-					<ocx:ReferenceLocation numericvalue="3" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="3" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="808281ef-2906-4a82-82b9-5e9576da6267" id="fr4">
-					<ocx:ReferenceLocation numericvalue="4" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="4" unit="Um"/>
 				</ocx:RefPlane>
 				<ocx:RefPlane ocx:GUIDRef="158a0317-4e95-4724-8747-42e8d4e5082e" id="fr5">
-					<ocx:ReferenceLocation numericvalue="5" unit="Um" />
+					<ocx:ReferenceLocation numericvalue="5" unit="Um"/>
 				</ocx:RefPlane>
 			</ocx:XRefPlanes>
 		</ocx:CoordinateSystem>
-
 		<!-- several reference surfaces in different shapes
 			this is used to check the reference surfaces -->
 		<ocx:ReferenceSurfaces>
 			<ocx:Plane3D id="refSrfPlane2" ocx:GUIDRef="f38e1af9-5f6e-468b-af72-adaff281dc3e">
-				<ocx:Area numericvalue="100" unit="Um2" />
-				<ocx:Origin cooordinates="2 0 0" unit="Um" />
+				<ocx:Area numericvalue="100" unit="Um2"/>
+				<ocx:Origin coordinates="2 0 0" unit="Um"/>
 				<ocx:Normal x="1" y="0" z="0"/>
 				<ocx:UDirection x="0" y="1" z="0"/>
 			</ocx:Plane3D>
 			<ocx:Cylinder3D id="refSrfCyl6" ocx:GUIDRef="45d6ca7d-32e7-457e-8559-5aa90313bf00">
-				<ocx:Area numericvalue="100" unit="Um2" />
-				<ocx:Radius numericvalue="26" unit="Um2" />
-				<ocx:Height numericvalue="5" unit="Um2" />
-				<ocx:Origin cooordinates="-20 0 0" unit="Um" />
+				<ocx:Area numericvalue="100" unit="Um2"/>
+				<ocx:Origin coordinates="-20 0 0" unit="Um"/>
 				<ocx:Axis x="0" y="0" z="1"/>
+				<ocx:Radius numericvalue="26" unit="Um2"/>
+				<ocx:Height numericvalue="5" unit="Um2"/>
 			</ocx:Cylinder3D>
 			<ocx:Cone3D id="refSrfCone7" ocx:GUIDRef="a1f61277-48a9-4513-8f1a-4ff8e7fba1e7">
-				<ocx:Area numericvalue="100" unit="Um2" />
-				<ocx:BaseRadius numericvalue="26" unit="Um2" />
-				<ocx:TipRadius numericvalue="25.5" unit="Um2" />
-				<ocx:Origin cooordinates="-19 0 0" unit="Um" />
-				<ocx:Tip cooordinates="-19 0 5" unit="Um" />
+				<ocx:Area numericvalue="100" unit="Um2"/>
+				<ocx:Origin coordinates="-19 0 0" unit="Um"/>
+				<ocx:Tip coordinates="-19 0 5" unit="Um"/>
+				<ocx:BaseRadius numericvalue="26" unit="Um2"/>
+				<ocx:TipRadius numericvalue="25.5" unit="Um2"/>
 			</ocx:Cone3D>
 			<ocx:Sphere3D id="refSrfSph8" ocx:GUIDRef="bd812b7e-9069-41dd-a0b2-47ce37612ea8">
-				<ocx:Area numericvalue="100" unit="Um2" />
-				<ocx:Radius numericvalue="26" unit="Um2" />
-				<ocx:Origin cooordinates="-18 0 2.5" unit="Um" />
+				<ocx:Area numericvalue="100" unit="Um2"/>
+				<ocx:Origin coordinates="-18 0 2.5" unit="Um"/>
+				<ocx:Radius numericvalue="26" unit="Um2"/>
 			</ocx:Sphere3D>
 			<ocx:ExtrudedSurface id="refSrfExtr9" ocx:GUIDRef="6296a625-46d2-4b09-8ec6-0aba82844048">
 				<!-- similar to a corrugated bulkhead with a depth of 0.25 m and sub-pane width 1 m 
 					the central panel has a width of 2 metres
 					here we use an extrusion direction length and direction
 				-->
+				<ocx:Area numericvalue="100" unit="Um2"/>
 				<ocx:BaseCurve id="bsCrv1">
-					<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:Length numericvalue="32" unit="Um"/>
 					<ocx:PolyLine3D id="pl1" isClosed="true">
-						<ocx:Length numericvalue="30" unit="Um" />
+						<ocx:Length numericvalue="30" unit="Um"/>
 						<ocx:Point3DList>
-							<ocx:Point3D cooordinates="9.0 -5 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 -4.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 -3.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="9 -3.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="9 -2.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 -2.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 -1.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="9 -1 0" unit="Um" />
-							<ocx:Point3D cooordinates="9 1 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 1.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 2.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="9 2.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="9 3.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 3.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.25 4.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="9.0 5 0" unit="Um" />
+							<ocx:Point3D coordinates="9.0 -5 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 -4.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 -3.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="9 -3.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="9 -2.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 -2.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 -1.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="9 -1 0" unit="Um"/>
+							<ocx:Point3D coordinates="9 1 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 1.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 2.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="9 2.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="9 3.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 3.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.25 4.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="9.0 5 0" unit="Um"/>
 						</ocx:Point3DList>
 					</ocx:PolyLine3D>
 				</ocx:BaseCurve>
 				<ocx:Sweep>
 					<ocx:Vector3D x="0" y="0" z="1"/>
-					<ocx:Length numericvalue="5" unit="Um2" />
+					<ocx:Length numericvalue="5" unit="Um2"/>
 				</ocx:Sweep>
 			</ocx:ExtrudedSurface>
-
 			<ocx:ExtrudedSurface id="refSrfExtr10" ocx:GUIDRef="422efa1d-b7f0-4913-9d2c-3154aba8a379">
 				<!-- similar to a corrugated bulkhead with a depth of 0.25 m and sub-pane width 1 m 
 					the central panel has a width of 2 metres
 					here we use an extrusion curve
 				-->
+				<ocx:Area numericvalue="100" unit="Um2"/>
 				<ocx:BaseCurve id="bsCrv2">
-					<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:Length numericvalue="32" unit="Um"/>
 					<ocx:PolyLine3D id="pl3" isClosed="true">
-						<ocx:Length numericvalue="30" unit="Um" />
+						<ocx:Length numericvalue="30" unit="Um"/>
 						<ocx:Point3DList>
-							<ocx:Point3D cooordinates="10.0 -5 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 -4.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 -3.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="10 -3.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="10 -2.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 -2.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 -1.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="10 -1 0" unit="Um" />
-							<ocx:Point3D cooordinates="10 1 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 1.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 2.25 0" unit="Um" />
-							<ocx:Point3D cooordinates="10 2.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="10 3.5 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 3.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.25 4.75 0" unit="Um" />
-							<ocx:Point3D cooordinates="10.0 5 0" unit="Um" />
+							<ocx:Point3D coordinates="10.0 -5 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 -4.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 -3.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="10 -3.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="10 -2.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 -2.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 -1.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="10 -1 0" unit="Um"/>
+							<ocx:Point3D coordinates="10 1 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 1.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 2.25 0" unit="Um"/>
+							<ocx:Point3D coordinates="10 2.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="10 3.5 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 3.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.25 4.75 0" unit="Um"/>
+							<ocx:Point3D coordinates="10.0 5 0" unit="Um"/>
 						</ocx:Point3DList>
 					</ocx:PolyLine3D>
 				</ocx:BaseCurve>
-				<ocx:SweepCurve>
+				<ocx:SweepCurve id="swptCrv1">
+					<ocx:Length numericvalue="5" unit="Um"/>
 					<ocx:CircumArc3D id="swArc0">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="10 0 0" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="10.25 0 2.5" unit="Um" />
-						<ocx:EndPoint cooordinates="10 0 5" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="10 0 0" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="10.25 0 2.5" unit="Um"/>
+						<ocx:EndPoint coordinates="10 0 5" unit="Um"/>
 					</ocx:CircumArc3D>
 				</ocx:SweepCurve>
 			</ocx:ExtrudedSurface>
-
 			<ocx:SurfaceCollection id="refSrfCol11" ocx:GUIDRef="fe79b0ab-3621-4738-843f-5376b35b97db">
 				<!-- a combination of three planes
 				-->
 				<ocx:Plane3D id="refSrfCol11-0" ocx:GUIDRef="ef9c0197-aa1b-4e84-a276-f3b6e6cd3091">
-					<ocx:Area numericvalue="100" unit="Um2" />
-					<ocx:Origin cooordinates="11 4 0" unit="Um" />
-					<ocx:Normal x="0.8660245" y="0.5" z="0"/>
-					<ocx:FaceBoundaryCurve ocx:isUVspace="false">
+					<ocx:Area numericvalue="100" unit="Um2"/>
+					<ocx:FaceBoundaryCurve>
 						<ocx:PolyLine3D id="pl110" isClosed="true">
-							<ocx:Length numericvalue="30" unit="Um" />
+							<ocx:Length numericvalue="30" unit="Um"/>
 							<ocx:Point3DList>
-								<ocx:Point3D cooordinates="11 4 0" unit="Um" />
-								<ocx:Point3D cooordinates="11 4 5" unit="Um" />
-								<ocx:Point3D cooordinates="11.57735 5 5" unit="Um" />
-								<ocx:Point3D cooordinates="11.57735 5 0" unit="Um" />								
+								<ocx:Point3D coordinates="11 4 0" unit="Um"/>
+								<ocx:Point3D coordinates="11 4 5" unit="Um"/>
+								<ocx:Point3D coordinates="11.57735 5 5" unit="Um"/>
+								<ocx:Point3D coordinates="11.57735 5 0" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:FaceBoundaryCurve>
+					<ocx:Origin coordinates="11 4 0" unit="Um"/>
+					<ocx:Normal x="0.8660245" y="0.5" z="0"/>
 				</ocx:Plane3D>
 				<ocx:Plane3D id="refSrfCol11-1" ocx:GUIDRef="6cf0aea4-7a84-4e4d-8034-518843ec7be1">
-					<ocx:Area numericvalue="100" unit="Um2" />
-					<ocx:Origin cooordinates="11 0 0" unit="Um" />
-					<ocx:Normal x="1" y="0" z="0"/>					
-					<ocx:FaceBoundaryCurve ocx:isUVspace="false">
+					<ocx:Area numericvalue="100" unit="Um2"/>
+					<ocx:FaceBoundaryCurve>
 						<ocx:PolyLine3D id="pl111" isClosed="true">
-							<ocx:Length numericvalue="30" unit="Um" />
+							<ocx:Length numericvalue="30" unit="Um"/>
 							<ocx:Point3DList>
-								<ocx:Point3D cooordinates="11 4 0" unit="Um" />
-								<ocx:Point3D cooordinates="11 4 5" unit="Um" />
-								<ocx:Point3D cooordinates="11 -4 5" unit="Um" />
-								<ocx:Point3D cooordinates="11 -4 0" unit="Um" />								
+								<ocx:Point3D coordinates="11 4 0" unit="Um"/>
+								<ocx:Point3D coordinates="11 4 5" unit="Um"/>
+								<ocx:Point3D coordinates="11 -4 5" unit="Um"/>
+								<ocx:Point3D coordinates="11 -4 0" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:FaceBoundaryCurve>
+					<ocx:Origin coordinates="11 0 0" unit="Um"/>
+					<ocx:Normal x="1" y="0" z="0"/>
 				</ocx:Plane3D>
 				<ocx:Plane3D id="refSrfCol11-2" ocx:GUIDRef="ff8b7172-7b1a-435e-b5ad-467247c994df">
-					<ocx:Area numericvalue="100" unit="Um2" />
-					<ocx:Origin cooordinates="11 -4 0" unit="Um" />
-					<ocx:Normal x="0.8660245" y="-0.5" z="0"/>
-					<ocx:FaceBoundaryCurve ocx:isUVspace="false">
+					<ocx:Area numericvalue="100" unit="Um2"/>
+					<ocx:FaceBoundaryCurve>
 						<ocx:PolyLine3D id="pl112" isClosed="true">
-							<ocx:Length numericvalue="30" unit="Um" />
+							<ocx:Length numericvalue="30" unit="Um"/>
 							<ocx:Point3DList>
-								<ocx:Point3D cooordinates="11 -4 0" unit="Um" />
-								<ocx:Point3D cooordinates="11 -4 5" unit="Um" />
-								<ocx:Point3D cooordinates="11.57735 -5 5" unit="Um" />
-								<ocx:Point3D cooordinates="11.57735 -5 0" unit="Um" />								
+								<ocx:Point3D coordinates="11 -4 0" unit="Um"/>
+								<ocx:Point3D coordinates="11 -4 5" unit="Um"/>
+								<ocx:Point3D coordinates="11.57735 -5 5" unit="Um"/>
+								<ocx:Point3D coordinates="11.57735 -5 0" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:FaceBoundaryCurve>
+					<ocx:Origin coordinates="11 -4 0" unit="Um"/>
+					<ocx:Normal x="0.8660245" y="-0.5" z="0"/>
 				</ocx:Plane3D>
 			</ocx:SurfaceCollection>
-
 		</ocx:ReferenceSurfaces>
-
-
 		<ocx:Panel id="panelFr0" ocx:GUIDRef="8dd8ed68-e0bf-4655-a5ff-db5fc2f5f711" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame0" ocx:tightness="WaterTight">
 			<ocx:Description>A simple, rectangular panel on x=0, split by a seam into two rectangular plates</ocx:Description>
 			<ocx:UnboundedGeometry>
 				<!-- an inline plane description -->
 				<ocx:Plane3D id="planeFr0">
-					<ocx:Area numericvalue="100" unit="Um2" />
-					<ocx:Origin cooordinates="0 0 0" unit="Um" />
+					<ocx:Area numericvalue="100" unit="Um2"/>
+					<ocx:Origin coordinates="0 0 0" unit="Um"/>
 					<!-- Question : could we write vectors like points, instead of having three attributes? -->
 					<ocx:Normal x="1" y="0" z="0"/>
 					<ocx:UDirection x="0" y="1" z="0"/>
@@ -230,46 +226,46 @@
 			</ocx:UnboundedGeometry>
 			<ocx:OuterContour>
 				<!-- a simple poly line with five points -->
-				<ocx:PolyLine3D id="pl1" isClosed="true">
-					<ocx:Length numericvalue="30" unit="Um" />
+				<ocx:PolyLine3D id="polyLine2" isClosed="true">
+					<ocx:Length numericvalue="30" unit="Um"/>
 					<ocx:Point3DList>
-						<ocx:Point3D cooordinates="0 0 0" unit="Um" />
-						<ocx:Point3D cooordinates="0 5 0" unit="Um" />
-						<ocx:Point3D cooordinates="0 5 5" unit="Um" />
-						<ocx:Point3D cooordinates="0 -5 5" unit="Um" />
-						<ocx:Point3D cooordinates="0 -5 0" unit="Um" />
+						<ocx:Point3D coordinates="0 0 0" unit="Um"/>
+						<ocx:Point3D coordinates="0 5 0" unit="Um"/>
+						<ocx:Point3D coordinates="0 5 5" unit="Um"/>
+						<ocx:Point3D coordinates="0 -5 5" unit="Um"/>
+						<ocx:Point3D coordinates="0 -5 0" unit="Um"/>
 					</ocx:Point3DList>
 				</ocx:PolyLine3D>
 			</ocx:OuterContour>
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="f37e1c61-23cf-4cf8-8b9e-2783778b8d5e" id="fr0-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:PolyLine3D id="pl2" isClosed="true">
-							<ocx:Length numericvalue="18" unit="Um" />
+							<ocx:Length numericvalue="18" unit="Um"/>
 							<ocx:Point3DList>
-								<ocx:Point3D cooordinates="0 1 0" unit="Um" />
-								<ocx:Point3D cooordinates="0 5 0" unit="Um" />
-								<ocx:Point3D cooordinates="0 5 5" unit="Um" />
-								<ocx:Point3D cooordinates="0 1 5" unit="Um" />
+								<ocx:Point3D coordinates="0 1 0" unit="Um"/>
+								<ocx:Point3D coordinates="0 5 0" unit="Um"/>
+								<ocx:Point3D coordinates="0 5 5" unit="Um"/>
+								<ocx:Point3D coordinates="0 1 5" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 				<ocx:Plate ocx:GUIDRef="d1ff7871-1466-4b4b-89f5-ab32141b7ec0" id="fr0-p1">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="12" unit="Umm" />
+						<ocx:Thickness numericvalue="12" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
-						<ocx:PolyLine3D id="pl3" isClosed="true">
-							<ocx:Length numericvalue="22" unit="Um" />
+						<ocx:PolyLine3D id="polyLine3" isClosed="true">
+							<ocx:Length numericvalue="22" unit="Um"/>
 							<ocx:Point3DList>
-								<ocx:Point3D cooordinates="0 1 0" unit="Um" />
-								<ocx:Point3D cooordinates="0 1 5" unit="Um" />
-								<ocx:Point3D cooordinates="0 -5 5" unit="Um" />
-								<ocx:Point3D cooordinates="0 -5 0" unit="Um" />
+								<ocx:Point3D coordinates="0 1 0" unit="Um"/>
+								<ocx:Point3D coordinates="0 1 5" unit="Um"/>
+								<ocx:Point3D coordinates="0 -5 5" unit="Um"/>
+								<ocx:Point3D coordinates="0 -5 0" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:OuterContour>
@@ -279,15 +275,14 @@
 				<ocx:Seam ocx:GUIDRef="35fa0463-a652-449e-8ffd-94f60827c397" id="fr0-sm0">
 					<ocx:TraceLine>
 						<ocx:Line3D id="fr0-sm0-l" ocx:GUIDRef="f411c7d5-b3dd-427f-8a50-693f1063ece3">
-							<ocx:Length numericvalue="5" unit="Um" />
-							<ocx:StartPoint cooordinates="0 1 0" unit="Um" />
-							<ocx:EndPoint cooordinates="0 1 5" unit="Um"/>
+							<ocx:Length numericvalue="5" unit="Um"/>
+							<ocx:StartPoint coordinates="0 1 0" unit="Um"/>
+							<ocx:EndPoint coordinates="0 1 5" unit="Um"/>
 						</ocx:Line3D>
 					</ocx:TraceLine>
 				</ocx:Seam>
 			</ocx:SplitBy>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr1" ocx:GUIDRef="28c9d242-920e-4a3a-9409-d84b616f55fb" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame1" ocx:tightness="WaterTight">
 			<ocx:Description>A simple, trapezoid panel on x=1, 
 				plane as grid reference
@@ -300,58 +295,58 @@
 			<ocx:OuterContour>
 				<ocx:CompositeCurve3D id="cmp1">
 					<!-- does anybody check this length ? -->
-					<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:Length numericvalue="32" unit="Um"/>
 					<ocx:Line3D id="l0">
-						<ocx:Length numericvalue="10" unit="Um" />
-						<ocx:StartPoint cooordinates="1 -5 0" unit="Um" />
-						<ocx:EndPoint cooordinates="1 5 0" unit="Um"/>
+						<ocx:Length numericvalue="10" unit="Um"/>
+						<ocx:StartPoint coordinates="1 -5 0" unit="Um"/>
+						<ocx:EndPoint coordinates="1 5 0" unit="Um"/>
 					</ocx:Line3D>
 					<ocx:Line3D id="l1">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="1 5 0" unit="Um" />
-						<ocx:EndPoint cooordinates="1 6 5" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="1 5 0" unit="Um"/>
+						<ocx:EndPoint coordinates="1 6 5" unit="Um"/>
 					</ocx:Line3D>
 					<ocx:Line3D id="l2">
-						<ocx:Length numericvalue="12" unit="Um" />
-						<ocx:StartPoint cooordinates="1 6 5" unit="Um" />
-						<ocx:EndPoint cooordinates="1 -6 5" unit="Um"/>
+						<ocx:Length numericvalue="12" unit="Um"/>
+						<ocx:StartPoint coordinates="1 6 5" unit="Um"/>
+						<ocx:EndPoint coordinates="1 -6 5" unit="Um"/>
 					</ocx:Line3D>
 					<ocx:Line3D id="l3">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="1 -6 5" unit="Um" />
-						<ocx:EndPoint cooordinates="1 -5 0" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="1 -6 5" unit="Um"/>
+						<ocx:EndPoint coordinates="1 -5 0" unit="Um"/>
 					</ocx:Line3D>
 				</ocx:CompositeCurve3D>
 			</ocx:OuterContour>
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="f2a8eb20-2b30-4151-8444-0b0f03ee96a9" id="fr1-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:PolyLine3D id="pl12" isClosed="true">
-							<ocx:Length numericvalue="18" unit="Um" />
+							<ocx:Length numericvalue="18" unit="Um"/>
 							<ocx:Point3DList>
-								<ocx:Point3D cooordinates="1 1 0" unit="Um" />
-								<ocx:Point3D cooordinates="1 5 0" unit="Um" />
-								<ocx:Point3D cooordinates="1 6 5" unit="Um" />
-								<ocx:Point3D cooordinates="1 1 5" unit="Um" />
+								<ocx:Point3D coordinates="1 1 0" unit="Um"/>
+								<ocx:Point3D coordinates="1 5 0" unit="Um"/>
+								<ocx:Point3D coordinates="1 6 5" unit="Um"/>
+								<ocx:Point3D coordinates="1 1 5" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 				<ocx:Plate ocx:GUIDRef="e4ec2d37-7a7a-4ba8-b634-a4f022c57cf3" id="fr1-p1">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="12" unit="Umm" />
+						<ocx:Thickness numericvalue="12" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:PolyLine3D id="pl13" isClosed="true">
-							<ocx:Length numericvalue="22" unit="Um" />
+							<ocx:Length numericvalue="22" unit="Um"/>
 							<ocx:Point3DList>
-								<ocx:Point3D cooordinates="1 1 0" unit="Um" />
-								<ocx:Point3D cooordinates="1 -5 0" unit="Um" />
-								<ocx:Point3D cooordinates="1 -6 5" unit="Um" />
-								<ocx:Point3D cooordinates="1 1 5" unit="Um" />
+								<ocx:Point3D coordinates="1 1 0" unit="Um"/>
+								<ocx:Point3D coordinates="1 -5 0" unit="Um"/>
+								<ocx:Point3D coordinates="1 -6 5" unit="Um"/>
+								<ocx:Point3D coordinates="1 1 5" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:OuterContour>
@@ -361,147 +356,139 @@
 				<ocx:Seam ocx:GUIDRef="2637922e-4b19-4001-b4aa-c7911298147b" id="fr1-sm0">
 					<ocx:TraceLine>
 						<ocx:Line3D id="fr1-sm0-l">
-							<ocx:Length numericvalue="5" unit="Um" />
-							<ocx:StartPoint cooordinates="1 1 0" unit="Um" />
-							<ocx:EndPoint cooordinates="1 1 5" unit="Um"/>
+							<ocx:Length numericvalue="5" unit="Um"/>
+							<ocx:StartPoint coordinates="1 1 0" unit="Um"/>
+							<ocx:EndPoint coordinates="1 1 5" unit="Um"/>
 						</ocx:Line3D>
 					</ocx:TraceLine>
 				</ocx:Seam>
 			</ocx:SplitBy>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr2" ocx:GUIDRef="e4cdd3e8-2407-4501-97eb-3eb18eb2b7b8" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame2" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on x=2, 
 				using a reference surface
 				contour defined by a composite curve made from 2 lines and two arcs
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
-				<ocx:SurfaceRef ocx:GUIDRef="f38e1af9-5f6e-468b-af72-adaff281dc3e" ocx:refType="ocx:Surface" />
+				<ocx:SurfaceRef ocx:GUIDRef="f38e1af9-5f6e-468b-af72-adaff281dc3e" ocx:refType="ocx:Surface"/>
 			</ocx:UnboundedGeometry>
-
 			<ocx:OuterContour>
 				<ocx:CompositeCurve3D id="cmp2">
 					<!-- does anybody check this length ? -->
-					<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:Length numericvalue="32" unit="Um"/>
 					<ocx:Line3D id="l20">
-						<ocx:Length numericvalue="10" unit="Um" />
-						<ocx:StartPoint cooordinates="2 -5 0" unit="Um" />
-						<ocx:EndPoint cooordinates="2 5 0" unit="Um"/>
+						<ocx:Length numericvalue="10" unit="Um"/>
+						<ocx:StartPoint coordinates="2 -5 0" unit="Um"/>
+						<ocx:EndPoint coordinates="2 5 0" unit="Um"/>
 					</ocx:Line3D>
 					<ocx:CircumArc3D id="arc21">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="2 5 0" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="2 5.7 2.5" unit="Um" />
-						<ocx:EndPoint cooordinates="2 6 5" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="2 5 0" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="2 5.7 2.5" unit="Um"/>
+						<ocx:EndPoint coordinates="2 6 5" unit="Um"/>
 					</ocx:CircumArc3D>
 					<ocx:Line3D id="l22">
-						<ocx:Length numericvalue="12" unit="Um" />
-						<ocx:StartPoint cooordinates="2 6 5" unit="Um" />
-						<ocx:EndPoint cooordinates="2 -6 5" unit="Um"/>
+						<ocx:Length numericvalue="12" unit="Um"/>
+						<ocx:StartPoint coordinates="2 6 5" unit="Um"/>
+						<ocx:EndPoint coordinates="2 -6 5" unit="Um"/>
 					</ocx:Line3D>
-					<ocx:Line3D id="arc22">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="2 -6 5" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="2 -5.7 2.5" unit="Um" />
-						<ocx:EndPoint cooordinates="2 -5 0" unit="Um"/>
-					</ocx:Line3D>
+					<ocx:CircumArc3D id="arc22">
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="2 -6 5" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="2 -5.7 2.5" unit="Um"/>
+						<ocx:EndPoint coordinates="2 -5 0" unit="Um"/>
+					</ocx:CircumArc3D>
 				</ocx:CompositeCurve3D>
 			</ocx:OuterContour>
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="c3ff1512-9120-405c-8916-e6368c7c738a" id="fr2-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
-						<ocx:CompositeCurve3D id="cmp2">
+						<ocx:CompositeCurve3D id="compositeCurve2">
 							<!-- does anybody check this length ? -->
-							<ocx:Length numericvalue="32" unit="Um" />
-							<ocx:Line3D id="l20">
-								<ocx:Length numericvalue="10" unit="Um" />
-								<ocx:StartPoint cooordinates="2 -5 0" unit="Um" />
-								<ocx:EndPoint cooordinates="2 5 0" unit="Um"/>
+							<ocx:Length numericvalue="32" unit="Um"/>
+							<ocx:Line3D id="line20">
+								<ocx:Length numericvalue="10" unit="Um"/>
+								<ocx:StartPoint coordinates="2 -5 0" unit="Um"/>
+								<ocx:EndPoint coordinates="2 5 0" unit="Um"/>
 							</ocx:Line3D>
-							<ocx:CircumArc3D id="arc21">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="2 5 0" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="2 5.7 2.5" unit="Um" />
-								<ocx:EndPoint cooordinates="2 6 5" unit="Um"/>
+							<ocx:CircumArc3D id="arc20">
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="2 5 0" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="2 5.7 2.5" unit="Um"/>
+								<ocx:EndPoint coordinates="2 6 5" unit="Um"/>
 							</ocx:CircumArc3D>
-							<ocx:Line3D id="l22">
-								<ocx:Length numericvalue="12" unit="Um" />
-								<ocx:StartPoint cooordinates="2 6 5" unit="Um" />
-								<ocx:EndPoint cooordinates="2 -6 5" unit="Um"/>
+							<ocx:Line3D id="line21">
+								<ocx:Length numericvalue="12" unit="Um"/>
+								<ocx:StartPoint coordinates="2 6 5" unit="Um"/>
+								<ocx:EndPoint coordinates="2 -6 5" unit="Um"/>
 							</ocx:Line3D>
-							<ocx:CircumArc3D id="arc22">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="2 -6 5" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="2 -5.7 2.5" unit="Um" />
-								<ocx:EndPoint cooordinates="2 -5 0" unit="Um"/>
+							<ocx:CircumArc3D id="arc23">
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="2 -6 5" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="2 -5.7 2.5" unit="Um"/>
+								<ocx:EndPoint coordinates="2 -5 0" unit="Um"/>
 							</ocx:CircumArc3D>
 						</ocx:CompositeCurve3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr3" ocx:GUIDRef="695ea5e1-41f9-463a-b687-ba0d46f6c2a0" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame3" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on x=3, 
 				using an inline plane
 				contour defined by a circle
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
 				<!-- an inline plane description -->
 				<ocx:Plane3D id="planeFr3">
-					<ocx:Area numericvalue="100" unit="Um2" />
-					<ocx:Origin cooordinates="3 0 0" unit="Um" />
+					<ocx:Area numericvalue="100" unit="Um2"/>
+					<ocx:Origin coordinates="3 0 0" unit="Um"/>
 					<ocx:Normal x="1" y="0" z="0"/>
 					<ocx:UDirection x="0" y="1" z="0"/>
 				</ocx:Plane3D>
 			</ocx:UnboundedGeometry>
-
 			<!-- a circle with 5 meter diameter around 3,0,2.5 -->
 			<ocx:OuterContour>
 				<ocx:Circle3D id="fr3c1">
-					<ocx:Diameter numericvalue="5" unit="Um" />
-					<ocx:Center cooordinates="3 0 2.5" unit="Um" />
+					<ocx:Length numericvalue="5" unit="Um"/>
+					<ocx:Center coordinates="3 0 2.5" unit="Um"/>
+					<ocx:Diameter numericvalue="5" unit="Um"/>
 					<ocx:Normal x="1" y="0" z="0"/>
 				</ocx:Circle3D>
 			</ocx:OuterContour>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="81945e05-0860-4b3b-ac0d-ae6868b30356" id="fr3-p0">
-					<ocx:PlateMaterial refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+					<ocx:PlateMaterial ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978" ocx:refType="ocx:Material">
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:Circle3D id="fr3c2">
-							<ocx:Diameter numericvalue="5" unit="Um" />
-							<ocx:Center cooordinates="3 0 2.5" unit="Um" />
+							<ocx:Length numericvalue="5" unit="Um"/>
+							<ocx:Center coordinates="3 0 2.5" unit="Um"/>
+							<ocx:Diameter numericvalue="5" unit="Um"/>
 							<ocx:Normal x="1" y="0" z="0"/>
 						</ocx:Circle3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr4" ocx:GUIDRef="842fb9af-b4aa-4188-ada3-e11daba8ce60" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame4" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on x=4, 
 				using an inline plane
 				contour defined by an ellipse
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
 				<!-- an inline plane description -->
 				<ocx:Plane3D id="planeFr4">
-					<ocx:Area numericvalue="100" unit="Um2" />
-					<ocx:Origin cooordinates="4 0 0" unit="Um" />
+					<ocx:Area numericvalue="100" unit="Um2"/>
+					<ocx:Origin coordinates="4 0 0" unit="Um"/>
 					<ocx:Normal x="1" y="0" z="0"/>
 					<ocx:UDirection x="0" y="1" z="0"/>
 				</ocx:Plane3D>
 			</ocx:UnboundedGeometry>
-
 			<!-- 
 				Question: why are the elements for major/minor not fixed to a min/maxOccurs == 1 ?
 				Question: is there a restriction, that major diameter > minor diameter ? 
@@ -509,169 +496,158 @@
 			-->
 			<ocx:OuterContour>
 				<ocx:Ellipse3D id="fr4e1">
-					<ocx:Center cooordinates="3 0 2.5" unit="Um" />
-					<ocx:MajorDiameter numericvalue="10" unit="Um" />
-					<ocx:MinorDiameter numericvalue="5" unit="Um" />
-					<ocx:Normal x="1" y="0" z="0"/>
+					<ocx:Length numericvalue="5" unit="Um"/>
+					<ocx:Center coordinates="3 0 2.5" unit="Um"/>
+					<ocx:MajorDiameter numericvalue="10" unit="Um"/>
+					<ocx:MinorDiameter numericvalue="5" unit="Um"/>
 					<ocx:MajorAxis x="0" y="1" z="0"/>
 					<ocx:MinorAxis x="0" y="0" z="-1"/>
+					<ocx:Normal x="1" y="0" z="0"/>
 				</ocx:Ellipse3D>
 			</ocx:OuterContour>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="81945e05-0860-4b3b-ac0d-ae6868b30356" id="fr4-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:Ellipse3D id="fr3e2">
-							<ocx:Center cooordinates="3 0 2.5" unit="Um" />
-							<ocx:MajorDiameter numericvalue="10" unit="Um" />
-							<ocx:MinorDiameter numericvalue="5" unit="Um" />
-							<ocx:Normal x="1" y="0" z="0"/>
+							<ocx:Length numericvalue="5" unit="Um"/>
+							<ocx:Center coordinates="3 0 2.5" unit="Um"/>
+							<ocx:MajorDiameter numericvalue="10" unit="Um"/>
+							<ocx:MinorDiameter numericvalue="5" unit="Um"/>
 							<ocx:MajorAxis x="0" y="1" z="0"/>
 							<ocx:MinorAxis x="0" y="0" z="-1"/>
+							<ocx:Normal x="1" y="0" z="0"/>
 						</ocx:Ellipse3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr5" ocx:GUIDRef="923a3be9-5044-485e-b387-fade6e0a5517" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame5" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on x=5, 
 				using an inline plane
 				contour defined by a circum circle
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
 				<!-- an inline plane description -->
 				<ocx:Plane3D id="planeFr5">
-					<ocx:Area numericvalue="100" unit="Um2" />
-					<ocx:Origin cooordinates="5 0 0" unit="Um" />
+					<ocx:Area numericvalue="100" unit="Um2"/>
+					<ocx:Origin coordinates="5 0 0" unit="Um"/>
 					<ocx:Normal x="1" y="0" z="0"/>
 					<ocx:UDirection x="0" y="1" z="0"/>
 				</ocx:Plane3D>
 			</ocx:UnboundedGeometry>
-
-
 			<ocx:OuterContour>
 				<ocx:CircumCircle3D id="fr5c1">
+					<ocx:Length numericvalue="5" unit="Um"/>
 					<ocx:Positions>
-						<ocx:Point3D cooordinates="5 0 0" unit="Um" />
-						<ocx:Point3D cooordinates="5 0 5" unit="Um" />
-						<ocx:Point3D cooordinates="5 -2.5 2.5" unit="Um" />
+						<ocx:Point3D coordinates="5 0 0" unit="Um"/>
+						<ocx:Point3D coordinates="5 0 5" unit="Um"/>
+						<ocx:Point3D coordinates="5 -2.5 2.5" unit="Um"/>
 					</ocx:Positions>
 				</ocx:CircumCircle3D>
 			</ocx:OuterContour>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="81945e05-0860-4b3b-ac0d-ae6868b30356" id="fr5-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
-						<ocx:CircumCircle3D>
+						<ocx:CircumCircle3D id="circle2">
+							<ocx:Length numericvalue="32" unit="Um"/>
 							<ocx:Positions>
-								<ocx:Point3D cooordinates="5 0 0" unit="Um" />
-								<ocx:Point3D cooordinates="5 0 5" unit="Um" />
-								<ocx:Point3D cooordinates="5 -2.5 2.5" unit="Um" />
+								<ocx:Point3D coordinates="5 0 0" unit="Um"/>
+								<ocx:Point3D coordinates="5 0 5" unit="Um"/>
+								<ocx:Point3D coordinates="5 -2.5 2.5" unit="Um"/>
 							</ocx:Positions>
 						</ocx:CircumCircle3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr6" ocx:GUIDRef="deacd259-1900-4bfb-9b6e-f019ef16fd1c" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame6" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on a cylindrical surface ~x=6, 
 				using a reference surface
 				contour defined by two arcs and two lines
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
-				<ocx:SurfaceRef ocx:GUIDRef="45d6ca7d-32e7-457e-8559-5aa90313bf00" ocx:refType="ocx:Surface" />
+				<ocx:SurfaceRef ocx:GUIDRef="45d6ca7d-32e7-457e-8559-5aa90313bf00" ocx:refType="ocx:Surface"/>
 			</ocx:UnboundedGeometry>
-
-
 			<!-- we cut 2x11° from the cylinder to get ~10m width x=cos(11°)*26-20=5.5223 y=sin(11°)*26=4.961
 			-->
 			<ocx:OuterContour>
 				<ocx:CompositeCurve3D id="cmp60">
 					<!-- does anybody check this length ? -->
-					<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:Length numericvalue="32" unit="Um"/>
 					<ocx:Line3D id="l60">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="5.5223 -4.961 0" unit="Um" />
-						<ocx:EndPoint cooordinates="5.5223 -4.961 5" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="5.5223 -4.961 0" unit="Um"/>
+						<ocx:EndPoint coordinates="5.5223 -4.961 5" unit="Um"/>
 					</ocx:Line3D>
 					<ocx:CircumArc3D id="arc61">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="5.5223 -4.961 5" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="6 0 5" unit="Um" />
-						<ocx:EndPoint cooordinates="5.5223 4.961 5" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="5.5223 -4.961 5" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="6 0 5" unit="Um"/>
+						<ocx:EndPoint coordinates="5.5223 4.961 5" unit="Um"/>
 					</ocx:CircumArc3D>
 					<ocx:Line3D id="l62">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="5.5223 4.961 5" unit="Um" />
-						<ocx:EndPoint cooordinates="5.5223 4.961 0" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="5.5223 4.961 5" unit="Um"/>
+						<ocx:EndPoint coordinates="5.5223 4.961 0" unit="Um"/>
 					</ocx:Line3D>
-					<ocx:Line3D id="arc63">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="5.5223 4.961 5" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="6 0 5" unit="Um" />
-						<ocx:EndPoint cooordinates="5.5223 -4.961 5" unit="Um"/>
-					</ocx:Line3D>
+					<ocx:CircumArc3D id="arc63">
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="5.5223 4.961 5" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="6 0 5" unit="Um"/>
+						<ocx:EndPoint coordinates="5.5223 -4.961 5" unit="Um"/>
+					</ocx:CircumArc3D>
 				</ocx:CompositeCurve3D>
 			</ocx:OuterContour>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="c45e8902-4633-4f9c-8a16-3cd9fac6db93" id="fr6-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:CompositeCurve3D id="cmp61">
 							<!-- does anybody check this length ? -->
-							<ocx:Length numericvalue="32" unit="Um" />
+							<ocx:Length numericvalue="32" unit="Um"/>
 							<ocx:Line3D id="l64">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="5.5223 -4.961 0" unit="Um" />
-								<ocx:EndPoint cooordinates="5.5223 -4.961 5" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="5.5223 -4.961 0" unit="Um"/>
+								<ocx:EndPoint coordinates="5.5223 -4.961 5" unit="Um"/>
 							</ocx:Line3D>
 							<ocx:CircumArc3D id="arc65">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="5.5223 -4.961 5" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="6 0 5" unit="Um" />
-								<ocx:EndPoint cooordinates="5.5223 4.961 5" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="5.5223 -4.961 5" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="6 0 5" unit="Um"/>
+								<ocx:EndPoint coordinates="5.5223 4.961 5" unit="Um"/>
 							</ocx:CircumArc3D>
 							<ocx:Line3D id="l66">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="5.5223 4.961 5" unit="Um" />
-								<ocx:EndPoint cooordinates="5.5223 4.961 0" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="5.5223 4.961 5" unit="Um"/>
+								<ocx:EndPoint coordinates="5.5223 4.961 0" unit="Um"/>
 							</ocx:Line3D>
-							<ocx:Line3D id="arc67">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="5.5223 4.961 5" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="6 0 5" unit="Um" />
-								<ocx:EndPoint cooordinates="5.5223 -4.961 5" unit="Um"/>
-							</ocx:Line3D>
+							<ocx:CircumArc3D id="arc67">
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="5.5223 4.961 5" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="6 0 5" unit="Um"/>
+								<ocx:EndPoint coordinates="5.5223 -4.961 5" unit="Um"/>
+							</ocx:CircumArc3D>
 						</ocx:CompositeCurve3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr7" ocx:GUIDRef="0c53f1ef-a79c-4814-b6a6-4b8f69c96a18" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame7" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on a cone surface ~x=6, 
 				using a reference surface
 				contour defined by two arcs and two lines
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
-				<ocx:SurfaceRef ocx:GUIDRef="a1f61277-48a9-4513-8f1a-4ff8e7fba1e7" ocx:refType="ocx:Surface" />
+				<ocx:SurfaceRef ocx:GUIDRef="a1f61277-48a9-4513-8f1a-4ff8e7fba1e7" ocx:refType="ocx:Surface"/>
 			</ocx:UnboundedGeometry>
-
-
 			<!-- we cut 2x11° from the cylinder to get ~10m width at the base x=cos(11°)*26-19=6.5223 y=sin(11°)*26=4.961
 
 				and then a second cut at z = 5 x=cos(11°)*25.5-19=6.0315 y=sin(11°)*25.5=4.8656
@@ -679,79 +655,75 @@
 			<ocx:OuterContour>
 				<ocx:CompositeCurve3D id="cmp70">
 					<!-- does anybody check this length ? -->
-					<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:Length numericvalue="32" unit="Um"/>
 					<ocx:Line3D id="l70">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="6.5223 -4.961 0" unit="Um" />
-						<ocx:EndPoint cooordinates="6.0315 -4.8656 5" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="6.5223 -4.961 0" unit="Um"/>
+						<ocx:EndPoint coordinates="6.0315 -4.8656 5" unit="Um"/>
 					</ocx:Line3D>
 					<ocx:CircumArc3D id="arc71">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="6.0315 -4.8656 5" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="6.5 0 5" unit="Um" />
-						<ocx:EndPoint cooordinates="6.0315 4.8656 5" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="6.0315 -4.8656 5" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="6.5 0 5" unit="Um"/>
+						<ocx:EndPoint coordinates="6.0315 4.8656 5" unit="Um"/>
 					</ocx:CircumArc3D>
 					<ocx:Line3D id="l72">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="6.0315 4.8656 5" unit="Um" />
-						<ocx:EndPoint cooordinates="6.5223 4.961 0" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="6.0315 4.8656 5" unit="Um"/>
+						<ocx:EndPoint coordinates="6.5223 4.961 0" unit="Um"/>
 					</ocx:Line3D>
-					<ocx:Line3D id="arc73">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="6.5223 4.961 0" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="7 0 5" unit="Um" />
-						<ocx:EndPoint cooordinates="6.5223 -4.961 0" unit="Um"/>
-					</ocx:Line3D>
+					<ocx:CircumArc3D id="arc73">
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="6.5223 4.961 0" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="7 0 5" unit="Um"/>
+						<ocx:EndPoint coordinates="6.5223 -4.961 0" unit="Um"/>
+					</ocx:CircumArc3D>
 				</ocx:CompositeCurve3D>
 			</ocx:OuterContour>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="c45e8902-4633-4f9c-8a16-3cd9fac6db93" id="fr7-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:CompositeCurve3D id="cmp71">
 							<!-- does anybody check this length ? -->
-							<ocx:Length numericvalue="32" unit="Um" />
+							<ocx:Length numericvalue="32" unit="Um"/>
 							<ocx:Line3D id="l74">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="6.5223 -4.961 0" unit="Um" />
-								<ocx:EndPoint cooordinates="6.0315 -4.8656 5" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="6.5223 -4.961 0" unit="Um"/>
+								<ocx:EndPoint coordinates="6.0315 -4.8656 5" unit="Um"/>
 							</ocx:Line3D>
 							<ocx:CircumArc3D id="arc75">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="6.0315 -4.8656 5" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="6.5 0 5" unit="Um" />
-								<ocx:EndPoint cooordinates="6.0315 4.8656 5" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="6.0315 -4.8656 5" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="6.5 0 5" unit="Um"/>
+								<ocx:EndPoint coordinates="6.0315 4.8656 5" unit="Um"/>
 							</ocx:CircumArc3D>
 							<ocx:Line3D id="l76">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="6.0315 4.8656 5" unit="Um" />
-								<ocx:EndPoint cooordinates="6.5223 4.961 0" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="6.0315 4.8656 5" unit="Um"/>
+								<ocx:EndPoint coordinates="6.5223 4.961 0" unit="Um"/>
 							</ocx:Line3D>
-							<ocx:Line3D id="arc77">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="6.5223 4.961 0" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="7 0 5" unit="Um" />
-								<ocx:EndPoint cooordinates="6.5223 -4.961 0" unit="Um"/>
-							</ocx:Line3D>
+							<ocx:CircumArc3D id="arc77">
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="6.5223 4.961 0" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="7 0 5" unit="Um"/>
+								<ocx:EndPoint coordinates="6.5223 -4.961 0" unit="Um"/>
+							</ocx:CircumArc3D>
 						</ocx:CompositeCurve3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr8" ocx:GUIDRef="2c0396ba-9944-42d5-bb37-3e2c2aa2e76f" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame8" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on a spherical cap ~x=8, 
 				using a reference surface
 				contour defined by one circle
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
-				<ocx:SurfaceRef ocx:GUIDRef="bd812b7e-9069-41dd-a0b2-47ce37612ea8" ocx:refType="ocx:Surface" />
+				<ocx:SurfaceRef ocx:GUIDRef="bd812b7e-9069-41dd-a0b2-47ce37612ea8" ocx:refType="ocx:Surface"/>
 			</ocx:UnboundedGeometry>
-
 			<!-- we cut 11° from the sphere to get spherical cap of ~10m width 
 				at z=2.5 x=cos(11°)*26-18=7.5223 y=sin(11°)*26=4.961
 				at z=0 x=cos(0°)*26-18= 8 y=sin(0)*26=0				
@@ -759,236 +731,218 @@
 			<ocx:OuterContour>
 				<ocx:CompositeCurve3D id="cmp80">
 					<!-- does anybody check this length ? -->
-					<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:Length numericvalue="32" unit="Um"/>
 					<ocx:CircumArc3D id="arc81">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="8 0 5" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="7.5233 4.961 2.5" unit="Um" />
-						<ocx:EndPoint cooordinates="8 0 0" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="8 0 5" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="7.5233 4.961 2.5" unit="Um"/>
+						<ocx:EndPoint coordinates="8 0 0" unit="Um"/>
 					</ocx:CircumArc3D>
 					<ocx:CircumArc3D id="arc82">
-						<ocx:Length numericvalue="5" unit="Um" />
-						<ocx:StartPoint cooordinates="8 0 5" unit="Um" />
-						<ocx:IntermediatePoint cooordinates="7.5233 -4.961 2.5" unit="Um" />
-						<ocx:EndPoint cooordinates="8 0 0" unit="Um"/>
+						<ocx:Length numericvalue="5" unit="Um"/>
+						<ocx:StartPoint coordinates="8 0 5" unit="Um"/>
+						<ocx:IntermediatePoint coordinates="7.5233 -4.961 2.5" unit="Um"/>
+						<ocx:EndPoint coordinates="8 0 0" unit="Um"/>
 					</ocx:CircumArc3D>
 				</ocx:CompositeCurve3D>
 			</ocx:OuterContour>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="38ae984b-63a9-4a5d-869e-5aad828d3250" id="fr8-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 					<ocx:OuterContour>
 						<ocx:CompositeCurve3D id="cmp83">
 							<!-- does anybody check this length ? -->
-							<ocx:Length numericvalue="32" unit="Um" />
+							<ocx:Length numericvalue="32" unit="Um"/>
 							<ocx:CircumArc3D id="arc84">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="8 0 5" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="7.5233 4.961 2.5" unit="Um" />
-								<ocx:EndPoint cooordinates="8 0 0" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="8 0 5" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="7.5233 4.961 2.5" unit="Um"/>
+								<ocx:EndPoint coordinates="8 0 0" unit="Um"/>
 							</ocx:CircumArc3D>
 							<ocx:CircumArc3D id="arc85">
-								<ocx:Length numericvalue="5" unit="Um" />
-								<ocx:StartPoint cooordinates="8 0 5" unit="Um" />
-								<ocx:IntermediatePoint cooordinates="7.5233 -4.961 2.5" unit="Um" />
-								<ocx:EndPoint cooordinates="8 0 0" unit="Um"/>
+								<ocx:Length numericvalue="5" unit="Um"/>
+								<ocx:StartPoint coordinates="8 0 5" unit="Um"/>
+								<ocx:IntermediatePoint coordinates="7.5233 -4.961 2.5" unit="Um"/>
+								<ocx:EndPoint coordinates="8 0 0" unit="Um"/>
 							</ocx:CircumArc3D>
 						</ocx:CompositeCurve3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr9" ocx:GUIDRef="8fb18205-5332-4464-9471-3b5c2ab09a7a" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame9" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on extruded surface ~x=9, 
 				using a reference surface
 				contour defined by one polyline
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
-				<ocx:SurfaceRef ocx:GUIDRef="6296a625-46d2-4b09-8ec6-0aba82844048" ocx:refType="ocx:Surface" />
+				<ocx:SurfaceRef ocx:GUIDRef="6296a625-46d2-4b09-8ec6-0aba82844048" ocx:refType="ocx:Surface"/>
 			</ocx:UnboundedGeometry>
-
-			<ocx:OuterContour >
+			<ocx:OuterContour>
 				<ocx:PolyLine3D id="pl90" isClosed="true">
-					<ocx:Length numericvalue="30" unit="Um" />
+					<ocx:Length numericvalue="30" unit="Um"/>
 					<ocx:Point3DList>
 						<!-- bottom, sb to ps -->
-						<ocx:Point3D cooordinates="9.0 -5 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -4.75 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -3.75 0" unit="Um" />
-						<ocx:Point3D cooordinates="9 -3.5 0" unit="Um" />
-						<ocx:Point3D cooordinates="9 -2.5 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -2.25 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -1.25 0" unit="Um" />
-						<ocx:Point3D cooordinates="9 -1 0" unit="Um" />
-						<ocx:Point3D cooordinates="9 1 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 1.25 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 2.25 0" unit="Um" />
-						<ocx:Point3D cooordinates="9 2.5 0" unit="Um" />
-						<ocx:Point3D cooordinates="9 3.5 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 3.75 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 4.75 0" unit="Um" />
-						<ocx:Point3D cooordinates="9.0 5 0" unit="Um" />
-
+						<ocx:Point3D coordinates="9.0 -5 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -4.75 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -3.75 0" unit="Um"/>
+						<ocx:Point3D coordinates="9 -3.5 0" unit="Um"/>
+						<ocx:Point3D coordinates="9 -2.5 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -2.25 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -1.25 0" unit="Um"/>
+						<ocx:Point3D coordinates="9 -1 0" unit="Um"/>
+						<ocx:Point3D coordinates="9 1 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 1.25 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 2.25 0" unit="Um"/>
+						<ocx:Point3D coordinates="9 2.5 0" unit="Um"/>
+						<ocx:Point3D coordinates="9 3.5 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 3.75 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 4.75 0" unit="Um"/>
+						<ocx:Point3D coordinates="9.0 5 0" unit="Um"/>
 						<!-- top, ps to sb -->
-						<ocx:Point3D cooordinates="9.0 5 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 4.75 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 3.75 5" unit="Um" />
-						<ocx:Point3D cooordinates="9 3.5 5" unit="Um" />
-						<ocx:Point3D cooordinates="9 2.5 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 2.25 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 1.25 5" unit="Um" />
-						<ocx:Point3D cooordinates="9 1 5" unit="Um" />
-						<ocx:Point3D cooordinates="9 -1 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -1.25 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -2.25 5" unit="Um" />
-						<ocx:Point3D cooordinates="9 -2.5 5" unit="Um" />
-						<ocx:Point3D cooordinates="9 -3.5 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -3.75 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.25 -4.75 5" unit="Um" />
-						<ocx:Point3D cooordinates="9.0 -5 5" unit="Um" />
+						<ocx:Point3D coordinates="9.0 5 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 4.75 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 3.75 5" unit="Um"/>
+						<ocx:Point3D coordinates="9 3.5 5" unit="Um"/>
+						<ocx:Point3D coordinates="9 2.5 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 2.25 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 1.25 5" unit="Um"/>
+						<ocx:Point3D coordinates="9 1 5" unit="Um"/>
+						<ocx:Point3D coordinates="9 -1 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -1.25 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -2.25 5" unit="Um"/>
+						<ocx:Point3D coordinates="9 -2.5 5" unit="Um"/>
+						<ocx:Point3D coordinates="9 -3.5 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -3.75 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.25 -4.75 5" unit="Um"/>
+						<ocx:Point3D coordinates="9.0 -5 5" unit="Um"/>
 					</ocx:Point3DList>
 				</ocx:PolyLine3D>
 			</ocx:OuterContour>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="db607738-1037-4f19-a7af-32c702085d8e" id="fr9-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
-					<ocx:OuterContour >
-						<ocx:Length numericvalue="32" unit="Um" />
+					<ocx:OuterContour>
 						<ocx:PolyLine3D id="pl91" isClosed="true">
-							<ocx:Length numericvalue="30" unit="Um" />
+							<ocx:Length numericvalue="30" unit="Um"/>
 							<ocx:Point3DList>
 								<!-- bottom, sb to ps -->
-								<ocx:Point3D cooordinates="9.0 -5 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -4.75 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -3.75 0" unit="Um" />
-								<ocx:Point3D cooordinates="9 -3.5 0" unit="Um" />
-								<ocx:Point3D cooordinates="9 -2.5 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -2.25 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -1.25 0" unit="Um" />
-								<ocx:Point3D cooordinates="9 -1 0" unit="Um" />
-								<ocx:Point3D cooordinates="9 1 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 1.25 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 2.25 0" unit="Um" />
-								<ocx:Point3D cooordinates="9 2.5 0" unit="Um" />
-								<ocx:Point3D cooordinates="9 3.5 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 3.75 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 4.75 0" unit="Um" />
-								<ocx:Point3D cooordinates="9.0 5 0" unit="Um" />
-
+								<ocx:Point3D coordinates="9.0 -5 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -4.75 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -3.75 0" unit="Um"/>
+								<ocx:Point3D coordinates="9 -3.5 0" unit="Um"/>
+								<ocx:Point3D coordinates="9 -2.5 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -2.25 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -1.25 0" unit="Um"/>
+								<ocx:Point3D coordinates="9 -1 0" unit="Um"/>
+								<ocx:Point3D coordinates="9 1 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 1.25 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 2.25 0" unit="Um"/>
+								<ocx:Point3D coordinates="9 2.5 0" unit="Um"/>
+								<ocx:Point3D coordinates="9 3.5 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 3.75 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 4.75 0" unit="Um"/>
+								<ocx:Point3D coordinates="9.0 5 0" unit="Um"/>
 								<!-- top, ps to sb -->
-								<ocx:Point3D cooordinates="9.0 5 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 4.75 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 3.75 5" unit="Um" />
-								<ocx:Point3D cooordinates="9 3.5 5" unit="Um" />
-								<ocx:Point3D cooordinates="9 2.5 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 2.25 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 1.25 5" unit="Um" />
-								<ocx:Point3D cooordinates="9 1 5" unit="Um" />
-								<ocx:Point3D cooordinates="9 -1 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -1.25 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -2.25 5" unit="Um" />
-								<ocx:Point3D cooordinates="9 -2.5 5" unit="Um" />
-								<ocx:Point3D cooordinates="9 -3.5 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -3.75 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.25 -4.75 5" unit="Um" />
-								<ocx:Point3D cooordinates="9.0 -5 5" unit="Um" />
+								<ocx:Point3D coordinates="9.0 5 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 4.75 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 3.75 5" unit="Um"/>
+								<ocx:Point3D coordinates="9 3.5 5" unit="Um"/>
+								<ocx:Point3D coordinates="9 2.5 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 2.25 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 1.25 5" unit="Um"/>
+								<ocx:Point3D coordinates="9 1 5" unit="Um"/>
+								<ocx:Point3D coordinates="9 -1 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -1.25 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -2.25 5" unit="Um"/>
+								<ocx:Point3D coordinates="9 -2.5 5" unit="Um"/>
+								<ocx:Point3D coordinates="9 -3.5 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -3.75 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.25 -4.75 5" unit="Um"/>
+								<ocx:Point3D coordinates="9.0 -5 5" unit="Um"/>
 							</ocx:Point3DList>
 						</ocx:PolyLine3D>
 					</ocx:OuterContour>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr10" ocx:GUIDRef="0d7dcbf5-b065-4d83-a583-4ec2e2abde92" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame10" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on extruded surface ~x=10, 
 				using a reference surface
 				no contour, as surface is restricted anyhow
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
-				<ocx:SurfaceRef ocx:GUIDRef="422efa1d-b7f0-4913-9d2c-3154aba8a379" ocx:refType="ocx:Surface" />
+				<ocx:SurfaceRef ocx:GUIDRef="422efa1d-b7f0-4913-9d2c-3154aba8a379" ocx:refType="ocx:Surface"/>
 			</ocx:UnboundedGeometry>
-
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="5eb28f14-dec5-4544-aa5b-cea3b067a590" id="fr10-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
 		<ocx:Panel id="panelFr11" ocx:GUIDRef="256e623b-6234-4d71-93ca-17b782501bc5" ocx:functionType="TRANSVERSAL_BULKHEAD" name="Frame11" ocx:tightness="WaterTight">
 			<ocx:Description>A panel on surface collection ~x=11, 
 				using a reference surface which is already limited			
 				one plate</ocx:Description>
-
 			<ocx:UnboundedGeometry>
-				<ocx:SurfaceRef ocx:GUIDRef="fe79b0ab-3621-4738-843f-5376b35b97db" ocx:refType="ocx:Surface" />
+				<ocx:SurfaceRef ocx:GUIDRef="fe79b0ab-3621-4738-843f-5376b35b97db" ocx:refType="ocx:Surface"/>
 			</ocx:UnboundedGeometry>
-
 			<ocx:ComposedOf>
 				<ocx:Plate ocx:GUIDRef="19afff28-9282-4cc5-a732-0d9f6423249b" id="fr11-p0">
 					<ocx:PlateMaterial ocx:refType="ocx:Material" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-						<ocx:Thickness numericvalue="10" unit="Umm" />
+						<ocx:Thickness numericvalue="10" unit="Umm"/>
 					</ocx:PlateMaterial>
 				</ocx:Plate>
 			</ocx:ComposedOf>
 		</ocx:Panel>
-
-
 		<!-- TODO: a panel on x~12 using a NURBs Surface -->
-
 	</ocx:Vessel>
 	<ocx:ClassCatalogue id="nplcid2">
 		<ocx:MaterialCatalogue id="nplcid3">
 			<ocx:Material id="nplcid4" name="A" ocx:grade="A" ocx:GUIDRef="ae011c45-b6c5-4676-a2ba-a070a774c978">
-				<ocx:Density numericvalue="7850" unit="UKgOverm3" />
-				<ocx:YoungsModulus numericvalue="206000" unit="UNOvermm2" />
-				<ocx:PoissonRatio numericvalue="0.3" unit="UDimless" />
-				<ocx:YieldStress numericvalue="235" unit="UNOvermm2" />
-				<ocx:UltimateStress numericvalue="400" unit="UNOvermm2" />
+				<ocx:Density numericvalue="7850" unit="UKgOverm3"/>
+				<ocx:YoungsModulus numericvalue="206000" unit="UNOvermm2"/>
+				<ocx:PoissonRatio numericvalue="0.3" unit="UDimless"/>
+				<ocx:YieldStress numericvalue="235" unit="UNOvermm2"/>
+				<ocx:UltimateStress numericvalue="400" unit="UNOvermm2"/>
 			</ocx:Material>
 		</ocx:MaterialCatalogue>
 		<ocx:XSectionCatalogue id="nplcid5">
 			<ocx:BarSection id="nplcid6" name="250X12 + 100X12 (L)" ocx:GUIDRef="bb8f7f0a-c6fb-440b-ae68-db8a1ecfc2fe">
 				<ocx:LBar>
-					<ocx:Height numericvalue="0.25" unit="Um" />
-					<ocx:Width numericvalue="0.1" unit="Um" />
-					<ocx:WebThickness numericvalue="0.012" unit="Um" />
-					<ocx:FlangeThickness numericvalue="0.012" unit="Um" />
+					<ocx:Height numericvalue="0.25" unit="Um"/>
+					<ocx:Width numericvalue="0.1" unit="Um"/>
+					<ocx:WebThickness numericvalue="0.012" unit="Um"/>
+					<ocx:FlangeThickness numericvalue="0.012" unit="Um"/>
 				</ocx:LBar>
 			</ocx:BarSection>
 			<ocx:BarSection id="nplcid7" name="220X10 + 120X10 F.B(T)" ocx:GUIDRef="53d23d5a-0d4f-40b0-8e89-78d491ec3602">
 				<ocx:TBar>
-					<ocx:Height numericvalue="0.22" unit="Um" />
-					<ocx:Width numericvalue="0.12" unit="Um" />
-					<ocx:WebThickness numericvalue="0.01" unit="Um" />
-					<ocx:FlangeThickness numericvalue="0.01" unit="Um" />
+					<ocx:Height numericvalue="0.22" unit="Um"/>
+					<ocx:Width numericvalue="0.12" unit="Um"/>
+					<ocx:WebThickness numericvalue="0.01" unit="Um"/>
+					<ocx:FlangeThickness numericvalue="0.01" unit="Um"/>
 				</ocx:TBar>
 			</ocx:BarSection>
 			<ocx:BarSection id="nplcid8" name="FL160X10" ocx:GUIDRef="cd94c625-2c8b-4107-a2a6-38d3aa22f416">
 				<ocx:FlatBar>
-					<ocx:Height numericvalue="0.16" unit="Um" />
-					<ocx:Width numericvalue="0.01" unit="Um" />
+					<ocx:Height numericvalue="0.16" unit="Um"/>
+					<ocx:Width numericvalue="0.01" unit="Um"/>
 				</ocx:FlatBar>
 			</ocx:BarSection>
 		</ocx:XSectionCatalogue>
 		<ocx:HoleShapeCatalogue id="nplcid9">
 			<ocx:Hole2D id="nplcid11" name="E500X1000" ocx:GUIDRef="49984a26-3f9a-4880-ac07-42cf1b2ec366">
 				<ocx:RectangularHole id="nplcid10">
-					<ocx:Height numericvalue="1" unit="Um" />
-					<ocx:Width numericvalue="0.5" unit="Um" />
-					<ocx:FilletRadius numericvalue="0.25" unit="Um" />
+					<ocx:Height numericvalue="1" unit="Um"/>
+					<ocx:Width numericvalue="0.5" unit="Um"/>
+					<ocx:FilletRadius numericvalue="0.25" unit="Um"/>
 				</ocx:RectangularHole>
 			</ocx:Hole2D>
 		</ocx:HoleShapeCatalogue>
@@ -997,133 +951,133 @@
 		<unitsml:UnitSet>
 			<unitsml:Unit xml:id="Um" dimensionURL="D_L">
 				<unitsml:UnitName xml:lang="en-us">meter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="m" />
+				<unitsml:UnitSymbol type="m"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1" />
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="Um2" dimensionURL="D_L2">
 				<unitsml:UnitName xml:lang="en-us">square meter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="m2" />
+				<unitsml:UnitSymbol type="m2"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="2" />
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="2"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="Um3" dimensionURL="D_L3">
 				<unitsml:UnitName xml:lang="en-us">cubic meter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="m3" />
+				<unitsml:UnitSymbol type="m3"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="3" />
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="3"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="Ucm" dimensionURL="D_L">
 				<unitsml:UnitName xml:lang="en-us">centimeter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="cm" />
+				<unitsml:UnitSymbol type="cm"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1" prefix="c" />
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1" prefix="c"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="Ucm2" dimensionURL="D_L2">
 				<unitsml:UnitName xml:lang="en-us">square centimeter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="cm2" />
+				<unitsml:UnitSymbol type="cm2"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="2" prefix="c" />
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="2" prefix="c"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="Ucm4" dimensionURL="D_L4">
 				<unitsml:UnitName xml:lang="en-us">double square centimeter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="cm4" />
+				<unitsml:UnitSymbol type="cm4"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="4" prefix="c" />
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="4" prefix="c"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="Umm" dimensionURL="D_L">
 				<unitsml:UnitName xml:lang="en-us">millimeter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="mm" />
+				<unitsml:UnitSymbol type="mm"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1" prefix="m" />
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="1" prefix="m"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="UKnots" dimensionURL="D_L.T-1">
 				<unitsml:UnitName xml:lang="en-us">knot</unitsml:UnitName>
-				<unitsml:UnitSymbol type="kn" />
+				<unitsml:UnitSymbol type="kn"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="knot" powerNumerator="1" />
+					<unitsml:EnumeratedRootUnit unit="knot" powerNumerator="1"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="URad" dimensionURL="D_L">
 				<unitsml:UnitName xml:lang="en-us">angle</unitsml:UnitName>
-				<unitsml:UnitSymbol type="rad" />
+				<unitsml:UnitSymbol type="rad"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="radian" powerNumerator="1" />
+					<unitsml:EnumeratedRootUnit unit="radian" powerNumerator="1"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="UKg" dimensionURL="D_Kg">
 				<unitsml:UnitName xml:lang="en-us">kilo gram</unitsml:UnitName>
-				<unitsml:UnitSymbol type="kg" />
+				<unitsml:UnitSymbol type="kg"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="gram" powerNumerator="1" prefix="k" />
+					<unitsml:EnumeratedRootUnit unit="gram" powerNumerator="1" prefix="k"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="UKgOverm3" dimensionURL="D_Kg.M-3">
 				<unitsml:UnitName xml:lang="en-us">kilo gram per cubic meter</unitsml:UnitName>
-				<unitsml:UnitSymbol type="kg/m3" />
+				<unitsml:UnitSymbol type="kg/m3"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="gram" powerNumerator="1" prefix="k" />
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-3" />
+					<unitsml:EnumeratedRootUnit unit="gram" powerNumerator="1" prefix="k"/>
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-3"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="UNOvermm2" dimensionURL="D_N.MM-2">
 				<unitsml:UnitName xml:lang="en-us">newton</unitsml:UnitName>
-				<unitsml:UnitSymbol type="N" />
+				<unitsml:UnitSymbol type="N"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="newton" powerNumerator="1" />
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-2" prefix="m" />
+					<unitsml:EnumeratedRootUnit unit="newton" powerNumerator="1"/>
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-2" prefix="m"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="UNOverm2" dimensionURL="D_N.MM-2">
 				<unitsml:UnitName xml:lang="en-us">newton</unitsml:UnitName>
-				<unitsml:UnitSymbol type="N" />
+				<unitsml:UnitSymbol type="N"/>
 				<unitsml:RootUnits>
-					<unitsml:EnumeratedRootUnit unit="newton" powerNumerator="1" />
-					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-2" />
+					<unitsml:EnumeratedRootUnit unit="newton" powerNumerator="1"/>
+					<unitsml:EnumeratedRootUnit unit="meter" powerNumerator="-2"/>
 				</unitsml:RootUnits>
 			</unitsml:Unit>
 			<unitsml:Unit xml:id="UDimless" dimensionURL="D_None">
-				<unitsml:UnitName xml:lang="en-us" />
-				<unitsml:UnitSymbol type="UNonDim" />
+				<unitsml:UnitName xml:lang="en-us"/>
+				<unitsml:UnitSymbol type="UNonDim"/>
 			</unitsml:Unit>
 		</unitsml:UnitSet>
 		<unitsml:DimensionSet>
 			<unitsml:Dimension xml:id="D_L">
-				<unitsml:Length symbol="L" />
+				<unitsml:Length symbol="L"/>
 			</unitsml:Dimension>
 			<unitsml:Dimension xml:id="D_L2">
-				<unitsml:Length symbol="L" powerNumerator="2" />
+				<unitsml:Length symbol="L" powerNumerator="2"/>
 			</unitsml:Dimension>
 			<unitsml:Dimension xml:id="D_L3">
-				<unitsml:Length symbol="L" powerNumerator="3" />
+				<unitsml:Length symbol="L" powerNumerator="3"/>
 			</unitsml:Dimension>
 			<unitsml:Dimension xml:id="D_L4">
-				<unitsml:Length symbol="L" powerNumerator="4" />
+				<unitsml:Length symbol="L" powerNumerator="4"/>
 			</unitsml:Dimension>
 			<unitsml:Dimension xml:id="D_L.T-1">
-				<unitsml:Length symbol="L" />
-				<unitsml:Time symbol="T" powerNumerator="-1" />
+				<unitsml:Length symbol="L"/>
+				<unitsml:Time symbol="T" powerNumerator="-1"/>
 			</unitsml:Dimension>
 			<unitsml:Dimension xml:id="D_Kg">
-				<unitsml:Mass symbol="M" />
+				<unitsml:Mass symbol="M"/>
 			</unitsml:Dimension>
 			<unitsml:Dimension xml:id="D_Kg.M-3">
-				<unitsml:Mass symbol="M" />
-				<unitsml:Length symbol="L" powerNumerator="-3" />
+				<unitsml:Mass symbol="M"/>
+				<unitsml:Length symbol="L" powerNumerator="-3"/>
 			</unitsml:Dimension>
 			<unitsml:Dimension xml:id="D_N.MM-2">
-				<unitsml:Length symbol="L" />
-				<unitsml:Mass symbol="M" />
-				<unitsml:Time symbol="T" powerNumerator="-1" />
+				<unitsml:Length symbol="L"/>
+				<unitsml:Mass symbol="M"/>
+				<unitsml:Time symbol="T" powerNumerator="-1"/>
 			</unitsml:Dimension>
-			<unitsml:Dimension xml:id="D_None" dimensionless="true" />
+			<unitsml:Dimension xml:id="D_None" dimensionless="true"/>
 		</unitsml:DimensionSet>
 	</unitsml:UnitsML>
 </ocx:ocxXML>
