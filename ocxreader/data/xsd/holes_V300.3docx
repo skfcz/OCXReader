@@ -1,8 +1,9 @@
-<ocxXML xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd"
-    schemaVersion="3.0.0b3" xsi:schemaLocation="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd OCX_Schema.xsd"
+<ocx:ocxXML xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd"
+    schemaVersion="3.0.0b4" 
+    xsi:schemaLocation="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd OCX_Schema.xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
     <ocx:Header name="Geometry" author="" organization="" time_stamp="2023-10-27T17:17:00.00+02:00" 
-        originating_system="manual" documentation="geometry test" application_version=""  />
+        originating_system="manual" documentation="geometry test" application_version=""   license="Copyright 2023 Open Class 3D Exchange (OCX) Consortium (https://3docx.org)    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);     You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    Unless required by applicable law or agreed to in writing, the 3Docx standard and software distributed under the License is distributed on an     &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.    The OCX Consortium is not liable to any use whatsoever of the distributed standard or software based on the standard.    See the License for the specific language governing permissions and limitations under the License. "/>
     <ocx:Vessel id="i1" name="Geometry" ocx:GUIDRef="21e4ca75-f2cf-4b34-90d2-889c89fa53f3">
         <ocx:DistanceTolerance numericvalue="1" unit="Umm"/>
         <ocx:AngleTolerance numericvalue="0.05" unit="URad"/>
@@ -455,4 +456,4 @@
         </unitsml:DimensionSet>
     </unitsml:UnitsML>
 
-</ocxXML>
+</ocx:ocxXML>

@@ -7,13 +7,14 @@
 			"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
 			The OCX Consortium is not liable to any use whatsoever of the distributed standard or software based on the standard.
 			See the License for the specific language governing permissions and limitations under the License.  -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-		   xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b3//OCX_Schema.xsd"
-		   xmlns:unitsml="urn:oasis:names:tc:unitsml:schema:xsd:UnitsMLSchema_lite-0.9.18"
-		   targetNamespace="https://3docx.org/fileadmin//ocx_schema//V300b3//OCX_Schema.xsd" elementFormDefault="qualified" attributeFormDefault="unqualified" vc:minVersion="1.0">
+<xs:schema
+		xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+		xmlns:ocx="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd"
+		xmlns:unitsml="urn:oasis:names:tc:unitsml:schema:xsd:UnitsMLSchema_lite-0.9.18"
+		targetNamespace="https://3docx.org/fileadmin//ocx_schema//V300b4//OCX_Schema.xsd" elementFormDefault="qualified" attributeFormDefault="unqualified" vc:minVersion="1.0">
 	<!-- Import the NIST unitsML lite schema -->
-	<xs:import namespace="urn:oasis:names:tc:unitsml:schema:xsd:UnitsMLSchema_lite-0.9.18"
-			   schemaLocation="unitsmlSchema_lite-0.9.18.xsd"/>
+	<xs:import namespace="urn:oasis:names:tc:unitsml:schema:xsd:UnitsMLSchema_lite-0.9.18" schemaLocation="https://3docx.org/fileadmin/ocx_schema/unitsml/unitsmlSchema_lite-0.9.18.xsd"/>
 	<xs:annotation>
 		<xs:documentation>
 			Copyright 2023 Open Class 3D Exchange (OCX) Consortium (https://3docx.org)
@@ -99,7 +100,7 @@
 		<xs:sequence>
 			<xs:element ref="ocx:Header"/>
 		</xs:sequence>
-		<xs:attribute name="schemaVersion" type="xs:string" use="required" fixed="3.0.0b3">
+		<xs:attribute name="schemaVersion" type="xs:string" use="required" fixed="3.0.0b4">
 			<xs:annotation>
 				<xs:documentation>Current XML schema version (Format - x.y.z) x : Incremented for backward incompatible changes ( Ex - Adding a required attribute, etc.) y : Major backward compatible changes [ Ex - Adding a new node ,fixing major CRs,etc..] z : Minor backward compatible changes (Ex - adding an optional attribute, etc).</xs:documentation>
 			</xs:annotation>
@@ -3747,7 +3748,7 @@ m=+n-1 knots where p is the polynomial basis degree and n is the number of contr
 		<xs:annotation>
 			<xs:documentation>Type definition of a compact definition of  a point in 3D space composed of  a list of 3 X, Y and Z coordinate values all of same unit given by the unit ID.</xs:documentation>
 		</xs:annotation>
-		<xs:attribute name="cooordinates" type="ocx:doubleListType" use="required"/>
+		<xs:attribute name="coordinates" type="ocx:doubleListType" use="required"/>
 		<xs:attribute name="unit" type="xs:IDREF" use="required"/>
 	</xs:complexType>
 	<xs:element name="Point3DList" type="ocx:Point3DList_T">
@@ -4088,7 +4089,7 @@ m=+n-1 knots where p is the polynomial basis degree and n is the number of contr
 				</xs:enumeration>
 				<xs:enumeration value="SHELL: Bilge keel">
 					<xs:annotation>
-						<xs:documentation>Bilge Keel is a piece of plate set perpendicular to a ship’s shell along her bilges for about one third her length to reduce rolling.&gt;.</xs:documentation>
+						<xs:documentation>Bilge Keel is a piece of plate set perpendicular to a shipâ€™s shell along her bilges for about one third her length to reduce rolling.&gt;.</xs:documentation>
 					</xs:annotation>
 				</xs:enumeration>
 				<xs:enumeration value="SHELL: Bilge strake">
@@ -4103,7 +4104,7 @@ m=+n-1 knots where p is the polynomial basis degree and n is the number of contr
 				</xs:enumeration>
 				<xs:enumeration value="SHELL: Bulwark shell">
 					<xs:annotation>
-						<xs:documentation>Bulwark is the vertical plating immediately above the upper edge of the ship’s side surrounding the exposed deck(s).</xs:documentation>
+						<xs:documentation>Bulwark is the vertical plating immediately above the upper edge of the shipâ€™s side surrounding the exposed deck(s).</xs:documentation>
 					</xs:annotation>
 				</xs:enumeration>
 				<xs:enumeration value="SHELL: Inner bottom shell">
@@ -4413,9 +4414,9 @@ m=+n-1 knots where p is the polynomial basis degree and n is the number of contr
 			<xs:annotation>
 				<xs:documentation>Enumerated free-board types according to the Rules. 
 Type &apos;A&apos; ship is one which:
-— is designed to carry only liquid cargoes in bulk
-— has a high integrity of the exposed deck with only small access openings to cargo compartments, closed by watertight gasket covers of steel or equivalent material
-— has low permeability of loaded cargo compartments. All ships which are not Type &apos;A&apos; ships shall be considered as Type &apos;B&apos; ships.						.</xs:documentation>
+â€” is designed to carry only liquid cargoes in bulk
+â€” has a high integrity of the exposed deck with only small access openings to cargo compartments, closed by watertight gasket covers of steel or equivalent material
+â€” has low permeability of loaded cargo compartments. All ships which are not Type &apos;A&apos; ships shall be considered as Type &apos;B&apos; ships.						.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="numberOfDecksAbove" type="xs:int">
@@ -4441,7 +4442,7 @@ Type &apos;A&apos; ship is one which:
 		</xs:attribute>
 		<xs:attribute name="numberIMO" type="xs:string" use="optional">
 			<xs:annotation>
-				<xs:documentation>A unique identification of a vessel according to IMO resolution A.600(15). It is made of the three letters “IMO” in front of the Lloyd’s Register number. This is a unique seven-digit number that is assigned to propelled, sea-going merchant ships of 100 GT and above upon keel laying (with some exceptions), see: IACS Procedural Requirements No. 11, IACS Procedure for Assigning Date of Build, 1996. https://www.imo.org/en/OurWork/IIIS/Pages/IMO-Identification-Number-Schemes.aspx: Information on IMO ship identification number scheme on the website of the IMO.</xs:documentation>
+				<xs:documentation>A unique identification of a vessel according to IMO resolution A.600(15). It is made of the three letters â€œIMOâ€ in front of the Lloydâ€™s Register number. This is a unique seven-digit number that is assigned to propelled, sea-going merchant ships of 100 GT and above upon keel laying (with some exceptions), see: IACS Procedural Requirements No. 11, IACS Procedure for Assigning Date of Build, 1996. https://www.imo.org/en/OurWork/IIIS/Pages/IMO-Identification-Number-Schemes.aspx: Information on IMO ship identification number scheme on the website of the IMO.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="shipType" type="xs:string" use="optional">
@@ -5453,7 +5454,7 @@ Type &apos;A&apos; ship is one which:
 			</xs:enumeration>
 			<xs:enumeration value="TL">
 				<xs:annotation>
-					<xs:documentation>Türk Loydu Vakfi.</xs:documentation>
+					<xs:documentation>TÃ¼rk Loydu Vakfi.</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 			<xs:enumeration value="UR">
